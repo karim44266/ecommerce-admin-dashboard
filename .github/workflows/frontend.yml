@@ -1,0 +1,142 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  NODE_VERSION: 20
+
+jobs:
+  ci:
+    name: Lint, Test, Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests (if present)
+        run: npm run test --if-present
+
+      - name: Build
+        run: npm run build
+
+  deploy-staging:
+    name: Deploy to Staging
+    needs: ci
+    runs-on: ubuntu-latest
+    environment: staging
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload build to staging
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: ${{ secrets.STAGING_PORT }}
+          source: "build/*"
+          target: ${{ secrets.STAGING_DEPLOY_PATH }}
+          strip_components: 1
+
+      - name: Post-deploy (optional)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: ${{ secrets.STAGING_PORT }}
+          script: |
+            if [ -n "${{ secrets.STAGING_POST_DEPLOY }}" ]; then
+              ${{ secrets.STAGING_POST_DEPLOY }}
+            fi
+
+  deploy-production:
+    name: Deploy to Production
+    needs: ci
+    runs-on: ubuntu-latest
+    environment: production
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload build to production
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          port: ${{ secrets.PRODUCTION_PORT }}
+          source: "build/*"
+          target: ${{ secrets.PRODUCTION_DEPLOY_PATH }}
+          strip_components: 1
+
+      - name: Post-deploy (optional)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          port: ${{ secrets.PRODUCTION_PORT }}
+          script: |
+            if [ -n "${{ secrets.PRODUCTION_POST_DEPLOY }}" ]; then
+              ${{ secrets.PRODUCTION_POST_DEPLOY }}
+            fi
+
+  automerge:
+    name: Enable Auto-merge (optional)
+    needs: ci
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enable auto-merge
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          pull-request-number: ${{ github.event.pull_request.number }}
+          merge-method: squash
