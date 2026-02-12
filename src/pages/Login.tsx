@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
+  CAlert,
   CButton,
   CCard,
   CCardBody,
@@ -9,16 +10,14 @@ import {
   CContainer,
   CForm,
   CFormInput,
-  CFormSelect,
   CInputGroup,
   CInputGroupText,
   CRow,
-  CAlert,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
-import api from '../../services/api'
-import { setAuth } from './authStorage'
+import { setAuth } from '../modules/auth/authStorage'
+import { getApiErrorMessage, login } from '../services/authService'
 
 const Login = () => {
   const navigate = useNavigate()
@@ -26,28 +25,35 @@ const Login = () => {
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleChange = (event) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target
     setFormState((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setIsSubmitting(true)
     setError('')
 
     try {
-      // TODO: Replace with real authentication endpoint.
-      const response = await api.post('/auth/login', {
-        email: formState.email,
-        password: formState.password,
-      })
+      const response = await login(formState.email, formState.password)
 
-      const { token, role } = response.data
-      setAuth(token, role || 'admin')
-      navigate('/', { replace: true })
+      if (response?.accessToken) {
+        setAuth(response.accessToken, 'admin')
+        sessionStorage.removeItem('mfa_email')
+        navigate('/', { replace: true })
+        return
+      }
+
+      if (response?.mfaRequired) {
+        sessionStorage.setItem('mfa_email', formState.email)
+        navigate('/mfa', { state: { email: formState.email } })
+        return
+      }
+
+      setError('Unexpected response from server. Please try again.')
     } catch (err) {
-      setError('Unable to authenticate. Connect the backend auth endpoint to proceed.')
+      setError(getApiErrorMessage(err))
     } finally {
       setIsSubmitting(false)
     }
@@ -57,7 +63,7 @@ const Login = () => {
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
         <CRow className="justify-content-center">
-          <CCol md={8}>
+          <CCol md={8} lg={6}>
             <CCardGroup className="shadow-sm">
               <CCard className="p-4">
                 <CCardBody>
@@ -93,16 +99,10 @@ const Login = () => {
                         required
                       />
                     </CInputGroup>
-                    <div className="mb-4" />
                     <CRow>
-                      <CCol xs={6}>
+                      <CCol xs={12}>
                         <CButton color="primary" type="submit" disabled={isSubmitting}>
                           {isSubmitting ? 'Signing in...' : 'Sign in'}
-                        </CButton>
-                      </CCol>
-                      <CCol xs={6} className="text-end">
-                        <CButton color="link" className="px-0" disabled>
-                          Forgot password?
                         </CButton>
                       </CCol>
                     </CRow>
@@ -113,13 +113,7 @@ const Login = () => {
                 <CCardBody className="text-center">
                   <div>
                     <h2>Welcome back</h2>
-                    <p>
-                      Manage products, orders, users, and delivery operations from your ecommerce
-                      admin dashboard.
-                    </p>
-                    <CButton color="light" variant="outline" disabled>
-                      Contact support
-                    </CButton>
+                    <p>Manage products, orders, users, and delivery operations.</p>
                   </div>
                 </CCardBody>
               </CCard>

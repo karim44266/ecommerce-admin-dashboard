@@ -43,7 +43,6 @@ jobs:
     name: Deploy to Staging
     needs: ci
     runs-on: ubuntu-latest
-    environment: staging
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     steps:
       - name: Checkout
@@ -88,7 +87,6 @@ jobs:
     name: Deploy to Production
     needs: ci
     runs-on: ubuntu-latest
-    environment: production
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
