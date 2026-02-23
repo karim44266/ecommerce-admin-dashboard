@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   CButton,
@@ -15,20 +15,30 @@ import {
   CAlert,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser } from '@coreui/icons'
+import { cilLockLocked, cilEnvelopeClosed } from '@coreui/icons'
 import api from '../../services/api'
-import { getRolesFromToken, setAuth, setPendingMfaEmail } from './authStorage'
+import {
+  clearPendingMfaEmail,
+  getPendingMfaEmail,
+  getRolesFromToken,
+  setAuth,
+} from './authStorage'
 
-const Login = () => {
+const Mfa = () => {
   const navigate = useNavigate()
-  const [formState, setFormState] = useState({ email: '', password: '' })
+  const [email, setEmail] = useState('')
+  const [otp, setOtp] = useState('')
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleChange = (event) => {
-    const { name, value } = event.target
-    setFormState((prev) => ({ ...prev, [name]: value }))
-  }
+  useEffect(() => {
+    const pendingEmail = getPendingMfaEmail()
+    if (!pendingEmail) {
+      navigate('/login', { replace: true })
+      return
+    }
+    setEmail(pendingEmail)
+  }, [navigate])
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -36,31 +46,28 @@ const Login = () => {
     setError('')
 
     try {
-      const response = await api.post('/auth/login', {
-        email: formState.email,
-        password: formState.password,
-      })
+      const response = await api.post('/auth/mfa/verify', { email, otp })
+      const { accessToken } = response.data
 
-      const { accessToken, mfaRequired } = response.data
-      if (accessToken) {
-        const roles = getRolesFromToken(accessToken)
-        setAuth(accessToken, roles)
-        navigate('/', { replace: true })
+      if (!accessToken) {
+        setError('Unexpected response from server. Please try again.')
         return
       }
 
-      if (mfaRequired) {
-        setPendingMfaEmail(formState.email)
-        navigate('/mfa', { replace: true })
-        return
-      }
-
-      setError('Unexpected response from server. Please try again.')
+      const roles = getRolesFromToken(accessToken)
+      setAuth(accessToken, roles)
+      clearPendingMfaEmail()
+      navigate('/', { replace: true })
     } catch (err) {
-      setError('Unable to authenticate. Please check your credentials.')
+      setError('Invalid or expired code. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleBackToLogin = () => {
+    clearPendingMfaEmail()
+    navigate('/login', { replace: true })
   }
 
   return (
@@ -71,48 +78,42 @@ const Login = () => {
             <CCardGroup className="shadow-sm">
               <CCard className="p-4">
                 <CCardBody>
-                  <h1>Login</h1>
-                  <p className="text-body-secondary">Sign in to your account</p>
+                  <h1>Verify MFA</h1>
+                  <p className="text-body-secondary">
+                    Enter the 6-digit code sent to your email.
+                  </p>
                   {error && <CAlert color="danger">{error}</CAlert>}
                   <CForm onSubmit={handleSubmit}>
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
-                        <CIcon icon={cilUser} />
+                        <CIcon icon={cilEnvelopeClosed} />
                       </CInputGroupText>
-                      <CFormInput
-                        type="email"
-                        name="email"
-                        placeholder="admin@company.com"
-                        autoComplete="email"
-                        value={formState.email}
-                        onChange={handleChange}
-                        required
-                      />
+                      <CFormInput type="email" value={email} disabled />
                     </CInputGroup>
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
                         <CIcon icon={cilLockLocked} />
                       </CInputGroupText>
                       <CFormInput
-                        type="password"
-                        name="password"
-                        placeholder="••••••••"
-                        autoComplete="current-password"
-                        value={formState.password}
-                        onChange={handleChange}
+                        type="text"
+                        inputMode="numeric"
+                        name="otp"
+                        placeholder="123456"
+                        value={otp}
+                        onChange={(event) => setOtp(event.target.value)}
                         required
+                        maxLength={6}
                       />
                     </CInputGroup>
-                    <div className="mb-4" />
                     <CRow>
                       <CCol xs={6}>
                         <CButton color="primary" type="submit" disabled={isSubmitting}>
-                          {isSubmitting ? 'Signing in...' : 'Sign in'}
+                          {isSubmitting ? 'Verifying...' : 'Verify'}
                         </CButton>
                       </CCol>
                       <CCol xs={6} className="text-end">
-                        <CButton color="link" className="px-0" disabled>
-                          Forgot password?
+                        <CButton color="link" className="px-0" onClick={handleBackToLogin}>
+                          Back to login
                         </CButton>
                       </CCol>
                     </CRow>
@@ -122,13 +123,10 @@ const Login = () => {
               <CCard className="text-white bg-primary py-5" style={{ width: '44%' }}>
                 <CCardBody className="text-center">
                   <div>
-                    <h2>Welcome back</h2>
-                    <p>
-                      Manage products, orders, users, and delivery operations from your ecommerce
-                      admin dashboard.
-                    </p>
+                    <h2>Secure sign-in</h2>
+                    <p>We sent a one-time code to keep your account safe.</p>
                     <CButton color="light" variant="outline" disabled>
-                      Contact support
+                      Need help?
                     </CButton>
                   </div>
                 </CCardBody>
@@ -141,4 +139,4 @@ const Login = () => {
   )
 }
 
-export default Login
+export default Mfa

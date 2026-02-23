@@ -1,13 +1,16 @@
 import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
-import { getRole, isAuthenticated } from './authStorage'
+import { getRoles, isAuthenticated } from './authStorage'
 
-const ProtectedRoute = ({ roles = ['admin'] }) => {
+const ProtectedRoute = ({ roles = ['ADMIN'] }) => {
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />
   }
 
-  if (roles.length > 0 && !roles.includes(getRole())) {
+  const userRoles = getRoles()
+  const requiredRoles = roles.map((role) => role.toUpperCase())
+
+  if (requiredRoles.length > 0 && !requiredRoles.some((role) => userRoles.includes(role))) {
     return <Navigate to="/login" replace />
   }
 
