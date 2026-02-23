@@ -19,6 +19,8 @@ const UsersBlock = React.lazy(() => import('../modules/users/UsersBlock'))
 const DeliveryAssign = React.lazy(() => import('../modules/delivery/DeliveryAssign'))
 const DeliveryStatus = React.lazy(() => import('../modules/delivery/DeliveryStatus'))
 
+const MfaSettings = React.lazy(() => import('../modules/auth/MfaSettings'))
+
 const routes = [
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
 
@@ -38,6 +40,8 @@ const routes = [
 
   { path: '/delivery/assign', name: 'Assign Delivery', element: DeliveryAssign },
   { path: '/delivery/status', name: 'Delivery Status', element: DeliveryStatus },
+
+  { path: '/settings/mfa', name: 'MFA Settings', element: MfaSettings },
 ]
 
 export default routes
