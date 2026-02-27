@@ -43,7 +43,7 @@ const App = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/mfa" element={<Mfa />} />
-          <Route element={<ProtectedRoute roles={['admin']} />}>
+          <Route element={<ProtectedRoute roles={['ADMIN']} />}>
             <Route path="*" element={<DefaultLayout />} />
           </Route>
         </Routes>

@@ -16,7 +16,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
-import { setAuth } from '../modules/auth/authStorage'
+import { getRolesFromToken, setAuth, setPendingMfaEmail } from '../modules/auth/authStorage'
 import { getApiErrorMessage, login } from '../services/authService'
 
 const Login = () => {
@@ -39,15 +39,15 @@ const Login = () => {
       const response = await login(formState.email, formState.password)
 
       if (response?.accessToken) {
-        setAuth(response.accessToken, 'admin')
-        sessionStorage.removeItem('mfa_email')
+        const roles = getRolesFromToken(response.accessToken)
+        setAuth(response.accessToken, roles)
         navigate('/', { replace: true })
         return
       }
 
       if (response?.mfaRequired) {
-        sessionStorage.setItem('mfa_email', formState.email)
-        navigate('/mfa', { state: { email: formState.email } })
+        setPendingMfaEmail(formState.email)
+        navigate('/mfa', { replace: true })
         return
       }
 
