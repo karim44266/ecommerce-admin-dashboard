@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux'
 
 import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
+import { ToastProvider } from './shared/components/ToastProvider'
 
 // Containers
 const DefaultLayout = React.lazy(() => import('./layouts/DefaultLayout'))
@@ -32,23 +33,25 @@ const App = () => {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <HashRouter>
-      <Suspense
-        fallback={
-          <div className="pt-3 text-center">
-            <CSpinner color="primary" variant="grow" />
-          </div>
-        }
-      >
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/mfa" element={<Mfa />} />
-          <Route element={<ProtectedRoute roles={['ADMIN']} />}>
-            <Route path="*" element={<DefaultLayout />} />
-          </Route>
-        </Routes>
-      </Suspense>
-    </HashRouter>
+    <ToastProvider>
+      <HashRouter>
+        <Suspense
+          fallback={
+            <div className="pt-3 text-center">
+              <CSpinner color="primary" variant="grow" />
+            </div>
+          }
+        >
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/mfa" element={<Mfa />} />
+            <Route element={<ProtectedRoute roles={['ADMIN']} />}>
+              <Route path="*" element={<DefaultLayout />} />
+            </Route>
+          </Routes>
+        </Suspense>
+      </HashRouter>
+    </ToastProvider>
   )
 }
 

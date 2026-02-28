@@ -4,10 +4,12 @@ import { CAlert, CButton, CFormInput, CFormLabel, CFormSelect, CFormTextarea } f
 import api from '../../services/api'
 import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
+import { useToast } from '../../shared/components/ToastProvider'
 
 const ProductsEdit = () => {
   const navigate = useNavigate()
   const { id } = useParams()
+  const { addToast } = useToast()
   const [categories, setCategories] = useState([])
   const [formState, setFormState] = useState({
     name: '',
@@ -30,7 +32,7 @@ const ProductsEdit = () => {
       try {
         const [productRes, catRes] = await Promise.all([
           api.get(`/products/${id}`),
-          api.get('/categories'),
+          api.get('/categories/simple'),
         ])
         setCategories(catRes.data || [])
         const p = productRes.data
@@ -76,6 +78,7 @@ const ProductsEdit = () => {
         categoryId: formState.categoryId || undefined,
       }
       await api.patch(`/products/${id}`, payload)
+      addToast(`Product "${formState.name}" updated successfully.`, 'success')
       navigate('/products', { replace: true })
     } catch (err) {
       const msg =
