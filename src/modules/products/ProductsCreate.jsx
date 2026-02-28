@@ -4,9 +4,11 @@ import { CAlert, CButton, CFormInput, CFormLabel, CFormSelect, CFormTextarea } f
 import api from '../../services/api'
 import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
+import { useToast } from '../../shared/components/ToastProvider'
 
 const ProductsCreate = () => {
   const navigate = useNavigate()
+  const { addToast } = useToast()
   const [categories, setCategories] = useState([])
   const [formState, setFormState] = useState({
     name: '',
@@ -23,7 +25,7 @@ const ProductsCreate = () => {
 
   useEffect(() => {
     api
-      .get('/categories')
+      .get('/categories/simple')
       .then((res) => setCategories(res.data || []))
       .catch(() => {})
   }, [])
@@ -50,6 +52,7 @@ const ProductsCreate = () => {
         categoryId: formState.categoryId || undefined,
       }
       await api.post('/products', payload)
+      addToast(`Product "${formState.name}" created successfully.`, 'success')
       navigate('/products', { replace: true })
     } catch (err) {
       const msg =

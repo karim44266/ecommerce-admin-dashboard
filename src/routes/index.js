@@ -7,6 +7,10 @@ const ProductsCreate = React.lazy(() => import('../modules/products/ProductsCrea
 const ProductsEdit = React.lazy(() => import('../modules/products/ProductsEdit'))
 const ProductsDelete = React.lazy(() => import('../modules/products/ProductsDelete'))
 
+const CategoriesList = React.lazy(() => import('../modules/categories/CategoriesList'))
+const CategoriesCreate = React.lazy(() => import('../modules/categories/CategoriesCreate'))
+const CategoriesEdit = React.lazy(() => import('../modules/categories/CategoriesEdit'))
+
 const OrdersList = React.lazy(() => import('../modules/orders/OrdersList'))
 const OrderDetails = React.lazy(() => import('../modules/orders/OrderDetails'))
 const OrderStatusUpdate = React.lazy(() => import('../modules/orders/OrderStatusUpdate'))
@@ -19,6 +23,10 @@ const UsersBlock = React.lazy(() => import('../modules/users/UsersBlock'))
 const DeliveryAssign = React.lazy(() => import('../modules/delivery/DeliveryAssign'))
 const DeliveryStatus = React.lazy(() => import('../modules/delivery/DeliveryStatus'))
 
+const InventoryList = React.lazy(() => import('../modules/inventory/InventoryList'))
+const InventoryAdjust = React.lazy(() => import('../modules/inventory/InventoryAdjust'))
+const InventoryLowStock = React.lazy(() => import('../modules/inventory/InventoryLowStock'))
+
 const MfaSettings = React.lazy(() => import('../modules/auth/MfaSettings'))
 
 const routes = [
@@ -28,6 +36,10 @@ const routes = [
   { path: '/products/new', name: 'Create Product', element: ProductsCreate },
   { path: '/products/:id', name: 'Edit Product', element: ProductsEdit },
   { path: '/products/:id/delete', name: 'Delete Product', element: ProductsDelete },
+
+  { path: '/categories', name: 'Categories', element: CategoriesList },
+  { path: '/categories/new', name: 'Create Category', element: CategoriesCreate },
+  { path: '/categories/:id', name: 'Edit Category', element: CategoriesEdit },
 
   { path: '/orders', name: 'Orders', element: OrdersList },
   { path: '/orders/:id', name: 'Order Details', element: OrderDetails },
@@ -40,6 +52,10 @@ const routes = [
 
   { path: '/delivery/assign', name: 'Assign Delivery', element: DeliveryAssign },
   { path: '/delivery/status', name: 'Delivery Status', element: DeliveryStatus },
+
+  { path: '/inventory', name: 'Inventory', element: InventoryList },
+  { path: '/inventory/low-stock', name: 'Low Stock Alerts', element: InventoryLowStock },
+  { path: '/inventory/:productId/adjust', name: 'Adjust Inventory', element: InventoryAdjust },
 
   { path: '/settings/mfa', name: 'MFA Settings', element: MfaSettings },
 ]
