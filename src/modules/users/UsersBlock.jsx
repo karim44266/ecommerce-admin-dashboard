@@ -61,10 +61,7 @@ const UsersBlock = () => {
 
   return (
     <div>
-      <PageHeader
-        title="Block / Unblock User"
-        subtitle={user ? `${user.email}` : `User ${id}`}
-      />
+      <PageHeader title="Block / Unblock User" subtitle={user ? `${user.email}` : `User ${id}`} />
       {error && <CAlert color="danger">{error}</CAlert>}
       {success && <CAlert color="success">{success}</CAlert>}
       <FormCard

@@ -60,16 +60,12 @@ const UsersList = () => {
     {
       key: 'role',
       label: 'Role',
-      render: (row) => (
-        <CBadge color={roleBadgeColor(row.role)}>{row.role}</CBadge>
-      ),
+      render: (row) => <CBadge color={roleBadgeColor(row.role)}>{row.role}</CBadge>,
     },
     {
       key: 'status',
       label: 'Status',
-      render: (row) => (
-        <CBadge color={statusBadgeColor(row.status)}>{row.status}</CBadge>
-      ),
+      render: (row) => <CBadge color={statusBadgeColor(row.status)}>{row.status}</CBadge>,
     },
     {
       key: 'actions',

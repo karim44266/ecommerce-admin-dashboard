@@ -59,10 +59,7 @@ const UsersRoles = () => {
 
   return (
     <div>
-      <PageHeader
-        title="Update User Role"
-        subtitle={user ? `${user.email}` : `User ${id}`}
-      />
+      <PageHeader title="Update User Role" subtitle={user ? `${user.email}` : `User ${id}`} />
       {error && <CAlert color="danger">{error}</CAlert>}
       {success && <CAlert color="success">{success}</CAlert>}
       <FormCard
