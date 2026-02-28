@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { CAlert, CButton, CFormInput, CFormLabel, CFormSelect } from '@coreui/react'
+import { CAlert, CButton, CFormInput, CFormLabel, CFormSelect, CFormTextarea } from '@coreui/react'
 import api from '../../services/api'
 import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
@@ -8,39 +8,50 @@ import PageHeader from '../../shared/components/PageHeader'
 const ProductsEdit = () => {
   const navigate = useNavigate()
   const { id } = useParams()
+  const [categories, setCategories] = useState([])
   const [formState, setFormState] = useState({
     name: '',
     sku: '',
+    description: '',
     price: '',
+    image: '',
     inventory: '',
     status: 'active',
+    categoryId: '',
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchData = async () => {
       setLoading(true)
       setError('')
       try {
-        // TODO: Replace with real product details endpoint.
-        const response = await api.get(`/products/${id}`)
+        const [productRes, catRes] = await Promise.all([
+          api.get(`/products/${id}`),
+          api.get('/categories'),
+        ])
+        setCategories(catRes.data || [])
+        const p = productRes.data
         setFormState({
-          name: response.data?.name || '',
-          sku: response.data?.sku || '',
-          price: response.data?.price || '',
-          inventory: response.data?.inventory || '',
-          status: response.data?.status || 'active',
+          name: p?.name || '',
+          sku: p?.sku || '',
+          description: p?.description || '',
+          price: p?.price != null ? String(p.price) : '',
+          image: p?.image || '',
+          inventory: p?.inventory != null ? String(p.inventory) : '',
+          status: p?.status || 'active',
+          categoryId: p?.categoryId || '',
         })
       } catch (err) {
-        setError('Unable to load product details. Connect the backend endpoint to proceed.')
+        setError('Unable to load product details.')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchProduct()
+    fetchData()
   }, [id])
 
   const handleChange = (event) => {
@@ -54,11 +65,22 @@ const ProductsEdit = () => {
     setError('')
 
     try {
-      // TODO: Replace with real product update endpoint.
-      await api.put(`/products/${id}`, formState)
+      const payload = {
+        name: formState.name,
+        sku: formState.sku,
+        description: formState.description || undefined,
+        price: Number(formState.price),
+        image: formState.image || undefined,
+        inventory: formState.inventory ? Number(formState.inventory) : 0,
+        status: formState.status,
+        categoryId: formState.categoryId || undefined,
+      }
+      await api.patch(`/products/${id}`, payload)
       navigate('/products', { replace: true })
     } catch (err) {
-      setError('Unable to update product. Connect the backend endpoint to proceed.')
+      const msg =
+        err?.response?.data?.message || 'Unable to update product. Please try again.'
+      setError(Array.isArray(msg) ? msg.join(', ') : msg)
     } finally {
       setSubmitting(false)
     }
@@ -91,6 +113,15 @@ const ProductsEdit = () => {
           <CFormInput name="sku" value={formState.sku} onChange={handleChange} required />
         </div>
         <div className="mb-3">
+          <CFormLabel>Description</CFormLabel>
+          <CFormTextarea
+            name="description"
+            rows={3}
+            value={formState.description}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="mb-3">
           <CFormLabel>Price</CFormLabel>
           <CFormInput
             name="price"
@@ -103,6 +134,16 @@ const ProductsEdit = () => {
           />
         </div>
         <div className="mb-3">
+          <CFormLabel>Image URL</CFormLabel>
+          <CFormInput
+            name="image"
+            type="url"
+            placeholder="https://example.com/image.jpg"
+            value={formState.image}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="mb-3">
           <CFormLabel>Inventory</CFormLabel>
           <CFormInput
             name="inventory"
@@ -110,8 +151,18 @@ const ProductsEdit = () => {
             min="0"
             value={formState.inventory}
             onChange={handleChange}
-            required
           />
+        </div>
+        <div className="mb-3">
+          <CFormLabel>Category</CFormLabel>
+          <CFormSelect name="categoryId" value={formState.categoryId} onChange={handleChange}>
+            <option value="">No category</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </CFormSelect>
         </div>
         <div className="mb-3">
           <CFormLabel>Status</CFormLabel>
