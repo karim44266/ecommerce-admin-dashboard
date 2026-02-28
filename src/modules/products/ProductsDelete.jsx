@@ -17,11 +17,11 @@ const ProductsDelete = () => {
     setError('')
 
     try {
-      // TODO: Replace with real product delete endpoint.
       await api.delete(`/products/${id}`)
       navigate('/products', { replace: true })
     } catch (err) {
-      setError('Unable to delete product. Connect the backend endpoint to proceed.')
+      const msg = err?.response?.data?.message || 'Unable to delete product. Please try again.'
+      setError(Array.isArray(msg) ? msg.join(', ') : msg)
     } finally {
       setSubmitting(false)
     }
