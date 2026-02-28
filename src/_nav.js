@@ -74,11 +74,6 @@ const _nav = [
         name: 'User List',
         to: '/users',
       },
-      {
-        component: CNavItem,
-        name: 'Roles & Access',
-        to: '/users',
-      },
     ],
   },
   {
