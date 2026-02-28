@@ -17,12 +17,7 @@ import {
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilEnvelopeClosed } from '@coreui/icons'
 import api from '../../services/api'
-import {
-  clearPendingMfaEmail,
-  getPendingMfaEmail,
-  getRolesFromToken,
-  setAuth,
-} from './authStorage'
+import { clearPendingMfaEmail, getPendingMfaEmail, getRolesFromToken, setAuth } from './authStorage'
 
 const Mfa = () => {
   const navigate = useNavigate()
@@ -79,9 +74,7 @@ const Mfa = () => {
               <CCard className="p-4">
                 <CCardBody>
                   <h1>Verify MFA</h1>
-                  <p className="text-body-secondary">
-                    Enter the 6-digit code sent to your email.
-                  </p>
+                  <p className="text-body-secondary">Enter the 6-digit code sent to your email.</p>
                   {error && <CAlert color="danger">{error}</CAlert>}
                   <CForm onSubmit={handleSubmit}>
                     <CInputGroup className="mb-3">

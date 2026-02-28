@@ -1,6 +1,13 @@
 import React from 'react'
 import CIcon from '@coreui/icons-react'
-import { cilClipboard, cilSpeedometer, cilCart, cilPeople, cilTruck, cilSettings } from '@coreui/icons'
+import {
+  cilClipboard,
+  cilSpeedometer,
+  cilCart,
+  cilPeople,
+  cilTruck,
+  cilSettings,
+} from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
 const _nav = [
@@ -72,11 +79,6 @@ const _nav = [
       {
         component: CNavItem,
         name: 'User List',
-        to: '/users',
-      },
-      {
-        component: CNavItem,
-        name: 'Roles & Access',
         to: '/users',
       },
     ],
