@@ -39,7 +39,6 @@ const statusBadgeColor = (status) => {
 
 const ProductsList = () => {
   const navigate = useNavigate()
-  const { addToast } = useToast()
   const [products, setProducts] = useState([])
   const [meta, setMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 0 })
   const [categories, setCategories] = useState([])
@@ -53,11 +52,10 @@ const ProductsList = () => {
   const [sortBy, setSortBy] = useState('createdAt')
   const [sortOrder, setSortOrder] = useState('desc')
   const [page, setPage] = useState(1)
-
-  // Delete confirmation modal
-  const [deleteModal, setDeleteModal] = useState(false)
-  const [deleteTarget, setDeleteTarget] = useState(null)
   const [deleting, setDeleting] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const debounceRef = useRef(null)
 
   const debounceRef = useRef(null)
 
@@ -82,10 +80,10 @@ const ProductsList = () => {
         sortBy,
         sortOrder,
       }
-      const res = await api.get('/products', { params })
-      setProducts(res.data?.data || [])
-      setMeta(res.data?.meta || { total: 0, page: 1, limit: 20, totalPages: 0 })
-    } catch {
+      const response = await api.get('/products', { params })
+      setProducts(response.data?.data || [])
+      setMeta(response.data?.meta || { total: 0, page: 1, limit: 20, totalPages: 0 })
+    } catch (err) {
       setError('Unable to load products. Make sure the backend is running.')
     } finally {
       setLoading(false)
@@ -97,48 +95,24 @@ const ProductsList = () => {
   }, [fetchProducts])
 
   const handleSearchChange = (e) => {
-    const value = e.target.value
+    const val = e.target.value
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(() => {
-      setSearch(value)
+      setSearch(val)
       setPage(1)
-    }, 300)
+    }, 400)
   }
 
-  const handleCategoryChange = (e) => {
-    setCategoryId(e.target.value)
-    setPage(1)
-  }
-
-  const handleStatusChange = (e) => {
-    setStatus(e.target.value)
-    setPage(1)
-  }
-
-  const handleSortChange = (e) => {
-    const [field, order] = e.target.value.split(':')
-    setSortBy(field)
-    setSortOrder(order)
-    setPage(1)
-  }
-
-  const openDeleteModal = (product) => {
-    setDeleteTarget(product)
-    setDeleteModal(true)
-  }
-
-  const confirmDelete = async () => {
+  const handleDelete = async () => {
     if (!deleteTarget) return
     setDeleting(true)
     try {
       await api.delete(`/products/${deleteTarget.id}`)
-      addToast(`Product "${deleteTarget.name}" deleted.`, 'success')
-      setDeleteModal(false)
+      setConfirmOpen(false)
       setDeleteTarget(null)
       fetchProducts()
-    } catch (err) {
-      const msg = err?.response?.data?.message || 'Unable to delete product.'
-      addToast(Array.isArray(msg) ? msg.join(', ') : msg, 'danger')
+    } catch {
+      setError('Failed to delete product.')
     } finally {
       setDeleting(false)
     }
@@ -207,7 +181,10 @@ const ProductsList = () => {
           <CButton
             color="danger"
             size="sm"
-            onClick={() => openDeleteModal(row)}
+            onClick={() => {
+              setDeleteTarget(row)
+              setConfirmOpen(true)
+            }}
           >
             Delete
           </CButton>
@@ -229,7 +206,6 @@ const ProductsList = () => {
       />
       {error && <CAlert color="danger">{error}</CAlert>}
 
-      {/* Filters row */}
       <CRow className="mb-3 g-2">
         <CCol md={4}>
           <CInputGroup>
@@ -244,31 +220,53 @@ const ProductsList = () => {
           </CInputGroup>
         </CCol>
         <CCol md={3}>
-          <CFormSelect value={categoryId} onChange={handleCategoryChange}>
-            <option value="">All Categories</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
+          <CFormSelect
+            value={categoryId}
+            onChange={(e) => {
+              setCategoryId(e.target.value)
+              setPage(1)
+            }}
+          >
+            <option value="">All categories</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
               </option>
             ))}
           </CFormSelect>
         </CCol>
         <CCol md={2}>
-          <CFormSelect value={status} onChange={handleStatusChange}>
-            <option value="">All Statuses</option>
+          <CFormSelect
+            value={status}
+            onChange={(e) => {
+              setStatus(e.target.value)
+              setPage(1)
+            }}
+          >
+            <option value="">All statuses</option>
             <option value="active">Active</option>
             <option value="draft">Draft</option>
             <option value="archived">Archived</option>
           </CFormSelect>
         </CCol>
         <CCol md={3}>
-          <CFormSelect value={`${sortBy}:${sortOrder}`} onChange={handleSortChange}>
-            <option value="createdAt:desc">Newest First</option>
-            <option value="createdAt:asc">Oldest First</option>
-            <option value="name:asc">Name A–Z</option>
-            <option value="name:desc">Name Z–A</option>
-            <option value="price:asc">Price Low → High</option>
-            <option value="price:desc">Price High → Low</option>
+          <CFormSelect
+            value={`${sortBy}:${sortOrder}`}
+            onChange={(e) => {
+              const [f, d] = e.target.value.split(':')
+              setSortBy(f)
+              setSortOrder(d)
+              setPage(1)
+            }}
+          >
+            <option value="createdAt:desc">Newest first</option>
+            <option value="createdAt:asc">Oldest first</option>
+            <option value="name:asc">Name A-Z</option>
+            <option value="name:desc">Name Z-A</option>
+            <option value="price:asc">Price: Low → High</option>
+            <option value="price:desc">Price: High → Low</option>
+            <option value="inventory:asc">Stock: Low → High</option>
+            <option value="inventory:desc">Stock: High → Low</option>
           </CFormSelect>
         </CCol>
       </CRow>
@@ -280,26 +278,43 @@ const ProductsList = () => {
         loading={loading}
         emptyMessage="No products found."
       />
-      <TruncatedPagination page={page} totalPages={meta.totalPages} onPageChange={setPage} />
 
-      {/* Delete confirmation modal */}
-      <CModal visible={deleteModal} onClose={() => setDeleteModal(false)} alignment="center">
+      {meta.totalPages > 1 && (
+        <div className="d-flex justify-content-center gap-2 mt-3">
+          <CButton
+            color="secondary"
+            size="sm"
+            disabled={page <= 1}
+            onClick={() => setPage((p) => p - 1)}
+          >
+            Previous
+          </CButton>
+          <span className="align-self-center text-muted">
+            Page {meta.page} of {meta.totalPages}
+          </span>
+          <CButton
+            color="secondary"
+            size="sm"
+            disabled={page >= meta.totalPages}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            Next
+          </CButton>
+        </div>
+      )}
+
+      <CModal visible={confirmOpen} onClose={() => setConfirmOpen(false)}>
         <CModalHeader>
-          <CModalTitle>Delete Product</CModalTitle>
+          <CModalTitle>Confirm Delete</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          {deleteTarget && (
-            <p>
-              Are you sure you want to delete <strong>{deleteTarget.name}</strong>?
-              This action cannot be undone.
-            </p>
-          )}
+          Are you sure you want to delete <strong>{deleteTarget?.name}</strong>?
         </CModalBody>
         <CModalFooter>
-          <CButton color="secondary" onClick={() => setDeleteModal(false)} disabled={deleting}>
+          <CButton color="secondary" onClick={() => setConfirmOpen(false)}>
             Cancel
           </CButton>
-          <CButton color="danger" onClick={confirmDelete} disabled={deleting}>
+          <CButton color="danger" onClick={handleDelete} disabled={deleting}>
             {deleting ? 'Deleting…' : 'Delete'}
           </CButton>
         </CModalFooter>
