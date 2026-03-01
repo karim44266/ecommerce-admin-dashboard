@@ -21,6 +21,8 @@ import { cilSearch } from '@coreui/icons'
 import api from '../../services/api'
 import DataTable from '../../shared/components/DataTable'
 import PageHeader from '../../shared/components/PageHeader'
+import TruncatedPagination from '../../shared/components/TruncatedPagination'
+import { useToast } from '../../shared/components/ToastProvider'
 
 const statusBadgeColor = (status) => {
   switch (status) {
@@ -42,6 +44,8 @@ const ProductsList = () => {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Filters
   const [search, setSearch] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [status, setStatus] = useState('')
@@ -53,6 +57,9 @@ const ProductsList = () => {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const debounceRef = useRef(null)
 
+  const debounceRef = useRef(null)
+
+  // Load categories for the filter dropdown
   useEffect(() => {
     api
       .get('/categories/simple')

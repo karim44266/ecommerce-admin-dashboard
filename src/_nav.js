@@ -7,6 +7,8 @@ import {
   cilPeople,
   cilTruck,
   cilSettings,
+  cilStorage,
+  cilLayers,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -36,6 +38,42 @@ const _nav = [
         component: CNavItem,
         name: 'Add Product',
         to: '/products/new',
+      },
+    ],
+  },
+  {
+    component: CNavGroup,
+    name: 'Categories',
+    to: '/categories',
+    icon: <CIcon icon={cilLayers} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'All Categories',
+        to: '/categories',
+      },
+      {
+        component: CNavItem,
+        name: 'Add Category',
+        to: '/categories/new',
+      },
+    ],
+  },
+  {
+    component: CNavGroup,
+    name: 'Inventory',
+    to: '/inventory',
+    icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Stock Levels',
+        to: '/inventory',
+      },
+      {
+        component: CNavItem,
+        name: 'Low Stock Alerts',
+        to: '/inventory/low-stock',
       },
     ],
   },
