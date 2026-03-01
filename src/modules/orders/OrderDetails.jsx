@@ -48,7 +48,7 @@ const OrderDetails = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const [order, setOrder] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   const fetchOrder = async () => {

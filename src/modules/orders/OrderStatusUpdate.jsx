@@ -63,6 +63,18 @@ const OrderStatusUpdate = () => {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api
+      .get(`/orders/${id}`)
+      .then((res) => {
+        setCurrentStatus(res.data.status)
+        setStatus(res.data.status)
+      })
+      .catch(() => setError('Unable to load order.'))
+      .finally(() => setLoading(false))
+  }, [id])
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -208,6 +220,15 @@ const OrderStatusUpdate = () => {
             placeholder="Reason for status change…"
             value={note}
             onChange={(e) => setNote(e.target.value)}
+          />
+        </div>
+        <div className="mb-3">
+          <CFormLabel>Note (optional)</CFormLabel>
+          <CFormTextarea
+            rows={3}
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            placeholder="e.g. Payment verified, order packed..."
           />
         </div>
       </FormCard>
