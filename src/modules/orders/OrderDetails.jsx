@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
   CAlert,
   CBadge,
@@ -17,6 +17,8 @@ import {
   CTableHeaderCell,
   CTableRow,
 } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilArrowLeft, cilLoop, cilTruck, cilReload } from '@coreui/icons'
 import api from '../../services/api'
 import PageHeader from '../../shared/components/PageHeader'
 
@@ -24,11 +26,22 @@ const STATUS_COLORS = {
   PENDING_PAYMENT: 'warning',
   PAID: 'info',
   PROCESSING: 'primary',
-  SHIPPED: 'secondary',
+  SHIPPED: 'dark',
   DELIVERED: 'success',
   CANCELLED: 'danger',
-  REFUNDED: 'dark',
+  REFUNDED: 'secondary',
   FAILED: 'danger',
+}
+
+const STATUS_LABELS = {
+  PENDING_PAYMENT: 'Pending Payment',
+  PAID: 'Paid',
+  PROCESSING: 'Processing',
+  SHIPPED: 'Shipped',
+  DELIVERED: 'Delivered',
+  CANCELLED: 'Cancelled',
+  REFUNDED: 'Refunded',
+  FAILED: 'Failed',
 }
 
 const OrderDetails = () => {
@@ -38,19 +51,20 @@ const OrderDetails = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  useEffect(() => {
-    const fetchOrder = async () => {
-      setLoading(true)
-      setError('')
-      try {
-        const response = await api.get(`/orders/${id}`)
-        setOrder(response.data)
-      } catch {
-        setError('Unable to load order details.')
-      } finally {
-        setLoading(false)
-      }
+  const fetchOrder = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const response = await api.get(`/orders/${id}`)
+      setOrder(response.data)
+    } catch (err) {
+      setError(err.response?.data?.message || 'Unable to load order details.')
+    } finally {
+      setLoading(false)
     }
+  }
+
+  useEffect(() => {
     fetchOrder()
   }, [id])
 
@@ -62,104 +76,107 @@ const OrderDetails = () => {
     )
   }
 
-  if (error || !order) {
+  if (error) {
     return (
       <div>
-        <PageHeader title="Order Details" />
-        <CAlert color="danger">{error || 'Order not found.'}</CAlert>
+        <PageHeader title="Order Details" subtitle={`Order ${id}`} />
+        <CAlert color="danger">{error}</CAlert>
       </div>
     )
   }
 
-  const address = order.shippingAddress || {}
+  if (!order) return null
 
   return (
     <div>
-      <PageHeader
-        title="Order Details"
-        subtitle={`Order ${id.slice(0, 8)}...`}
-        actions={
-          <div className="d-flex gap-2">
-            <CButton color="warning" size="sm" onClick={() => navigate(`/orders/${id}/status`)}>
-              Update Status
-            </CButton>
-            <CButton color="secondary" size="sm" onClick={() => navigate(`/orders/${id}/tracking`)}>
-              Add Tracking
-            </CButton>
-            <CButton color="outline-primary" size="sm" onClick={() => navigate('/orders')}>
-              Back to Orders
-            </CButton>
-          </div>
-        }
-      />
+      <div className="d-flex justify-content-between align-items-start mb-3">
+        <PageHeader title="Order Details" subtitle={`Order #${order.id.slice(0, 8)}`} />
+        <div className="d-flex gap-2 flex-shrink-0 pt-1">
+          <CButton color="light" size="sm" onClick={() => fetchOrder()} disabled={loading}>
+            <CIcon icon={cilReload} className="me-1" />
+            Refresh
+          </CButton>
+          <CButton color="warning" size="sm" onClick={() => navigate(`/orders/${id}/status`)}>
+            <CIcon icon={cilLoop} className="me-1" />
+            Update Status
+          </CButton>
+          <CButton color="info" size="sm" onClick={() => navigate(`/orders/${id}/tracking`)}>
+            <CIcon icon={cilTruck} className="me-1" />
+            Update Tracking
+          </CButton>
+          <CButton color="secondary" variant="outline" size="sm" onClick={() => navigate('/orders')}>
+            <CIcon icon={cilArrowLeft} className="me-1" />
+            Back
+          </CButton>
+        </div>
+      </div>
 
-      <CRow>
-        {/* Order Summary */}
-        <CCol lg={6}>
-          <CCard className="mb-4">
-            <CCardHeader>Summary</CCardHeader>
+      {/* Order Summary */}
+      <CRow className="mb-4">
+        <CCol md={6}>
+          <CCard className="mb-3">
+            <CCardHeader>Order Information</CCardHeader>
             <CCardBody>
-              <table className="table table-borderless mb-0">
-                <tbody>
-                  <tr>
-                    <td className="text-medium-emphasis">Status</td>
-                    <td>
-                      <CBadge color={STATUS_COLORS[order.status] || 'secondary'}>
-                        {order.status}
-                      </CBadge>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="text-medium-emphasis">Customer</td>
-                    <td>{order.customerEmail || '—'}</td>
-                  </tr>
-                  <tr>
-                    <td className="text-medium-emphasis">Total</td>
-                    <td className="fw-bold">${order.totalAmount?.toFixed(2)}</td>
-                  </tr>
-                  <tr>
-                    <td className="text-medium-emphasis">Created</td>
-                    <td>{new Date(order.createdAt).toLocaleString()}</td>
-                  </tr>
-                  <tr>
-                    <td className="text-medium-emphasis">Updated</td>
-                    <td>{new Date(order.updatedAt).toLocaleString()}</td>
-                  </tr>
-                  {order.carrier && (
-                    <tr>
-                      <td className="text-medium-emphasis">Carrier</td>
-                      <td>{order.carrier}</td>
-                    </tr>
+              <dl className="row mb-0">
+                <dt className="col-sm-5">Status</dt>
+                <dd className="col-sm-7">
+                  <CBadge
+                    color={STATUS_COLORS[order.status] || 'secondary'}
+                    shape="rounded-pill"
+                    className="px-3 py-1"
+                  >
+                    {STATUS_LABELS[order.status] || order.status}
+                  </CBadge>
+                </dd>
+                <dt className="col-sm-5">Total</dt>
+                <dd className="col-sm-7">${Number(order.totalAmount).toFixed(2)}</dd>
+                <dt className="col-sm-5">Customer</dt>
+                <dd className="col-sm-7">{order.customerEmail || '—'}</dd>
+                <dt className="col-sm-5">Shipping Address</dt>
+                <dd className="col-sm-7">
+                  {order.shippingAddress && typeof order.shippingAddress === 'object' ? (
+                    <div>
+                      <div className="fw-semibold">{order.shippingAddress.fullName}</div>
+                      <div className="text-medium-emphasis small">
+                        {order.shippingAddress.addressLine1}
+                        {order.shippingAddress.addressLine2 && (
+                          <>, {order.shippingAddress.addressLine2}</>
+                        )}
+                      </div>
+                      <div className="text-medium-emphasis small">
+                        {order.shippingAddress.city}, {order.shippingAddress.state}{' '}
+                        {order.shippingAddress.postalCode}
+                      </div>
+                      <div className="text-medium-emphasis small">
+                        {order.shippingAddress.country}
+                      </div>
+                    </div>
+                  ) : (
+                    order.shippingAddress || '—'
                   )}
-                  {order.trackingNumber && (
-                    <tr>
-                      <td className="text-medium-emphasis">Tracking #</td>
-                      <td><code>{order.trackingNumber}</code></td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                </dd>
+                <dt className="col-sm-5">Created</dt>
+                <dd className="col-sm-7">{new Date(order.createdAt).toLocaleString()}</dd>
+                <dt className="col-sm-5">Updated</dt>
+                <dd className="col-sm-7">{new Date(order.updatedAt).toLocaleString()}</dd>
+              </dl>
             </CCardBody>
           </CCard>
         </CCol>
 
-        {/* Shipping Address */}
-        <CCol lg={6}>
-          <CCard className="mb-4">
-            <CCardHeader>Shipping Address</CCardHeader>
+        <CCol md={6}>
+          <CCard className="mb-3">
+            <CCardHeader>Tracking Information</CCardHeader>
             <CCardBody>
-              {address.fullName ? (
-                <>
-                  <p className="mb-1 fw-bold">{address.fullName}</p>
-                  <p className="mb-1">{address.addressLine1}</p>
-                  {address.addressLine2 && <p className="mb-1">{address.addressLine2}</p>}
-                  <p className="mb-0">
-                    {address.city}, {address.state} {address.postalCode}
-                  </p>
-                  <p className="mb-0">{address.country}</p>
-                </>
+              {order.carrier || order.trackingNumber ? (
+                <dl className="row mb-0">
+                  <dt className="col-sm-5">Carrier</dt>
+                  <dd className="col-sm-7">{order.carrier || '—'}</dd>
+                  <dt className="col-sm-5">Tracking Number</dt>
+                  <dd className="col-sm-7">{order.trackingNumber || '—'}</dd>
+                </dl>
               ) : (
-                <p className="text-medium-emphasis mb-0">No shipping address provided.</p>
+                <p className="text-medium-emphasis mb-0">No tracking information yet.</p>
               )}
             </CCardBody>
           </CCard>
@@ -168,25 +185,25 @@ const OrderDetails = () => {
 
       {/* Order Items */}
       <CCard className="mb-4">
-        <CCardHeader>Order Items</CCardHeader>
+        <CCardHeader>Items ({order.items?.length || 0})</CCardHeader>
         <CCardBody>
           <CTable responsive hover>
             <CTableHead>
               <CTableRow>
                 <CTableHeaderCell>Product</CTableHeaderCell>
+                <CTableHeaderCell>Qty</CTableHeaderCell>
                 <CTableHeaderCell>Unit Price</CTableHeaderCell>
-                <CTableHeaderCell>Quantity</CTableHeaderCell>
                 <CTableHeaderCell>Subtotal</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
             <CTableBody>
               {(order.items || []).map((item) => (
-                <CTableRow key={item.id || item.productId}>
+                <CTableRow key={item.id}>
                   <CTableDataCell>{item.name}</CTableDataCell>
-                  <CTableDataCell>${item.unitPrice?.toFixed(2)}</CTableDataCell>
                   <CTableDataCell>{item.quantity}</CTableDataCell>
-                  <CTableDataCell className="fw-bold">
-                    ${(item.unitPrice * item.quantity).toFixed(2)}
+                  <CTableDataCell>${Number(item.unitPrice).toFixed(2)}</CTableDataCell>
+                  <CTableDataCell>
+                    ${(Number(item.unitPrice) * item.quantity).toFixed(2)}
                   </CTableDataCell>
                 </CTableRow>
               ))}
@@ -195,41 +212,32 @@ const OrderDetails = () => {
         </CCardBody>
       </CCard>
 
-      {/* Status History Timeline */}
+      {/* Status History / Audit Trail */}
       <CCard className="mb-4">
-        <CCardHeader>Status History</CCardHeader>
+        <CCardHeader>Status History (Audit Trail)</CCardHeader>
         <CCardBody>
           {order.statusHistory && order.statusHistory.length > 0 ? (
-            <div className="timeline-container">
+            <div className="timeline">
               {order.statusHistory.map((entry, idx) => (
-                <div key={entry.id || idx} className="d-flex gap-3 mb-3">
-                  <div className="d-flex flex-column align-items-center" style={{ minWidth: 24 }}>
-                    <div
-                      style={{
-                        width: 12,
-                        height: 12,
-                        borderRadius: '50%',
-                        backgroundColor: idx === order.statusHistory.length - 1 ? '#321fdb' : '#9da5b1',
-                        marginTop: 4,
-                      }}
-                    />
-                    {idx < order.statusHistory.length - 1 && (
-                      <div style={{ width: 2, flex: 1, backgroundColor: '#d8dbe0', marginTop: 4 }} />
-                    )}
-                  </div>
-                  <div className="pb-2">
-                    <CBadge color={STATUS_COLORS[entry.status] || 'secondary'} className="me-2">
-                      {entry.status}
+                <div
+                  key={entry.id}
+                  className={`d-flex mb-3 ${idx === order.statusHistory.length - 1 ? '' : 'border-bottom pb-3'}`}
+                >
+                  <div className="me-3">
+                    <CBadge
+                      color={STATUS_COLORS[entry.status] || 'secondary'}
+                      shape="rounded-pill"
+                      className="px-3 py-1"
+                    >
+                      {STATUS_LABELS[entry.status] || entry.status}
                     </CBadge>
-                    <small className="text-medium-emphasis">
-                      {new Date(entry.createdAt).toLocaleString()}
-                    </small>
-                    {entry.note && (
-                      <p className="mb-0 mt-1 text-medium-emphasis small">{entry.note}</p>
-                    )}
-                    {entry.changedByEmail && (
-                      <small className="text-medium-emphasis">by {entry.changedByEmail}</small>
-                    )}
+                  </div>
+                  <div className="flex-grow-1">
+                    <div className="text-medium-emphasis small">
+                      {new Date(entry.createdAt).toLocaleString()} — by{' '}
+                      <strong>{entry.changedByEmail || entry.changedBy}</strong>
+                    </div>
+                    {entry.note && <div className="mt-1">{entry.note}</div>}
                   </div>
                 </div>
               ))}

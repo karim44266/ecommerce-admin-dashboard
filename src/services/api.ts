@@ -26,11 +26,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('ecom_admin_token')
-      localStorage.removeItem('ecom_admin_roles')
-      // Only redirect if not already on the login page
-      if (!window.location.hash.includes('/login') && !window.location.pathname.includes('/login')) {
-        window.location.href = '/#/login'
-      }
+      window.location.href = '/#/login'
     }
     return Promise.reject(error)
   },
