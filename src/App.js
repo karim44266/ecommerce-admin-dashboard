@@ -9,7 +9,8 @@ import './scss/style.scss'
 const DefaultLayout = React.lazy(() => import('./layouts/DefaultLayout'))
 
 // Pages
-const Login = React.lazy(() => import('./modules/auth/Login'))
+const Login = React.lazy(() => import('./pages/Login'))
+const Mfa = React.lazy(() => import('./pages/Mfa'))
 const ProtectedRoute = React.lazy(() => import('./modules/auth/ProtectedRoute'))
 
 const App = () => {
@@ -41,7 +42,8 @@ const App = () => {
       >
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route element={<ProtectedRoute roles={['admin']} />}>
+          <Route path="/mfa" element={<Mfa />} />
+          <Route element={<ProtectedRoute roles={['ADMIN']} />}>
             <Route path="*" element={<DefaultLayout />} />
           </Route>
         </Routes>
