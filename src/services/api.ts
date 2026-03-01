@@ -23,7 +23,13 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => Promise.reject(error),
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('ecom_admin_token')
+      window.location.href = '/#/login'
+    }
+    return Promise.reject(error)
+  },
 )
 
 export default api
