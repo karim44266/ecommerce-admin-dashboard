@@ -57,8 +57,6 @@ const ProductsList = () => {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const debounceRef = useRef(null)
 
-  const debounceRef = useRef(null)
-
   // Load categories for the filter dropdown
   useEffect(() => {
     api
