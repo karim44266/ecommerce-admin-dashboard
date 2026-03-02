@@ -16,6 +16,7 @@ import {
 import CIcon from '@coreui/icons-react'
 import { cilSearch, cilReload, cilClipboard, cilLoop, cilTruck } from '@coreui/icons'
 import api from '../../services/api'
+import DataTable from '../../shared/components/DataTable'
 import PageHeader from '../../shared/components/PageHeader'
 
 const STATUS_COLORS = {
@@ -57,12 +58,6 @@ const OrdersList = () => {
   const [meta, setMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 1 })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [page, setPage] = useState(1)
-  const [meta, setMeta] = useState({ total: 0, totalPages: 0 })
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
-
-  // Filters
   const [statusFilter, setStatusFilter] = useState('')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
@@ -91,7 +86,6 @@ const OrdersList = () => {
   const handleSearchSubmit = (e) => {
     e.preventDefault()
     setPage(1)
-    fetchOrders()
   }
 
   const columns = [
