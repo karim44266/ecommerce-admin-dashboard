@@ -52,18 +52,6 @@ const OrderTracking = () => {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    api
-      .get(`/orders/${id}`)
-      .then((res) => {
-        if (res.data.trackingNumber) setTrackingNumber(res.data.trackingNumber)
-        if (res.data.carrier) setCarrier(res.data.carrier)
-      })
-      .catch(() => setError('Unable to load order details.'))
-      .finally(() => setLoading(false))
-  }, [id])
 
   useEffect(() => {
     const fetchOrder = async () => {

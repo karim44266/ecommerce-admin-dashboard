@@ -63,18 +63,6 @@ const OrderStatusUpdate = () => {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    api
-      .get(`/orders/${id}`)
-      .then((res) => {
-        setCurrentStatus(res.data.status)
-        setStatus(res.data.status)
-      })
-      .catch(() => setError('Unable to load order.'))
-      .finally(() => setLoading(false))
-  }, [id])
 
   useEffect(() => {
     const fetchOrder = async () => {
