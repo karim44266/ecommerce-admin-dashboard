@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { CAlert, CButton, CBadge, CFormInput, CInputGroup, CInputGroupText } from '@coreui/react'
+import { useNavigate } from 'react-router-dom'
+import { CAlert, CButton, CBadge, CFormInput, CInputGroup, CInputGroupText, CSpinner } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilSearch } from '@coreui/icons'
 import api from '../../services/api'
@@ -26,23 +26,41 @@ const UsersList = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
+  const [togglingId, setTogglingId] = useState(null)
+  const navigate = useNavigate()
+
+  const fetchUsers = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const response = await api.get('/users')
+      setUsers(response.data || [])
+    } catch (err) {
+      setError('Unable to load users. Make sure the backend is running.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true)
-      setError('')
-      try {
-        const response = await api.get('/users')
-        setUsers(response.data || [])
-      } catch (err) {
-        setError('Unable to load users. Make sure the backend is running.')
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchUsers()
   }, [])
+
+  const handleToggleStatus = async (user) => {
+    const newStatus = user.status === 'active' ? 'blocked' : 'active'
+    setTogglingId(user.id)
+    setError('')
+    try {
+      await api.patch(`/users/${user.id}/status`, { status: newStatus })
+      setUsers((prev) =>
+        prev.map((u) => (u.id === user.id ? { ...u, status: newStatus } : u)),
+      )
+    } catch (err) {
+      setError(`Failed to ${newStatus === 'blocked' ? 'block' : 'unblock'} user.`)
+    } finally {
+      setTogglingId(null)
+    }
+  }
 
   const filtered = users.filter((user) => {
     if (!search) return true
@@ -72,16 +90,22 @@ const UsersList = () => {
       label: 'Actions',
       render: (row) => (
         <div className="d-flex gap-2">
-          <CButton color="info" size="sm" component={Link} to={`/users/${row.id}/roles`}>
+          <CButton color="info" size="sm" onClick={() => navigate(`/users/${row.id}/roles`)}>
             Roles
           </CButton>
           <CButton
             color={row.status === 'active' ? 'warning' : 'success'}
             size="sm"
-            component={Link}
-            to={`/users/${row.id}/status`}
+            disabled={togglingId === row.id}
+            onClick={() => handleToggleStatus(row)}
           >
-            {row.status === 'active' ? 'Block' : 'Unblock'}
+            {togglingId === row.id ? (
+              <CSpinner size="sm" />
+            ) : row.status === 'active' ? (
+              'Block'
+            ) : (
+              'Unblock'
+            )}
           </CButton>
         </div>
       ),
