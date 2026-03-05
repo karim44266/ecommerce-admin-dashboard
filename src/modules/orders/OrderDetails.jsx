@@ -23,22 +23,22 @@ import api from '../../services/api'
 import PageHeader from '../../shared/components/PageHeader'
 
 const STATUS_COLORS = {
-  PENDING_PAYMENT: 'warning',
-  PAID: 'info',
+  PENDING: 'warning',
+  ACCEPTED: 'info',
   PROCESSING: 'primary',
-  SHIPPED: 'dark',
   DELIVERED: 'success',
+  COMPLETED: 'primary',
   CANCELLED: 'danger',
   REFUNDED: 'secondary',
   FAILED: 'danger',
 }
 
 const STATUS_LABELS = {
-  PENDING_PAYMENT: 'Pending Payment',
-  PAID: 'Paid',
+  PENDING: 'Pending',
+  ACCEPTED: 'Accepted',
   PROCESSING: 'Processing',
-  SHIPPED: 'Shipped',
   DELIVERED: 'Delivered',
+  COMPLETED: 'Completed',
   CANCELLED: 'Cancelled',
   REFUNDED: 'Refunded',
   FAILED: 'Failed',
