@@ -132,6 +132,7 @@ const DeliveryAssign = () => {
 
   const shipmentStatusColor = (status) => {
     const map = {
+      PENDING: 'secondary',
       ASSIGNED: 'info',
       IN_TRANSIT: 'warning',
       DELIVERED: 'success',
@@ -183,7 +184,7 @@ const DeliveryAssign = () => {
                     <CTableDataCell>{order.customerEmail || '—'}</CTableDataCell>
                     <CTableDataCell>${Number(order.totalAmount).toFixed(2)}</CTableDataCell>
                     <CTableDataCell>
-                      <CBadge color={order.status === 'PAID' ? 'success' : 'primary'}>{order.status}</CBadge>
+                      <CBadge color={order.status === 'ACCEPTED' ? 'success' : 'primary'}>{order.status}</CBadge>
                     </CTableDataCell>
                     <CTableDataCell>{new Date(order.createdAt).toLocaleDateString()}</CTableDataCell>
                   </CTableRow>
@@ -227,7 +228,7 @@ const DeliveryAssign = () => {
                     <CTableDataCell>{s.trackingNumber || '—'}</CTableDataCell>
                     <CTableDataCell>{new Date(s.assignedAt).toLocaleDateString()}</CTableDataCell>
                     <CTableDataCell>
-                      {s.status === 'ASSIGNED' && (
+                      {['ASSIGNED', 'PENDING'].includes(s.status) && (
                         <CButton color="warning" size="sm" variant="outline" onClick={() => openReassign(s)}>
                           Reassign
                         </CButton>

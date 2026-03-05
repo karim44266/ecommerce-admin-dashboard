@@ -22,12 +22,14 @@ const _nav = [
   {
     component: CNavTitle,
     name: 'Management',
+    roles: ['ADMIN'],
   },
   {
     component: CNavGroup,
     name: 'Products',
     to: '/products',
     icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
+    roles: ['ADMIN'],
     items: [
       {
         component: CNavItem,
@@ -46,6 +48,7 @@ const _nav = [
     name: 'Categories',
     to: '/categories',
     icon: <CIcon icon={cilLayers} customClassName="nav-icon" />,
+    roles: ['ADMIN'],
     items: [
       {
         component: CNavItem,
@@ -64,6 +67,7 @@ const _nav = [
     name: 'Inventory',
     to: '/inventory',
     icon: <CIcon icon={cilStorage} customClassName="nav-icon" />,
+    roles: ['ADMIN'],
     items: [
       {
         component: CNavItem,
@@ -82,6 +86,7 @@ const _nav = [
     name: 'Orders',
     to: '/orders',
     icon: <CIcon icon={cilClipboard} customClassName="nav-icon" />,
+    roles: ['ADMIN'],
     items: [
       {
         component: CNavItem,
@@ -89,6 +94,11 @@ const _nav = [
         to: '/orders',
       },
     ],
+  },
+  {
+    component: CNavTitle,
+    name: 'Delivery',
+    roles: ['STAFF'],
   },
   {
     component: CNavGroup,
@@ -100,6 +110,7 @@ const _nav = [
         component: CNavItem,
         name: 'Assign Delivery',
         to: '/delivery/assign',
+        roles: ['ADMIN'],
       },
       {
         component: CNavItem,
@@ -113,6 +124,7 @@ const _nav = [
     name: 'Users',
     to: '/users',
     icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
+    roles: ['ADMIN'],
     items: [
       {
         component: CNavItem,

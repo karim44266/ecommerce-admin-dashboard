@@ -27,6 +27,7 @@ import PageHeader from '../../shared/components/PageHeader'
 
 /* ── Status colours ──────────────────────────────────────────── */
 const STATUS_COLORS = {
+  PENDING: 'secondary',
   ASSIGNED: 'info',
   IN_TRANSIT: 'warning',
   DELIVERED: 'success',
@@ -36,7 +37,8 @@ const STATUS_COLORS = {
 
 /* ── Allowed transitions (mirrors backend) ──────────────────── */
 const TRANSITIONS = {
-  ASSIGNED: ['IN_TRANSIT', 'FAILED'],
+  PENDING: [],
+  ASSIGNED: ['IN_TRANSIT', 'PENDING', 'FAILED'],
   IN_TRANSIT: ['DELIVERED', 'FAILED'],
   FAILED: ['RETURNED', 'IN_TRANSIT'],
   DELIVERED: [],
@@ -44,6 +46,7 @@ const TRANSITIONS = {
 }
 
 const LABEL = {
+  PENDING: 'Pending',
   ASSIGNED: 'Assigned',
   IN_TRANSIT: 'In Transit',
   DELIVERED: 'Delivered',
@@ -54,6 +57,7 @@ const LABEL = {
 /* ── Status filter tabs ──────────────────────────────────────── */
 const FILTER_TABS = [
   { value: '', label: 'All' },
+  { value: 'PENDING', label: 'Pending' },
   { value: 'ASSIGNED', label: 'Assigned' },
   { value: 'IN_TRANSIT', label: 'In Transit' },
   { value: 'FAILED', label: 'Failed' },
@@ -237,7 +241,59 @@ const DeliveryStatus = () => {
                         {s.deliveredAt ? new Date(s.deliveredAt).toLocaleDateString() : '—'}
                       </CTableDataCell>
                       <CTableDataCell>
-                        {canUpdate ? (
+                        {s.status === 'ASSIGNED' ? (
+                          <div className="d-flex gap-1">
+                            <CButton
+                              color="success"
+                              size="sm"
+                              disabled={submitting}
+                              onClick={async () => {
+                                setSubmitting(true)
+                                setError('')
+                                try {
+                                  await api.patch(`/shipments/${s.id}/status`, {
+                                    status: 'IN_TRANSIT',
+                                    note: 'Delivery accepted by staff',
+                                  })
+                                  setSuccess(`Shipment ${s.id.slice(0, 8)}… accepted – now In Transit.`)
+                                  fetchShipments()
+                                } catch (err) {
+                                  const msg = err?.response?.data?.message || 'Failed to accept.'
+                                  setError(Array.isArray(msg) ? msg.join(', ') : msg)
+                                } finally {
+                                  setSubmitting(false)
+                                }
+                              }}
+                            >
+                              Accept
+                            </CButton>
+                            <CButton
+                              color="danger"
+                              size="sm"
+                              variant="outline"
+                              disabled={submitting}
+                              onClick={async () => {
+                                setSubmitting(true)
+                                setError('')
+                                try {
+                                  await api.patch(`/shipments/${s.id}/status`, {
+                                    status: 'PENDING',
+                                    note: 'Delivery declined by staff',
+                                  })
+                                  setSuccess(`Shipment ${s.id.slice(0, 8)}… declined – awaiting reassignment.`)
+                                  fetchShipments()
+                                } catch (err) {
+                                  const msg = err?.response?.data?.message || 'Failed to decline.'
+                                  setError(Array.isArray(msg) ? msg.join(', ') : msg)
+                                } finally {
+                                  setSubmitting(false)
+                                }
+                              }}
+                            >
+                              Decline
+                            </CButton>
+                          </div>
+                        ) : canUpdate ? (
                           <CButton
                             color="success"
                             size="sm"

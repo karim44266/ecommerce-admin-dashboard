@@ -19,22 +19,22 @@ import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
 
 const STATUS_COLORS = {
-  PENDING_PAYMENT: 'warning',
-  PAID: 'info',
+  PENDING: 'warning',
+  ACCEPTED: 'info',
   PROCESSING: 'primary',
-  SHIPPED: 'dark',
   DELIVERED: 'success',
+  COMPLETED: 'primary',
   CANCELLED: 'danger',
   REFUNDED: 'secondary',
   FAILED: 'danger',
 }
 
 const STATUS_LABELS = {
-  PENDING_PAYMENT: 'Pending Payment',
-  PAID: 'Paid',
+  PENDING: 'Pending',
+  ACCEPTED: 'Accepted',
   PROCESSING: 'Processing',
-  SHIPPED: 'Shipped',
   DELIVERED: 'Delivered',
+  COMPLETED: 'Completed',
   CANCELLED: 'Cancelled',
   REFUNDED: 'Refunded',
   FAILED: 'Failed',
@@ -42,11 +42,11 @@ const STATUS_LABELS = {
 
 /** Mirrors STATUS_TRANSITIONS from the backend DTO */
 const STATUS_TRANSITIONS = {
-  PENDING_PAYMENT: ['PAID', 'CANCELLED', 'FAILED'],
-  PAID: ['PROCESSING', 'CANCELLED', 'REFUNDED'],
-  PROCESSING: ['SHIPPED', 'CANCELLED'],
-  SHIPPED: ['DELIVERED', 'FAILED'],
-  DELIVERED: ['REFUNDED'],
+  PENDING: ['ACCEPTED', 'CANCELLED'],
+  ACCEPTED: ['PROCESSING', 'CANCELLED'],
+  PROCESSING: ['DELIVERED', 'CANCELLED'],
+  DELIVERED: ['COMPLETED', 'REFUNDED'],
+  COMPLETED: [],
   CANCELLED: [],
   REFUNDED: [],
   FAILED: ['PROCESSING'],
@@ -208,15 +208,6 @@ const OrderStatusUpdate = () => {
             placeholder="Reason for status change…"
             value={note}
             onChange={(e) => setNote(e.target.value)}
-          />
-        </div>
-        <div className="mb-3">
-          <CFormLabel>Note (optional)</CFormLabel>
-          <CFormTextarea
-            rows={3}
-            value={note}
-            onChange={(event) => setNote(event.target.value)}
-            placeholder="e.g. Payment verified, order packed..."
           />
         </div>
       </FormCard>
