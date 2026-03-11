@@ -15,7 +15,6 @@ import {
   CPaginationItem,
   CSpinner,
   CCard,
-  CCardBody,
   CCardHeader,
   CTable,
   CTableBody,
@@ -188,19 +187,20 @@ const DeliveryStatus = () => {
             </CButton>
           </div>
         </CCardHeader>
-        <CCardBody>
-          {loading ? (
-            <div className="text-center py-5">
-              <CSpinner color="primary" />
-            </div>
-          ) : filtered.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-5">
+            <CSpinner color="primary" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="p-4">
             <p className="text-body-secondary mb-0">
               {statusFilter
                 ? `No shipments with status "${LABEL[statusFilter] || statusFilter}".`
                 : 'No shipments found.'}
             </p>
-          ) : (
-            <CTable responsive hover>
+          </div>
+        ) : (
+          <CTable responsive hover align="middle" className="mb-0">
               <CTableHead>
                 <CTableRow>
                   <CTableHeaderCell>Shipment</CTableHeaderCell>
@@ -288,9 +288,8 @@ const DeliveryStatus = () => {
                   )
                 })}
               </CTableBody>
-            </CTable>
-          )}
-        </CCardBody>
+          </CTable>
+        )}
       </CCard>
 
       {meta.totalPages > 1 && (

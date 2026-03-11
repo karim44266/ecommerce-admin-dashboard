@@ -9,12 +9,8 @@ import {
   CSidebarHeader,
   CSidebarToggler,
 } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
 
 import { AppSidebarNav } from './AppSidebarNav'
-
-import { logo } from 'src/assets/brand/logo'
-import { sygnet } from 'src/assets/brand/sygnet'
 
 import { getRoles } from '../modules/auth/authStorage'
 
@@ -54,9 +50,15 @@ const AppSidebar = () => {
       }}
     >
       <CSidebarHeader className="border-bottom">
-        <CSidebarBrand to="/">
-          <CIcon customClassName="sidebar-brand-full" icon={logo} height={32} />
-          <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} />
+        <CSidebarBrand to="/" className="nx-sidebar-brand">
+          <span className="sidebar-brand-full d-flex align-items-center gap-2">
+            <span className="nx-brand-mark">PB</span>
+            <span className="d-flex flex-column">
+              <span className="nx-brand-text">ProBuild</span>
+              <span className="nx-brand-sub">ADMIN CONSOLE</span>
+            </span>
+          </span>
+          <span className="sidebar-brand-narrow nx-brand-mark-narrow">PB</span>
         </CSidebarBrand>
         <CCloseButton
           className="d-lg-none"
