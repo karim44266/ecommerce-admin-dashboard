@@ -57,7 +57,7 @@ const DeliveryAssign = () => {
       ])
       setOrders(ordersRes.data || [])
       setStaffUsers(staffRes.data || [])
-      setShipments(shipmentsRes.data || [])
+      setShipments(shipmentsRes.data?.data || shipmentsRes.data || [])
     } catch (err) {
       if (err?.response?.status === 401) {
         setError('Session expired. Redirecting to login…')
@@ -172,6 +172,7 @@ const DeliveryAssign = () => {
                 <CTableRow>
                   <CTableHeaderCell>Order ID</CTableHeaderCell>
                   <CTableHeaderCell>Customer</CTableHeaderCell>
+                  <CTableHeaderCell>Address</CTableHeaderCell>
                   <CTableHeaderCell>Total</CTableHeaderCell>
                   <CTableHeaderCell>Status</CTableHeaderCell>
                   <CTableHeaderCell>Created</CTableHeaderCell>
@@ -182,6 +183,11 @@ const DeliveryAssign = () => {
                   <CTableRow key={order.id}>
                     <CTableDataCell className="font-monospace">{order.id.slice(0, 8)}…</CTableDataCell>
                     <CTableDataCell>{order.customerEmail || '—'}</CTableDataCell>
+                    <CTableDataCell className="small">
+                      {order.shippingAddress
+                        ? [order.shippingAddress.street, order.shippingAddress.city, order.shippingAddress.state, order.shippingAddress.zip].filter(Boolean).join(', ')
+                        : '—'}
+                    </CTableDataCell>
                     <CTableDataCell>${Number(order.totalAmount).toFixed(2)}</CTableDataCell>
                     <CTableDataCell>
                       <CBadge color={order.status === 'ACCEPTED' ? 'success' : 'primary'}>{order.status}</CBadge>
@@ -257,6 +263,17 @@ const DeliveryAssign = () => {
                 </option>
               ))}
             </CFormSelect>
+            {(() => {
+              const sel = orders.find((o) => o.id === selectedOrderId)
+              if (!sel?.shippingAddress) return null
+              const addr = sel.shippingAddress
+              return (
+                <div className="mt-1 small text-body-secondary">
+                  <strong>Deliver to:</strong>{' '}
+                  {[addr.street, addr.city, addr.state, addr.zip].filter(Boolean).join(', ')}
+                </div>
+              )
+            })()}
           </div>
           <div className="mb-3">
             <CFormLabel>Assign to Staff *</CFormLabel>

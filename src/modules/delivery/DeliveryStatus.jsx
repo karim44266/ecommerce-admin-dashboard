@@ -11,6 +11,8 @@ import {
   CModalFooter,
   CModalHeader,
   CModalTitle,
+  CPagination,
+  CPaginationItem,
   CSpinner,
   CCard,
   CCardBody,
@@ -67,10 +69,12 @@ const FILTER_TABS = [
 
 const DeliveryStatus = () => {
   const [shipments, setShipments] = useState([])
+  const [meta, setMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 1 })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [page, setPage] = useState(1)
 
   // Modal state
   const [showModal, setShowModal] = useState(false)
@@ -79,15 +83,19 @@ const DeliveryStatus = () => {
   const [note, setNote] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
+  // Confirm accept/decline modal
+  const [confirmAction, setConfirmAction] = useState(null) // { shipment, action: 'accept'|'decline' }
+
   /* ── Fetch shipments ───────────────────────────────────────── */
   const fetchShipments = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const params = {}
+      const params = { page, limit: 20 }
       if (statusFilter) params.status = statusFilter
       const { data } = await api.get('/shipments', { params })
-      setShipments(data || [])
+      setShipments(data?.data || [])
+      setMeta(data?.meta || { total: 0, page: 1, limit: 20, totalPages: 1 })
     } catch (err) {
       if (err?.response?.status === 401) {
         setError('Session expired. Redirecting to login…')
@@ -97,17 +105,14 @@ const DeliveryStatus = () => {
     } finally {
       setLoading(false)
     }
-  }, [statusFilter])
+  }, [statusFilter, page])
 
   useEffect(() => {
     fetchShipments()
   }, [fetchShipments])
 
-  /* ── Filtered list (client‑side quick filter) ──────────────── */
-  const filtered = useMemo(() => {
-    if (!statusFilter) return shipments
-    return shipments.filter((s) => s.status === statusFilter)
-  }, [shipments, statusFilter])
+  /* ── Filtered list ──────────────────────────────────────── */
+  const filtered = shipments
 
   /* ── Open update modal ─────────────────────────────────────── */
   const openUpdate = (shipment) => {
@@ -173,7 +178,7 @@ const DeliveryStatus = () => {
                 key={tab.value}
                 color={statusFilter === tab.value ? 'primary' : 'light'}
                 size="sm"
-                onClick={() => setStatusFilter(tab.value)}
+                onClick={() => { setStatusFilter(tab.value); setPage(1) }}
               >
                 {tab.label}
               </CButton>
@@ -200,6 +205,7 @@ const DeliveryStatus = () => {
                 <CTableRow>
                   <CTableHeaderCell>Shipment</CTableHeaderCell>
                   <CTableHeaderCell>Order</CTableHeaderCell>
+                  <CTableHeaderCell>Address</CTableHeaderCell>
                   <CTableHeaderCell>Staff</CTableHeaderCell>
                   <CTableHeaderCell>Tracking</CTableHeaderCell>
                   <CTableHeaderCell>Order Status</CTableHeaderCell>
@@ -219,6 +225,11 @@ const DeliveryStatus = () => {
                       </CTableDataCell>
                       <CTableDataCell className="font-monospace">
                         {s.orderId.slice(0, 8)}…
+                      </CTableDataCell>
+                      <CTableDataCell className="small">
+                        {s.shippingAddress
+                          ? [s.shippingAddress.street, s.shippingAddress.city, s.shippingAddress.state, s.shippingAddress.zip].filter(Boolean).join(', ')
+                          : '—'}
                       </CTableDataCell>
                       <CTableDataCell>
                         {s.staffName || s.staffEmail || s.staffUserId?.slice(0, 8)}
@@ -247,23 +258,7 @@ const DeliveryStatus = () => {
                               color="success"
                               size="sm"
                               disabled={submitting}
-                              onClick={async () => {
-                                setSubmitting(true)
-                                setError('')
-                                try {
-                                  await api.patch(`/shipments/${s.id}/status`, {
-                                    status: 'IN_TRANSIT',
-                                    note: 'Delivery accepted by staff',
-                                  })
-                                  setSuccess(`Shipment ${s.id.slice(0, 8)}… accepted – now In Transit.`)
-                                  fetchShipments()
-                                } catch (err) {
-                                  const msg = err?.response?.data?.message || 'Failed to accept.'
-                                  setError(Array.isArray(msg) ? msg.join(', ') : msg)
-                                } finally {
-                                  setSubmitting(false)
-                                }
-                              }}
+                              onClick={() => setConfirmAction({ shipment: s, action: 'accept' })}
                             >
                               Accept
                             </CButton>
@@ -272,23 +267,7 @@ const DeliveryStatus = () => {
                               size="sm"
                               variant="outline"
                               disabled={submitting}
-                              onClick={async () => {
-                                setSubmitting(true)
-                                setError('')
-                                try {
-                                  await api.patch(`/shipments/${s.id}/status`, {
-                                    status: 'PENDING',
-                                    note: 'Delivery declined by staff',
-                                  })
-                                  setSuccess(`Shipment ${s.id.slice(0, 8)}… declined – awaiting reassignment.`)
-                                  fetchShipments()
-                                } catch (err) {
-                                  const msg = err?.response?.data?.message || 'Failed to decline.'
-                                  setError(Array.isArray(msg) ? msg.join(', ') : msg)
-                                } finally {
-                                  setSubmitting(false)
-                                }
-                              }}
+                              onClick={() => setConfirmAction({ shipment: s, action: 'decline' })}
                             >
                               Decline
                             </CButton>
@@ -313,6 +292,30 @@ const DeliveryStatus = () => {
           )}
         </CCardBody>
       </CCard>
+
+      {meta.totalPages > 1 && (
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <small className="text-medium-emphasis">
+            Page {meta.page} of {meta.totalPages} ({meta.total} shipments)
+          </small>
+          <CPagination className="mb-0">
+            <CPaginationItem disabled={meta.page <= 1} onClick={() => setPage(1)}>«</CPaginationItem>
+            <CPaginationItem disabled={meta.page <= 1} onClick={() => setPage(meta.page - 1)}>‹</CPaginationItem>
+            {Array.from({ length: Math.min(5, meta.totalPages) }, (_, i) => {
+              const start = Math.max(1, meta.page - 2)
+              const p = start + i
+              if (p > meta.totalPages) return null
+              return (
+                <CPaginationItem key={p} active={p === meta.page} onClick={() => setPage(p)}>
+                  {p}
+                </CPaginationItem>
+              )
+            })}
+            <CPaginationItem disabled={meta.page >= meta.totalPages} onClick={() => setPage(meta.page + 1)}>›</CPaginationItem>
+            <CPaginationItem disabled={meta.page >= meta.totalPages} onClick={() => setPage(meta.totalPages)}>»</CPaginationItem>
+          </CPagination>
+        </div>
+      )}
 
       {/* ── Update Status Modal ─────────────────────────────── */}
       <CModal visible={showModal} onClose={() => setShowModal(false)}>
@@ -370,6 +373,57 @@ const DeliveryStatus = () => {
             disabled={submitting || !newStatus}
           >
             {submitting ? 'Updating…' : 'Confirm'}
+          </CButton>
+        </CModalFooter>
+      </CModal>
+
+      {/* ── Confirm Accept / Decline Modal ──────────────────── */}
+      <CModal visible={!!confirmAction} onClose={() => setConfirmAction(null)}>
+        <CModalHeader>
+          <CModalTitle>
+            {confirmAction?.action === 'accept' ? 'Accept' : 'Decline'} Delivery
+          </CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          Are you sure you want to{' '}
+          <strong>{confirmAction?.action === 'accept' ? 'accept' : 'decline'}</strong>{' '}
+          shipment <strong>{confirmAction?.shipment?.id?.slice(0, 8)}…</strong>?
+          {confirmAction?.action === 'decline' &&
+            ' The shipment will be returned to the assignment queue.'}
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" variant="ghost" onClick={() => setConfirmAction(null)}>
+            Cancel
+          </CButton>
+          <CButton
+            color={confirmAction?.action === 'accept' ? 'success' : 'danger'}
+            disabled={submitting}
+            onClick={async () => {
+              const s = confirmAction.shipment
+              const isAccept = confirmAction.action === 'accept'
+              setConfirmAction(null)
+              setSubmitting(true)
+              setError('')
+              try {
+                await api.patch(`/shipments/${s.id}/status`, {
+                  status: isAccept ? 'IN_TRANSIT' : 'PENDING',
+                  note: isAccept ? 'Delivery accepted by staff' : 'Delivery declined by staff',
+                })
+                setSuccess(
+                  isAccept
+                    ? `Shipment ${s.id.slice(0, 8)}… accepted – now In Transit.`
+                    : `Shipment ${s.id.slice(0, 8)}… declined – awaiting reassignment.`,
+                )
+                fetchShipments()
+              } catch (err) {
+                const msg = err?.response?.data?.message || `Failed to ${confirmAction?.action}.`
+                setError(Array.isArray(msg) ? msg.join(', ') : msg)
+              } finally {
+                setSubmitting(false)
+              }
+            }}
+          >
+            {submitting ? 'Processing…' : confirmAction?.action === 'accept' ? 'Accept' : 'Decline'}
           </CButton>
         </CModalFooter>
       </CModal>

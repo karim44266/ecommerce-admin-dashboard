@@ -5,6 +5,7 @@ import api from '../../services/api'
 import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
 import { useToast } from '../../shared/components/ToastProvider'
+import useUnsavedWarning from '../../shared/hooks/useUnsavedWarning'
 
 const ProductsCreate = () => {
   const navigate = useNavigate()
@@ -22,6 +23,9 @@ const ProductsCreate = () => {
   })
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  const dirty = Object.values(formState).some((v) => v !== '' && v !== 'active')
+  useUnsavedWarning(dirty)
 
   useEffect(() => {
     api
@@ -119,6 +123,17 @@ const ProductsCreate = () => {
             value={formState.image}
             onChange={handleChange}
           />
+          {formState.image && (
+            <div className="mt-2">
+              <img
+                src={formState.image}
+                alt="Preview"
+                style={{ maxWidth: 200, maxHeight: 200, objectFit: 'contain', borderRadius: 4, border: '1px solid var(--cui-border-color)' }}
+                onError={(e) => { e.target.style.display = 'none' }}
+                onLoad={(e) => { e.target.style.display = 'block' }}
+              />
+            </div>
+          )}
         </div>
         <div className="mb-3">
           <CFormLabel>Inventory</CFormLabel>

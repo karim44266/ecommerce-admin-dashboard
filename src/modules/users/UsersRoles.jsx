@@ -4,11 +4,13 @@ import { CAlert, CBadge, CButton, CFormLabel, CFormSelect, CSpinner } from '@cor
 import api from '../../services/api'
 import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
+import useUnsavedWarning from '../../shared/hooks/useUnsavedWarning'
 
 const UsersRoles = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const [role, setRole] = useState('')
+  const [originalRole, setOriginalRole] = useState('')
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -23,6 +25,7 @@ const UsersRoles = () => {
         const response = await api.get(`/users/${id}`)
         setUser(response.data)
         setRole(response.data.role)
+        setOriginalRole(response.data.role)
       } catch (err) {
         setError('Unable to load user details.')
       } finally {
@@ -31,6 +34,8 @@ const UsersRoles = () => {
     }
     fetchUser()
   }, [id])
+
+  useUnsavedWarning(role !== originalRole)
 
   const handleSubmit = async (event) => {
     event.preventDefault()

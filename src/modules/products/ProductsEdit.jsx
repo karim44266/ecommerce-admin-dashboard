@@ -5,6 +5,7 @@ import api from '../../services/api'
 import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
 import { useToast } from '../../shared/components/ToastProvider'
+import useUnsavedWarning from '../../shared/hooks/useUnsavedWarning'
 
 const ProductsEdit = () => {
   const navigate = useNavigate()
@@ -21,9 +22,13 @@ const ProductsEdit = () => {
     status: 'active',
     categoryId: '',
   })
+  const [initialState, setInitialState] = useState(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+
+  const dirty = initialState !== null && JSON.stringify(formState) !== JSON.stringify(initialState)
+  useUnsavedWarning(dirty)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,7 +41,7 @@ const ProductsEdit = () => {
         ])
         setCategories(catRes.data || [])
         const p = productRes.data
-        setFormState({
+        const loaded = {
           name: p?.name || '',
           sku: p?.sku || '',
           description: p?.description || '',
@@ -45,7 +50,9 @@ const ProductsEdit = () => {
           inventory: p?.inventory != null ? String(p.inventory) : '',
           status: p?.status || 'active',
           categoryId: p?.categoryId || '',
-        })
+        }
+        setFormState(loaded)
+        setInitialState(loaded)
       } catch (err) {
         setError('Unable to load product details.')
       } finally {
@@ -145,6 +152,17 @@ const ProductsEdit = () => {
             value={formState.image}
             onChange={handleChange}
           />
+          {formState.image && (
+            <div className="mt-2">
+              <img
+                src={formState.image}
+                alt="Preview"
+                style={{ maxWidth: 200, maxHeight: 200, objectFit: 'contain', borderRadius: 4, border: '1px solid var(--cui-border-color)' }}
+                onError={(e) => { e.target.style.display = 'none' }}
+                onLoad={(e) => { e.target.style.display = 'block' }}
+              />
+            </div>
+          )}
         </div>
         <div className="mb-3">
           <CFormLabel>Inventory</CFormLabel>
