@@ -4,6 +4,7 @@ import { CAlert, CBadge, CButton, CFormLabel, CFormSelect, CSpinner } from '@cor
 import api from '../../services/api'
 import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
+import useUnsavedWarning from '../../shared/hooks/useUnsavedWarning'
 
 const statusBadgeColor = (status) => (status === 'active' ? 'success' : 'danger')
 
@@ -11,6 +12,7 @@ const UsersBlock = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const [status, setStatus] = useState('')
+  const [originalStatus, setOriginalStatus] = useState('')
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -25,6 +27,7 @@ const UsersBlock = () => {
         const response = await api.get(`/users/${id}`)
         setUser(response.data)
         setStatus(response.data.status)
+        setOriginalStatus(response.data.status)
       } catch (err) {
         setError('Unable to load user details.')
       } finally {
@@ -33,6 +36,8 @@ const UsersBlock = () => {
     }
     fetchUser()
   }, [id])
+
+  useUnsavedWarning(status !== originalStatus)
 
   const handleSubmit = async (event) => {
     event.preventDefault()

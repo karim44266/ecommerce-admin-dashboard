@@ -4,53 +4,59 @@ import {
   CAlert,
   CBadge,
   CButton,
-  CButtonGroup,
   CCol,
+  CDropdown,
+  CDropdownItem,
+  CDropdownMenu,
+  CDropdownToggle,
   CFormInput,
+  CFormLabel,
   CFormSelect,
+  CFormTextarea,
+  CModal,
+  CModalBody,
+  CModalFooter,
+  CModalHeader,
+  CModalTitle,
   CPagination,
   CPaginationItem,
   CRow,
+  CSpinner,
   CTooltip,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilSearch, cilReload, cilClipboard, cilLoop, cilTruck } from '@coreui/icons'
+import {
+  cilSearch,
+  cilReload,
+  cilClipboard,
+  cilTruck,
+  cilOptions,
+  cilCheckCircle,
+  cilXCircle,
+  cilArrowRight,
+} from '@coreui/icons'
 import api from '../../services/api'
 import DataTable from '../../shared/components/DataTable'
 import PageHeader from '../../shared/components/PageHeader'
+import {
+  STATUS_COLORS,
+  STATUS_LABELS,
+  STATUS_TRANSITIONS,
+  ALL_STATUSES,
+} from './orderConstants'
 
-const STATUS_COLORS = {
-  PENDING: 'warning',
-  ACCEPTED: 'info',
-  PROCESSING: 'primary',
-  DELIVERED: 'success',
-  COMPLETED: 'primary',
-  CANCELLED: 'danger',
-  REFUNDED: 'secondary',
-  FAILED: 'danger',
+// ── action button config per target status ──────────────────────
+const ACTION_STYLE = {
+  ACCEPTED: { color: 'info', label: 'Accept', icon: cilCheckCircle },
+  PROCESSING: { color: 'primary', label: 'Process', icon: cilArrowRight },
+  DELIVERED: { color: 'success', label: 'Deliver', icon: cilTruck },
+  COMPLETED: { color: 'success', label: 'Complete', icon: cilCheckCircle },
+  CANCELLED: { color: 'danger', label: 'Cancel', icon: cilXCircle },
+  REFUNDED: { color: 'secondary', label: 'Refund', icon: cilXCircle },
+  FAILED: { color: 'danger', label: 'Mark Failed', icon: cilXCircle },
 }
 
-const STATUS_LABELS = {
-  PENDING: 'Pending',
-  ACCEPTED: 'Accepted',
-  PROCESSING: 'Processing',
-  DELIVERED: 'Delivered',
-  COMPLETED: 'Completed',
-  CANCELLED: 'Cancelled',
-  REFUNDED: 'Refunded',
-  FAILED: 'Failed',
-}
-
-const ALL_STATUSES = [
-  'PENDING',
-  'ACCEPTED',
-  'PROCESSING',
-  'DELIVERED',
-  'COMPLETED',
-  'CANCELLED',
-  'REFUNDED',
-  'FAILED',
-]
+const DESTRUCTIVE = ['CANCELLED', 'REFUNDED', 'FAILED']
 
 const OrdersList = () => {
   const navigate = useNavigate()
@@ -58,9 +64,26 @@ const OrdersList = () => {
   const [meta, setMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 1 })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [search, setSearch] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
   const [page, setPage] = useState(1)
+
+  // staff users for process + assign flow
+  const [staffUsers, setStaffUsers] = useState([])
+  const [staffLoading, setStaffLoading] = useState(false)
+
+  // inline status-update modal state
+  const [modal, setModal] = useState({
+    visible: false,
+    order: null,
+    targetStatus: '',
+    note: '',
+    staffId: '',
+    submitting: false,
+  })
 
   const fetchOrders = useCallback(async () => {
     setLoading(true)
@@ -69,6 +92,8 @@ const OrdersList = () => {
       const params = { page, limit: 20 }
       if (statusFilter) params.status = statusFilter
       if (search.trim()) params.search = search.trim()
+      if (dateFrom) params.from = dateFrom
+      if (dateTo) params.to = dateTo
       const response = await api.get('/orders', { params })
       setOrders(response.data?.data || [])
       setMeta(response.data?.meta || { total: 0, page: 1, limit: 20, totalPages: 1 })
@@ -77,21 +102,80 @@ const OrdersList = () => {
     } finally {
       setLoading(false)
     }
-  }, [page, statusFilter, search])
+  }, [page, statusFilter, search, dateFrom, dateTo])
 
   useEffect(() => {
     fetchOrders()
   }, [fetchOrders])
+
+  // clear success toast after 3s
+  useEffect(() => {
+    if (!success) return
+    const t = setTimeout(() => setSuccess(''), 3000)
+    return () => clearTimeout(t)
+  }, [success])
 
   const handleSearchSubmit = (e) => {
     e.preventDefault()
     setPage(1)
   }
 
+  // ── fetch staff for process+assign ────────────────────────────
+  const fetchStaff = async () => {
+    if (staffUsers.length > 0) return
+    setStaffLoading(true)
+    try {
+      const { data } = await api.get('/shipments/staff')
+      setStaffUsers(data || [])
+    } catch { /* ignore */ }
+    setStaffLoading(false)
+  }
+
+  // ── inline status update ──────────────────────────────────────
+  const openStatusModal = (order, targetStatus) => {
+    const needsStaff = targetStatus === 'PROCESSING'
+    if (needsStaff) fetchStaff()
+    setModal({ visible: true, order, targetStatus, note: '', staffId: '', submitting: false })
+  }
+  const closeModal = () =>
+    setModal({ visible: false, order: null, targetStatus: '', note: '', staffId: '', submitting: false })
+
+  const confirmStatusUpdate = async () => {
+    const { order, targetStatus, note, staffId } = modal
+    // require staff for PROCESSING
+    if (targetStatus === 'PROCESSING' && !staffId) {
+      setError('Please select a staff member to assign delivery.')
+      return
+    }
+    setModal((m) => ({ ...m, submitting: true }))
+    try {
+      await api.patch(`/orders/${order.id}/status`, {
+        status: targetStatus,
+        ...(note.trim() ? { note: note.trim() } : {}),
+      })
+      // auto-create shipment when processing
+      if (targetStatus === 'PROCESSING' && staffId) {
+        try {
+          await api.post('/shipments', {
+            orderId: order.id,
+            staffUserId: staffId,
+          })
+        } catch { /* shipment creation is best-effort */ }
+      }
+      setSuccess(`Order #${order.id.slice(0, 8)} updated to ${STATUS_LABELS[targetStatus]}`)
+      closeModal()
+      fetchOrders()
+    } catch (err) {
+      setError(err.response?.data?.message || 'Unable to update status.')
+      setModal((m) => ({ ...m, submitting: false }))
+    }
+  }
+
+  // ── columns ───────────────────────────────────────────────────
   const columns = [
     {
       key: 'id',
-      label: 'Order ID',
+      label: 'Order',
       render: (row) => (
         <span
           role="button"
@@ -107,7 +191,7 @@ const OrdersList = () => {
       key: 'customerEmail',
       label: 'Customer',
       render: (row) => (
-        <span className="text-truncate d-inline-block" style={{ maxWidth: '200px' }}>
+        <span className="text-truncate d-inline-block" style={{ maxWidth: '180px' }}>
           {row.customerEmail || '—'}
         </span>
       ),
@@ -143,41 +227,94 @@ const OrdersList = () => {
     },
     {
       key: 'actions',
-      label: 'Actions',
-      render: (row) => (
-        <CButtonGroup size="sm">
-          <CTooltip content="View Details">
-            <CButton
-              color="primary"
-              variant="outline"
-              onClick={() => navigate(`/orders/${row.id}`)}
-            >
-              <CIcon icon={cilClipboard} size="sm" />
-            </CButton>
-          </CTooltip>
-          <CTooltip content="Update Status">
-            <CButton
-              color="warning"
-              variant="outline"
-              onClick={() => navigate(`/orders/${row.id}/status`)}
-            >
-              <CIcon icon={cilLoop} size="sm" />
-            </CButton>
-          </CTooltip>
-          <CTooltip content="Update Tracking">
-            <CButton
-              color="info"
-              variant="outline"
-              onClick={() => navigate(`/orders/${row.id}/tracking`)}
-            >
-              <CIcon icon={cilTruck} size="sm" />
-            </CButton>
-          </CTooltip>
-        </CButtonGroup>
-      ),
+      label: '',
+      render: (row) => {
+        const transitions = STATUS_TRANSITIONS[row.status] || []
+        // primary = first non-destructive transition (happy path)
+        const primary = transitions.find((s) => !DESTRUCTIVE.includes(s))
+        // secondary = everything else
+        const secondary = transitions.filter((s) => s !== primary)
+        const style = primary ? ACTION_STYLE[primary] : null
+
+        return (
+          <div className="d-flex align-items-center gap-1 justify-content-end">
+            {/* ── Quick-advance button ── */}
+            {primary && style && (
+              <CTooltip content={`${style.label} this order`}>
+                <CButton
+                  color={style.color}
+                  size="sm"
+                  className="fw-semibold"
+                  onClick={() => openStatusModal(row, primary)}
+                >
+                  <CIcon icon={style.icon} size="sm" className="me-1" />
+                  {style.label}
+                </CButton>
+              </CTooltip>
+            )}
+
+            {/* ── More actions dropdown ── */}
+            <CDropdown alignment="end" className="order-actions-dropdown">
+              <CDropdownToggle
+                caret={false}
+                className="order-actions-toggle"
+              >
+                <CIcon icon={cilOptions} />
+              </CDropdownToggle>
+              <CDropdownMenu className="order-actions-menu shadow-sm">
+                <CDropdownItem
+                  role="button"
+                  className="order-actions-item"
+                  onClick={() => navigate(`/orders/${row.id}`)}
+                >
+                  <span className="order-actions-icon bg-primary-subtle text-primary">
+                    <CIcon icon={cilClipboard} size="sm" />
+                  </span>
+                  <span>View Details</span>
+                </CDropdownItem>
+                <CDropdownItem
+                  role="button"
+                  className="order-actions-item"
+                  onClick={() => navigate(`/orders/${row.id}/tracking`)}
+                >
+                  <span className="order-actions-icon bg-info-subtle text-info">
+                    <CIcon icon={cilTruck} size="sm" />
+                  </span>
+                  <span>Update Tracking</span>
+                </CDropdownItem>
+
+                {/* secondary status transitions */}
+                {secondary.length > 0 && (
+                  <>
+                    <div className="dropdown-divider" />
+                    {secondary.map((s) => {
+                      const sty = ACTION_STYLE[s] || {}
+                      const isDanger = DESTRUCTIVE.includes(s)
+                      return (
+                        <CDropdownItem
+                          key={s}
+                          role="button"
+                          className={`order-actions-item${isDanger ? ' order-actions-item--danger' : ''}`}
+                          onClick={() => openStatusModal(row, s)}
+                        >
+                          <span className={`order-actions-icon ${isDanger ? 'bg-danger-subtle text-danger' : `bg-${sty.color || 'secondary'}-subtle text-${sty.color || 'secondary'}`}`}>
+                            <CIcon icon={sty.icon || cilArrowRight} size="sm" />
+                          </span>
+                          <span>{sty.label || STATUS_LABELS[s]}</span>
+                        </CDropdownItem>
+                      )
+                    })}
+                  </>
+                )}
+              </CDropdownMenu>
+            </CDropdown>
+          </div>
+        )
+      },
     },
   ]
 
+  // ── pagination ────────────────────────────────────────────────
   const paginationItems = []
   const maxVisiblePages = 5
   let startPage = Math.max(1, meta.page - Math.floor(maxVisiblePages / 2))
@@ -193,13 +330,16 @@ const OrdersList = () => {
     )
   }
 
+  // ── render ────────────────────────────────────────────────────
+  const isDestructive = DESTRUCTIVE.includes(modal.targetStatus)
+
   return (
     <div>
       <PageHeader title="Orders" subtitle="Review customer orders and manage fulfillment." />
 
       {/* Filters */}
       <CRow className="mb-3 g-2 align-items-end">
-        <CCol md={3}>
+        <CCol md={2}>
           <CFormSelect
             value={statusFilter}
             onChange={(e) => {
@@ -215,7 +355,7 @@ const OrdersList = () => {
             ))}
           </CFormSelect>
         </CCol>
-        <CCol md={4}>
+        <CCol md={3}>
           <form onSubmit={handleSearchSubmit} className="d-flex gap-2">
             <CFormInput
               placeholder="Search by order ID or email…"
@@ -228,16 +368,50 @@ const OrdersList = () => {
           </form>
         </CCol>
         <CCol md={2}>
-          <CButton color="light" size="sm" onClick={fetchOrders} disabled={loading}>
-            <CIcon icon={cilReload} className={`me-1 ${loading ? 'spin-animation' : ''}`} />
-            Refresh
-          </CButton>
+          <CFormInput
+            type="date"
+            placeholder="From"
+            value={dateFrom}
+            onChange={(e) => {
+              setDateFrom(e.target.value)
+              setPage(1)
+            }}
+          />
+        </CCol>
+        <CCol md={2}>
+          <CFormInput
+            type="date"
+            placeholder="To"
+            value={dateTo}
+            onChange={(e) => {
+              setDateTo(e.target.value)
+              setPage(1)
+            }}
+          />
+        </CCol>
+        <CCol md={1} className="d-flex align-items-center">
+          <CTooltip content="Refresh orders">
+            <CButton
+              color="primary"
+              variant="ghost"
+              className="refresh-btn"
+              onClick={fetchOrders}
+              disabled={loading}
+            >
+              <CIcon icon={cilReload} className={loading ? 'spin-animation' : ''} />
+            </CButton>
+          </CTooltip>
         </CCol>
       </CRow>
 
       {error && (
         <CAlert color="danger" dismissible onClose={() => setError('')}>
           {error}
+        </CAlert>
+      )}
+      {success && (
+        <CAlert color="success" dismissible onClose={() => setSuccess('')}>
+          {success}
         </CAlert>
       )}
 
@@ -277,6 +451,113 @@ const OrdersList = () => {
           </CPagination>
         </div>
       )}
+
+      {/* ── Inline Status-Update Modal ── */}
+      <CModal visible={modal.visible} onClose={closeModal} alignment="center">
+        <CModalHeader closeButton>
+          <CModalTitle>
+            {isDestructive ? '⚠️ ' : ''}
+            {ACTION_STYLE[modal.targetStatus]?.label || 'Update'} Order
+          </CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          {modal.order && (
+            <>
+              <div className="d-flex align-items-center gap-2 mb-3">
+                <span className="fw-semibold">#{modal.order.id?.slice(0, 8)}</span>
+                <CBadge
+                  color={STATUS_COLORS[modal.order.status]}
+                  shape="rounded-pill"
+                  className="px-2"
+                >
+                  {STATUS_LABELS[modal.order.status]}
+                </CBadge>
+                <CIcon icon={cilArrowRight} size="sm" className="text-medium-emphasis" />
+                <CBadge
+                  color={STATUS_COLORS[modal.targetStatus]}
+                  shape="rounded-pill"
+                  className="px-2"
+                >
+                  {STATUS_LABELS[modal.targetStatus]}
+                </CBadge>
+              </div>
+
+              <div className="mb-3 small text-medium-emphasis">
+                <strong>Customer:</strong> {modal.order.customerEmail || '—'}
+                {' · '}
+                <strong>Total:</strong> ${Number(modal.order.totalAmount).toFixed(2)}
+              </div>
+
+              {isDestructive && (
+                <CAlert color="danger" className="py-2 small">
+                  This is a destructive action and cannot be easily undone.
+                </CAlert>
+              )}
+
+              {/* ── Staff picker for PROCESSING ── */}
+              {modal.targetStatus === 'PROCESSING' && (
+                <div className="mb-3">
+                  <CFormLabel className="fw-semibold">Assign delivery staff *</CFormLabel>
+                  {staffLoading ? (
+                    <div className="text-center py-2"><CSpinner size="sm" /></div>
+                  ) : (
+                    <CFormSelect
+                      value={modal.staffId}
+                      onChange={(e) => setModal((m) => ({ ...m, staffId: e.target.value }))}
+                    >
+                      <option value="">— select staff member —</option>
+                      {staffUsers.map((u) => (
+                        <option key={u.id} value={u.id}>
+                          {u.name || u.email} ({u.email})
+                        </option>
+                      ))}
+                    </CFormSelect>
+                  )}
+                </div>
+              )}
+
+              <CFormTextarea
+                rows={2}
+                placeholder="Add a note (optional)…"
+                value={modal.note}
+                onChange={(e) => setModal((m) => ({ ...m, note: e.target.value }))}
+              />
+            </>
+          )}
+        </CModalBody>
+        <CModalFooter>
+          <CButton
+            color="secondary"
+            variant="ghost"
+            onClick={closeModal}
+            disabled={modal.submitting}
+          >
+            Cancel
+          </CButton>
+          <CButton
+            color={
+              isDestructive
+                ? 'danger'
+                : ACTION_STYLE[modal.targetStatus]?.color || 'primary'
+            }
+            disabled={modal.submitting}
+            onClick={confirmStatusUpdate}
+          >
+            {modal.submitting ? (
+              <CSpinner size="sm" className="me-1" />
+            ) : (
+              <CIcon
+                icon={ACTION_STYLE[modal.targetStatus]?.icon || cilArrowRight}
+                size="sm"
+                className="me-1"
+              />
+            )}
+            {modal.submitting
+              ? 'Updating…'
+              : ACTION_STYLE[modal.targetStatus]?.label || 'Confirm'}
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </div>
   )
 }

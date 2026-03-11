@@ -8,6 +8,14 @@ import {
   CCardBody,
   CCardHeader,
   CCol,
+  CFormLabel,
+  CFormSelect,
+  CFormTextarea,
+  CModal,
+  CModalBody,
+  CModalFooter,
+  CModalHeader,
+  CModalTitle,
   CRow,
   CSpinner,
   CTable,
@@ -18,30 +26,27 @@ import {
   CTableRow,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilArrowLeft, cilLoop, cilTruck, cilReload } from '@coreui/icons'
+import {
+  cilArrowLeft,
+  cilArrowRight,
+  cilCheckCircle,
+  cilXCircle,
+  cilTruck,
+  cilReload,
+} from '@coreui/icons'
 import api from '../../services/api'
 import PageHeader from '../../shared/components/PageHeader'
+import { STATUS_COLORS, STATUS_LABELS, STATUS_TRANSITIONS } from './orderConstants'
 
-const STATUS_COLORS = {
-  PENDING: 'warning',
-  ACCEPTED: 'info',
-  PROCESSING: 'primary',
-  DELIVERED: 'success',
-  COMPLETED: 'primary',
-  CANCELLED: 'danger',
-  REFUNDED: 'secondary',
-  FAILED: 'danger',
-}
-
-const STATUS_LABELS = {
-  PENDING: 'Pending',
-  ACCEPTED: 'Accepted',
-  PROCESSING: 'Processing',
-  DELIVERED: 'Delivered',
-  COMPLETED: 'Completed',
-  CANCELLED: 'Cancelled',
-  REFUNDED: 'Refunded',
-  FAILED: 'Failed',
+const DESTRUCTIVE = ['CANCELLED', 'REFUNDED', 'FAILED']
+const ACTION_META = {
+  ACCEPTED: { icon: cilCheckCircle, verb: 'Accept', color: 'info' },
+  PROCESSING: { icon: cilArrowRight, verb: 'Process', color: 'primary' },
+  DELIVERED: { icon: cilTruck, verb: 'Mark Delivered', color: 'success' },
+  COMPLETED: { icon: cilCheckCircle, verb: 'Complete', color: 'success' },
+  CANCELLED: { icon: cilXCircle, verb: 'Cancel', color: 'danger' },
+  REFUNDED: { icon: cilXCircle, verb: 'Refund', color: 'danger' },
+  FAILED: { icon: cilXCircle, verb: 'Mark Failed', color: 'danger' },
 }
 
 const OrderDetails = () => {
@@ -50,6 +55,20 @@ const OrderDetails = () => {
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  // staff users for process + assign flow
+  const [staffUsers, setStaffUsers] = useState([])
+  const [staffLoading, setStaffLoading] = useState(false)
+
+  // inline status modal
+  const [modal, setModal] = useState({
+    visible: false,
+    targetStatus: '',
+    note: '',
+    staffId: '',
+    submitting: false,
+  })
 
   const fetchOrder = async () => {
     setLoading(true)
@@ -67,6 +86,60 @@ const OrderDetails = () => {
   useEffect(() => {
     fetchOrder()
   }, [id])
+
+  // clear success after 3 s
+  useEffect(() => {
+    if (!success) return
+    const t = setTimeout(() => setSuccess(''), 3000)
+    return () => clearTimeout(t)
+  }, [success])
+
+  // fetch staff for process+assign
+  const fetchStaff = async () => {
+    if (staffUsers.length > 0) return
+    setStaffLoading(true)
+    try {
+      const { data } = await api.get('/shipments/staff')
+      setStaffUsers(data || [])
+    } catch { /* ignore */ }
+    setStaffLoading(false)
+  }
+
+  const openStatusModal = (targetStatus) => {
+    if (targetStatus === 'PROCESSING') fetchStaff()
+    setModal({ visible: true, targetStatus, note: '', staffId: '', submitting: false })
+  }
+  const closeModal = () =>
+    setModal({ visible: false, targetStatus: '', note: '', staffId: '', submitting: false })
+
+  const confirmStatusUpdate = async () => {
+    const { targetStatus, note, staffId } = modal
+    if (targetStatus === 'PROCESSING' && !staffId) {
+      setError('Please select a staff member to assign delivery.')
+      return
+    }
+    setModal((m) => ({ ...m, submitting: true }))
+    try {
+      await api.patch(`/orders/${id}/status`, {
+        status: targetStatus,
+        ...(note.trim() ? { note: note.trim() } : {}),
+      })
+      if (targetStatus === 'PROCESSING' && staffId) {
+        try {
+          await api.post('/shipments', {
+            orderId: id,
+            staffUserId: staffId,
+          })
+        } catch { /* best-effort */ }
+      }
+      setSuccess(`Status updated to ${STATUS_LABELS[targetStatus]}`)
+      closeModal()
+      fetchOrder()
+    } catch (err) {
+      setError(err.response?.data?.message || 'Unable to update status.')
+      setModal((m) => ({ ...m, submitting: false }))
+    }
+  }
 
   if (loading) {
     return (
@@ -87,6 +160,11 @@ const OrderDetails = () => {
 
   if (!order) return null
 
+  const allowedStatuses = STATUS_TRANSITIONS[order.status] || []
+  const happyNext = allowedStatuses.filter((s) => !DESTRUCTIVE.includes(s))
+  const destructiveNext = allowedStatuses.filter((s) => DESTRUCTIVE.includes(s))
+  const isDestructive = DESTRUCTIVE.includes(modal.targetStatus)
+
   return (
     <div>
       <div className="d-flex justify-content-between align-items-start mb-3">
@@ -96,20 +174,62 @@ const OrderDetails = () => {
             <CIcon icon={cilReload} className="me-1" />
             Refresh
           </CButton>
-          <CButton color="warning" size="sm" onClick={() => navigate(`/orders/${id}/status`)}>
-            <CIcon icon={cilLoop} className="me-1" />
-            Update Status
-          </CButton>
-          <CButton color="info" size="sm" onClick={() => navigate(`/orders/${id}/tracking`)}>
-            <CIcon icon={cilTruck} className="me-1" />
-            Update Tracking
-          </CButton>
           <CButton color="secondary" variant="outline" size="sm" onClick={() => navigate('/orders')}>
             <CIcon icon={cilArrowLeft} className="me-1" />
             Back
           </CButton>
         </div>
       </div>
+
+      {error && (
+        <CAlert color="danger" dismissible onClose={() => setError('')}>
+          {error}
+        </CAlert>
+      )}
+      {success && (
+        <CAlert color="success" dismissible onClose={() => setSuccess('')}>
+          {success}
+        </CAlert>
+      )}
+
+      {/* ── Quick-action bar ──────────────────────────────────── */}
+      {allowedStatuses.length > 0 && (
+        <CCard className="mb-4 border-0 bg-light">
+          <CCardBody className="d-flex flex-wrap align-items-center gap-2 py-2">
+            <span className="text-medium-emphasis small fw-semibold me-2">Quick Actions:</span>
+            {happyNext.map((s) => {
+              const m = ACTION_META[s] || {}
+              return (
+                <CButton
+                  key={s}
+                  color={m.color || 'primary'}
+                  size="sm"
+                  className="fw-semibold"
+                  onClick={() => openStatusModal(s)}
+                >
+                  <CIcon icon={m.icon || cilArrowRight} size="sm" className="me-1" />
+                  {m.verb || STATUS_LABELS[s]}
+                </CButton>
+              )
+            })}
+            {destructiveNext.map((s) => {
+              const m = ACTION_META[s] || {}
+              return (
+                <CButton
+                  key={s}
+                  color="danger"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => openStatusModal(s)}
+                >
+                  <CIcon icon={m.icon || cilXCircle} size="sm" className="me-1" />
+                  {m.verb || STATUS_LABELS[s]}
+                </CButton>
+              )
+            })}
+          </CCardBody>
+        </CCard>
+      )}
 
       {/* Order Summary */}
       <CRow className="mb-4">
@@ -247,6 +367,98 @@ const OrderDetails = () => {
           )}
         </CCardBody>
       </CCard>
+
+      {/* ── Inline Status-Update Modal ── */}
+      <CModal visible={modal.visible} onClose={closeModal} alignment="center">
+        <CModalHeader closeButton>
+          <CModalTitle>
+            {isDestructive ? '⚠️ ' : ''}
+            {ACTION_META[modal.targetStatus]?.verb || 'Update'} Order
+          </CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <div className="d-flex align-items-center gap-2 mb-3">
+            <CBadge
+              color={STATUS_COLORS[order.status]}
+              shape="rounded-pill"
+              className="px-2"
+            >
+              {STATUS_LABELS[order.status]}
+            </CBadge>
+            <CIcon icon={cilArrowRight} size="sm" className="text-medium-emphasis" />
+            <CBadge
+              color={STATUS_COLORS[modal.targetStatus]}
+              shape="rounded-pill"
+              className="px-2"
+            >
+              {STATUS_LABELS[modal.targetStatus]}
+            </CBadge>
+          </div>
+
+          {isDestructive && (
+            <CAlert color="danger" className="py-2 small">
+              This is a destructive action and cannot be easily undone.
+            </CAlert>
+          )}
+
+          {/* ── Staff picker for PROCESSING ── */}
+          {modal.targetStatus === 'PROCESSING' && (
+            <div className="mb-3">
+              <CFormLabel className="fw-semibold">Assign delivery staff *</CFormLabel>
+              {staffLoading ? (
+                <div className="text-center py-2"><CSpinner size="sm" /></div>
+              ) : (
+                <CFormSelect
+                  value={modal.staffId}
+                  onChange={(e) => setModal((m) => ({ ...m, staffId: e.target.value }))}
+                >
+                  <option value="">— select staff member —</option>
+                  {staffUsers.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.name || u.email} ({u.email})
+                    </option>
+                  ))}
+                </CFormSelect>
+              )}
+            </div>
+          )}
+
+          <CFormTextarea
+            rows={2}
+            placeholder="Add a note (optional)…"
+            value={modal.note}
+            onChange={(e) => setModal((m) => ({ ...m, note: e.target.value }))}
+          />
+        </CModalBody>
+        <CModalFooter>
+          <CButton
+            color="secondary"
+            variant="ghost"
+            onClick={closeModal}
+            disabled={modal.submitting}
+          >
+            Cancel
+          </CButton>
+          <CButton
+            color={isDestructive ? 'danger' : ACTION_META[modal.targetStatus]?.color || 'primary'}
+            disabled={modal.submitting}
+            onClick={confirmStatusUpdate}
+          >
+            {modal.submitting ? (
+              <CSpinner size="sm" className="me-1" />
+            ) : (
+              <CIcon
+                icon={ACTION_META[modal.targetStatus]?.icon || cilArrowRight}
+                size="sm"
+                className="me-1"
+              />
+            )}
+            {modal.submitting
+              ? 'Updating…'
+              : ACTION_META[modal.targetStatus]?.verb || 'Confirm'}
+          </CButton>
+        </CModalFooter>
+      </CModal>
     </div>
   )
 }

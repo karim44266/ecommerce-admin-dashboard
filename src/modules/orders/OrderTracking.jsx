@@ -17,28 +17,7 @@ import { cilArrowLeft } from '@coreui/icons'
 import api from '../../services/api'
 import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
-
-const STATUS_COLORS = {
-  PENDING: 'warning',
-  ACCEPTED: 'info',
-  PROCESSING: 'primary',
-  DELIVERED: 'success',
-  COMPLETED: 'primary',
-  CANCELLED: 'danger',
-  REFUNDED: 'secondary',
-  FAILED: 'danger',
-}
-
-const STATUS_LABELS = {
-  PENDING: 'Pending',
-  ACCEPTED: 'Accepted',
-  PROCESSING: 'Processing',
-  DELIVERED: 'Delivered',
-  COMPLETED: 'Completed',
-  CANCELLED: 'Cancelled',
-  REFUNDED: 'Refunded',
-  FAILED: 'Failed',
-}
+import { STATUS_COLORS, STATUS_LABELS } from './orderConstants'
 
 const OrderTracking = () => {
   const { id } = useParams()
