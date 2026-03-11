@@ -15,7 +15,6 @@ import {
   CTableHead,
   CTableHeaderCell,
   CTableRow,
-  CWidgetStatsF,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import {
@@ -47,7 +46,6 @@ const Dashboard = () => {
     const fetchDashboard = async () => {
       try {
         setLoading(true)
-        // Fetch all orders (first page) and shipments in parallel
         const [ordersRes, shipmentsRes] = await Promise.all([
           api.get('/orders', { params: { limit: 200, page: 1 } }),
           api.get('/shipments', { params: { limit: 200, page: 1 } }),
@@ -56,7 +54,6 @@ const Dashboard = () => {
         const allOrders = ordersRes.data?.data || []
         const shipments = shipmentsRes.data?.data || shipmentsRes.data || []
 
-        // KPI calculations
         const totalOrders = ordersRes.data?.meta?.total || allOrders.length
         const revenue = allOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0)
         const pendingOrders = allOrders.filter((o) => o.status === 'PENDING').length
@@ -83,54 +80,64 @@ const Dashboard = () => {
     )
   }
 
+  const kpiCards = [
+    {
+      label: 'Total Orders',
+      value: stats.totalOrders,
+      icon: cilCart,
+      variant: '--primary',
+    },
+    {
+      label: 'Revenue',
+      value: `$${stats.revenue.toFixed(2)}`,
+      icon: cilDollar,
+      variant: '--success',
+    },
+    {
+      label: 'Pending Orders',
+      value: stats.pendingOrders,
+      icon: cilClock,
+      variant: '--warning',
+    },
+    {
+      label: 'Active Deliveries',
+      value: stats.activeDeliveries,
+      icon: cilTruck,
+      variant: '--info',
+    },
+  ]
+
+  const quickActions = [
+    { label: 'Add Product', icon: cilPlus, path: '/products/create' },
+    { label: 'Manage Orders', icon: cilClipboard, path: '/orders' },
+    { label: 'Manage Users', icon: cilPeople, path: '/users' },
+  ]
+
   return (
     <div>
       <PageHeader title="Dashboard" subtitle="Operational snapshot for your ecommerce store." />
 
-      {/* ── KPI Cards ─────────────────────────────────────────── */}
-      <CRow className="mb-4">
-        <CCol sm={6} xl={3}>
-          <CWidgetStatsF
-            className="mb-3"
-            color="primary"
-            icon={<CIcon icon={cilCart} height={24} />}
-            title="Total Orders"
-            value={stats.totalOrders}
-          />
-        </CCol>
-        <CCol sm={6} xl={3}>
-          <CWidgetStatsF
-            className="mb-3"
-            color="success"
-            icon={<CIcon icon={cilDollar} height={24} />}
-            title="Revenue"
-            value={`$${stats.revenue.toFixed(2)}`}
-          />
-        </CCol>
-        <CCol sm={6} xl={3}>
-          <CWidgetStatsF
-            className="mb-3"
-            color="warning"
-            icon={<CIcon icon={cilClock} height={24} />}
-            title="Pending Orders"
-            value={stats.pendingOrders}
-          />
-        </CCol>
-        <CCol sm={6} xl={3}>
-          <CWidgetStatsF
-            className="mb-3"
-            color="info"
-            icon={<CIcon icon={cilTruck} height={24} />}
-            title="Active Deliveries"
-            value={stats.activeDeliveries}
-          />
-        </CCol>
+      {/* ── KPI Stat Cards ────────────────────────────────────── */}
+      <CRow className="mb-4 g-3">
+        {kpiCards.map((card, i) => (
+          <CCol sm={6} xl={3} key={card.label}>
+            <div className={`nx-stat-card nx-fade-in nx-fade-in-d${i > 0 ? i : ''}`} style={{ '--stat-color': `var(${card.variant})` }}>
+              <div className="nx-stat-icon">
+                <CIcon icon={card.icon} height={22} />
+              </div>
+              <div className="nx-stat-body">
+                <div className="nx-stat-label">{card.label}</div>
+                <div className="nx-stat-value">{card.value}</div>
+              </div>
+            </div>
+          </CCol>
+        ))}
       </CRow>
 
       <CRow>
         {/* ── Recent Orders ───────────────────────────────────── */}
         <CCol lg={8} className="mb-4">
-          <CCard>
+          <CCard className="nx-fade-in nx-fade-in-d2">
             <CCardHeader className="d-flex justify-content-between align-items-center">
               <strong>Recent Orders</strong>
               <CButton
@@ -159,11 +166,16 @@ const Dashboard = () => {
                       style={{ cursor: 'pointer' }}
                       onClick={() => navigate(`/orders/${o.id}`)}
                     >
-                      <CTableDataCell className="text-truncate" style={{ maxWidth: 120 }}>
-                        {o.id?.slice(0, 8)}...
+                      <CTableDataCell
+                        className="text-truncate"
+                        style={{ maxWidth: 120, fontFamily: "'JetBrains Mono', monospace", fontSize: '0.82rem' }}
+                      >
+                        {o.id?.slice(0, 8)}…
                       </CTableDataCell>
                       <CTableDataCell>{o.customerEmail || '—'}</CTableDataCell>
-                      <CTableDataCell>${(o.totalAmount || 0).toFixed(2)}</CTableDataCell>
+                      <CTableDataCell style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.85rem' }}>
+                        ${(o.totalAmount || 0).toFixed(2)}
+                      </CTableDataCell>
                       <CTableDataCell>
                         <CBadge color={STATUS_COLORS[o.status] || 'secondary'}>
                           {STATUS_LABELS[o.status] || o.status}
@@ -189,45 +201,30 @@ const Dashboard = () => {
 
         {/* ── Quick Actions ───────────────────────────────────── */}
         <CCol lg={4} className="mb-4">
-          <CCard className="h-100">
-            <CCardHeader>
-              <strong>Quick Actions</strong>
-            </CCardHeader>
-            <CCardBody className="d-grid gap-2">
-              <CButton
-                color="primary"
-                variant="outline"
-                onClick={() => navigate('/products/create')}
+          <h6
+            className="text-uppercase text-medium-emphasis mb-3 nx-fade-in nx-fade-in-d3"
+            style={{ fontSize: '0.7rem', letterSpacing: '0.1em', fontWeight: 600 }}
+          >
+            Quick Actions
+          </h6>
+          <div className="d-grid gap-2">
+            {quickActions.map((action, i) => (
+              <div
+                key={action.label}
+                className={`nx-action-card nx-fade-in nx-fade-in-d${Math.min(i + 1, 4)}`}
+                onClick={() => navigate(action.path)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && navigate(action.path)}
               >
-                <CIcon icon={cilPlus} className="me-2" />
-                Add Product
-              </CButton>
-              <CButton
-                color="info"
-                variant="outline"
-                onClick={() => navigate('/orders')}
-              >
-                <CIcon icon={cilClipboard} className="me-2" />
-                Manage Orders
-              </CButton>
-              <CButton
-                color="warning"
-                variant="outline"
-                onClick={() => navigate('/delivery/assign')}
-              >
-                <CIcon icon={cilTruck} className="me-2" />
-                Assign Deliveries
-              </CButton>
-              <CButton
-                color="success"
-                variant="outline"
-                onClick={() => navigate('/users')}
-              >
-                <CIcon icon={cilPeople} className="me-2" />
-                Manage Users
-              </CButton>
-            </CCardBody>
-          </CCard>
+                <span className="nx-action-icon">
+                  <CIcon icon={action.icon} height={18} />
+                </span>
+                <span className="nx-action-label">{action.label}</span>
+                <CIcon icon={cilArrowRight} height={14} className="ms-auto text-medium-emphasis" />
+              </div>
+            ))}
+          </div>
         </CCol>
       </CRow>
     </div>

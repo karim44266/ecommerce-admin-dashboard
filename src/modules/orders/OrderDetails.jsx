@@ -306,8 +306,7 @@ const OrderDetails = () => {
       {/* Order Items */}
       <CCard className="mb-4">
         <CCardHeader>Items ({order.items?.length || 0})</CCardHeader>
-        <CCardBody>
-          <CTable responsive hover>
+          <CTable responsive hover align="middle" className="mb-0">
             <CTableHead>
               <CTableRow>
                 <CTableHeaderCell>Product</CTableHeaderCell>
@@ -329,7 +328,6 @@ const OrderDetails = () => {
               ))}
             </CTableBody>
           </CTable>
-        </CCardBody>
       </CCard>
 
       {/* Status History / Audit Trail */}

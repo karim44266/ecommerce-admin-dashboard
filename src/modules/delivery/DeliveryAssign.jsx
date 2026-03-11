@@ -13,7 +13,6 @@ import {
   CModalTitle,
   CSpinner,
   CCard,
-  CCardBody,
   CCardHeader,
   CTable,
   CTableBody,
@@ -161,13 +160,14 @@ const DeliveryAssign = () => {
             </CButton>
           </div>
         </CCardHeader>
-        <CCardBody>
-          {loading ? (
-            <div className="text-center py-5"><CSpinner color="primary" /></div>
-          ) : orders.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-5"><CSpinner color="primary" /></div>
+        ) : orders.length === 0 ? (
+          <div className="p-4">
             <p className="text-body-secondary mb-0">No orders waiting for delivery assignment.</p>
-          ) : (
-            <CTable responsive hover>
+          </div>
+        ) : (
+          <CTable responsive hover align="middle" className="mb-0">
               <CTableHead>
                 <CTableRow>
                   <CTableHeaderCell>Order ID</CTableHeaderCell>
@@ -196,9 +196,8 @@ const DeliveryAssign = () => {
                   </CTableRow>
                 ))}
               </CTableBody>
-            </CTable>
-          )}
-        </CCardBody>
+          </CTable>
+        )}
       </CCard>
 
       {/* ── Existing Shipments ──────────────────────────── */}
@@ -206,11 +205,12 @@ const DeliveryAssign = () => {
         <CCardHeader>
           <span>Active Shipments ({shipments.length})</span>
         </CCardHeader>
-        <CCardBody>
-          {shipments.length === 0 ? (
+        {shipments.length === 0 ? (
+          <div className="p-4">
             <p className="text-body-secondary mb-0">No shipments yet.</p>
-          ) : (
-            <CTable responsive hover>
+          </div>
+        ) : (
+          <CTable responsive hover align="middle" className="mb-0">
               <CTableHead>
                 <CTableRow>
                   <CTableHeaderCell>Shipment ID</CTableHeaderCell>
@@ -243,9 +243,8 @@ const DeliveryAssign = () => {
                   </CTableRow>
                 ))}
               </CTableBody>
-            </CTable>
-          )}
-        </CCardBody>
+          </CTable>
+        )}
       </CCard>
 
       {/* ── Create Shipment Modal ───────────────────────── */}

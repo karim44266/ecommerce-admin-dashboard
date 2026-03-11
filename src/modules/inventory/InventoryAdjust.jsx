@@ -376,12 +376,13 @@ const InventoryAdjust = () => {
           <span>Adjustment History</span>
           <small className="text-medium-emphasis">{historyMeta.total} total entries</small>
         </CCardHeader>
-        <CCardBody>
-          {history.length === 0 ? (
-            <p className="text-medium-emphasis text-center">No adjustments recorded yet.</p>
-          ) : (
-            <>
-              <CTable responsive hover>
+        {history.length === 0 ? (
+          <div className="p-4">
+            <p className="text-medium-emphasis text-center mb-0">No adjustments recorded yet.</p>
+          </div>
+        ) : (
+          <>
+            <CTable responsive hover align="middle" className="mb-0">
                 <CTableHead>
                   <CTableRow>
                     <CTableHeaderCell>Date</CTableHeaderCell>
@@ -406,16 +407,17 @@ const InventoryAdjust = () => {
                     </CTableRow>
                   ))}
                 </CTableBody>
-              </CTable>
+            </CTable>
+            <div className="p-3">
               <TruncatedPagination
                 page={historyPage}
                 totalPages={historyMeta.totalPages}
                 onPageChange={handleHistoryPageChange}
                 size="sm"
               />
-            </>
-          )}
-        </CCardBody>
+            </div>
+          </>
+        )}
       </CCard>
     </div>
   )
