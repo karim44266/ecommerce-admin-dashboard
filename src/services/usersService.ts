@@ -70,3 +70,8 @@ export const updateUserStatus = async (id: string, status: string) => {
   const response = await api.patch(`/users/${id}/status`, { status })
   return response.data
 }
+
+export const createUser = async (payload: Record<string, any>) => {
+  const response = await api.post('/users', payload)
+  return response.data
+}

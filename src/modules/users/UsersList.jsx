@@ -15,6 +15,7 @@ import {
   CPagination,
   CPaginationItem,
   CSpinner,
+  CFormSelect,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilSearch } from '@coreui/icons'
@@ -23,6 +24,7 @@ import {
   getApiErrorMessage,
   getUsers,
   updateUserStatus,
+  createUser,
 } from '../../services/usersService'
 import { isAdmin } from '../auth/authStorage'
 import DataTable from '../../shared/components/DataTable'
@@ -34,6 +36,8 @@ const roleBadgeColor = (role) => {
       return 'danger'
     case 'staff':
       return 'warning'
+    case 'reseller':
+      return 'primary'
     case 'customer':
     default:
       return 'info'
@@ -51,6 +55,15 @@ const UsersList = () => {
   const [page, setPage] = useState(1)
   const [togglingId, setTogglingId] = useState(null)
   const [confirmUser, setConfirmUser] = useState(null)
+
+  // Add User State
+  const [addUserModal, setAddUserModal] = useState(false)
+  const [newEmail, setNewEmail] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [newRole, setNewRole] = useState('reseller')
+  const [creating, setCreating] = useState(false)
+  const [addError, setAddError] = useState('')
+
   const navigate = useNavigate()
   const { addToast } = useToast()
 
@@ -108,6 +121,25 @@ const UsersList = () => {
     setPage(1)
   }
 
+  const handleCreateUser = async (e) => {
+    e.preventDefault()
+    setCreating(true)
+    setAddError('')
+    try {
+      await createUser({ email: newEmail, password: newPassword, role: newRole })
+      addToast('User created successfully.', 'success')
+      setAddUserModal(false)
+      setNewEmail('')
+      setNewPassword('')
+      setNewRole('reseller')
+      fetchUsers()
+    } catch (err) {
+      setAddError(getApiErrorMessage(err, 'Failed to create user.'))
+    } finally {
+      setCreating(false)
+    }
+  }
+
   const columns = [
     { key: 'email', label: 'Email' },
     { key: 'name', label: 'Name', render: (row) => row.name || '\u2014' },
@@ -150,7 +182,11 @@ const UsersList = () => {
 
   return (
     <div>
-      <PageHeader title="Users" subtitle="Manage users, roles, and access." />
+      <PageHeader 
+        title="Users" 
+        subtitle="Manage users, roles, and access." 
+        actions={<CButton color="primary" onClick={() => setAddUserModal(true)}>Add User</CButton>}
+      />
       {error && <CAlert color="danger">{error}</CAlert>}
       <form onSubmit={handleSearchSubmit}>
         <CInputGroup className="mb-3">
@@ -223,6 +259,59 @@ const UsersList = () => {
             {confirmUser?.status === 'active' ? 'Block' : 'Unblock'}
           </CButton>
         </CModalFooter>
+      </CModal>
+
+      {/* ── Add User Modal ─────────────────────── */}
+      <CModal visible={addUserModal} onClose={() => setAddUserModal(false)}>
+        <form onSubmit={handleCreateUser}>
+          <CModalHeader>
+            <CModalTitle>Create New User</CModalTitle>
+          </CModalHeader>
+          <CModalBody>
+            {addError && <CAlert color="danger">{addError}</CAlert>}
+            <div className="mb-3">
+              <label className="form-label">Email Address</label>
+              <CFormInput
+                type="email"
+                required
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                placeholder="reseller@example.com"
+              />
+              <div className="form-text">This will be their login identifier.</div>
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Temporary Password</label>
+              <CFormInput
+                type="password"
+                required
+                minLength={6}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Make it secure"
+              />
+              <div className="form-text">Minimum 6 characters. They can change it later.</div>
+            </div>
+            <div className="mb-3">
+              <label className="form-label">User Role</label>
+              <CFormSelect value={newRole} onChange={(e) => setNewRole(e.target.value)}>
+                <option value="reseller">Reseller</option>
+                <option value="customer">Customer</option>
+                <option value="staff">Staff</option>
+                <option value="admin">Admin</option>
+              </CFormSelect>
+              <div className="form-text">Choose the primary role for the user.</div>
+            </div>
+          </CModalBody>
+          <CModalFooter>
+            <CButton color="secondary" onClick={() => setAddUserModal(false)}>
+              Cancel
+            </CButton>
+            <CButton color="primary" type="submit" disabled={creating}>
+              {creating ? 'Creating...' : 'Create User'}
+            </CButton>
+          </CModalFooter>
+        </form>
       </CModal>
     </div>
   )

@@ -45,7 +45,7 @@ const App = () => {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/mfa" element={<Mfa />} />
-            <Route element={<ProtectedRoute roles={['ADMIN', 'STAFF']} />}>
+            <Route element={<ProtectedRoute roles={['ADMIN', 'STAFF', 'CUSTOMER', 'RESELLER']} />}>
               <Route path="*" element={<DefaultLayout />} />
             </Route>
           </Routes>

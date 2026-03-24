@@ -2,6 +2,9 @@ import React from 'react'
 
 const Dashboard = React.lazy(() => import('../modules/dashboard/Dashboard'))
 
+const MasterCatalog = React.lazy(() => import('../modules/catalog/MasterCatalog'))
+const PersonalCatalog = React.lazy(() => import('../modules/catalog/PersonalCatalog'))
+
 const ProductsList = React.lazy(() => import('../modules/products/ProductsList'))
 const ProductsCreate = React.lazy(() => import('../modules/products/ProductsCreate'))
 const ProductsEdit = React.lazy(() => import('../modules/products/ProductsEdit'))
@@ -31,6 +34,9 @@ const MfaSettings = React.lazy(() => import('../modules/auth/MfaSettings'))
 
 const routes = [
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
+
+  { path: '/catalog/master', name: 'Master Catalog', element: MasterCatalog },
+  { path: '/catalog/personal', name: 'Personal Catalog', element: PersonalCatalog },
 
   { path: '/products', name: 'Products', element: ProductsList },
   { path: '/products/new', name: 'Create Product', element: ProductsCreate },
