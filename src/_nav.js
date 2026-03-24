@@ -97,6 +97,30 @@ const _nav = [
   },
   {
     component: CNavTitle,
+    name: 'Reseller Catalog',
+    roles: ['RESELLER'],
+  },
+  {
+    component: CNavGroup,
+    name: 'Catalog',
+    to: '/catalog',
+    icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
+    roles: ['RESELLER'],
+    items: [
+      {
+        component: CNavItem,
+        name: 'Master Catalog',
+        to: '/catalog/master',
+      },
+      {
+        component: CNavItem,
+        name: 'Personal Catalog',
+        to: '/catalog/personal',
+      },
+    ],
+  },
+  {
+    component: CNavTitle,
     name: 'Delivery',
     roles: ['STAFF'],
   },

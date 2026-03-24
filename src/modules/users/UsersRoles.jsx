@@ -106,6 +106,7 @@ const UsersRoles = () => {
           <CFormSelect value={role} onChange={(event) => setRole(event.target.value)}>
             <option value="admin">Admin</option>
             <option value="staff">Staff</option>
+            <option value="reseller">Reseller</option>
             <option value="customer">Customer</option>
           </CFormSelect>
         </div>
