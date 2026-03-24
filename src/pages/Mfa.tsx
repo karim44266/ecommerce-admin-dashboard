@@ -50,7 +50,7 @@ const Mfa = () => {
       const response = await verifyMfa(email, otp)
       if (response?.accessToken) {
         const roles = getRolesFromToken(response.accessToken)
-        setAuth(response.accessToken, roles)
+        setAuth(response.accessToken, roles, response.refreshToken || null)
         clearPendingMfaEmail()
         navigate('/', { replace: true })
         return
