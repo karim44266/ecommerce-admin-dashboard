@@ -19,12 +19,12 @@ const Login = () => {
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (event) => {
     const { name, value } = event.target
     setFormState((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
     setIsSubmitting(true)
     setError('')
@@ -95,7 +95,7 @@ const Login = () => {
                 fontWeight: 400,
                 fontSize: 10,
                 letterSpacing: '0.08em',
-                textTransform: 'uppercase' as const,
+                textTransform: 'uppercase',
                 color: '#64748b',
               }}
             >
