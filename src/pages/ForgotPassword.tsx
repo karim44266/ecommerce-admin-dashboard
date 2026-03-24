@@ -5,54 +5,32 @@ import {
   CButton,
   CForm,
   CFormInput,
+  CFormTextarea,
   CInputGroup,
   CInputGroupText,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser } from '@coreui/icons'
-import { getRolesFromToken, setAuth, setPendingMfaEmail } from '../modules/auth/authStorage'
-import { getApiErrorMessage, login } from '../services/authService'
+import { cilUser, cilCommentSquare } from '@coreui/icons'
+import { forgotPassword, getApiErrorMessage } from '../services/authService'
 
-const Login = () => {
+const ForgotPassword = () => {
   const navigate = useNavigate()
-  const [formState, setFormState] = useState({ email: '', password: '' })
+  const [identifier, setIdentifier] = useState('')
+  const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target
-    setFormState((prev) => ({ ...prev, [name]: value }))
-  }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setIsSubmitting(true)
     setError('')
+    setSuccess('')
 
     try {
-      const response = await login(formState.email, formState.password)
-
-      if (response?.accessToken) {
-        const roles = getRolesFromToken(response.accessToken)
-        setAuth(response.accessToken, roles, response.refreshToken || null)
-        navigate('/', { replace: true })
-        return
-      }
-
-      if (response?.mfaRequired) {
-        setPendingMfaEmail(formState.email)
-        navigate('/mfa', { replace: true })
-        return
-      }
-
-      setError('Unexpected response from server. Please try again.')
-    } catch (err: unknown) {
-      // Handle blocked account
-      const maybeError = err as { response?: { status?: number; data?: { blocked?: boolean } } }
-      if (maybeError?.response?.status === 403 && maybeError?.response?.data?.blocked) {
-        navigate('/blocked', { replace: true })
-        return
-      }
+      const response = await forgotPassword(identifier, message || undefined)
+      setSuccess(response.message)
+    } catch (err) {
       setError(getApiErrorMessage(err))
     } finally {
       setIsSubmitting(false)
@@ -110,8 +88,10 @@ const Login = () => {
           </div>
         </div>
 
-        <h1>Welcome back</h1>
-        <p className="nx-login-subtitle">Sign in to the operations console</p>
+        <h1>Forgot Password</h1>
+        <p className="nx-login-subtitle">
+          Enter your identifier and an optional message. Our team will contact you.
+        </p>
 
         {error && (
           <CAlert color="danger" className="py-2" style={{ fontSize: '0.85rem' }}>
@@ -119,54 +99,56 @@ const Login = () => {
           </CAlert>
         )}
 
-        <CForm onSubmit={handleSubmit}>
-          <CInputGroup className="mb-3">
-            <CInputGroupText>
-              <CIcon icon={cilUser} />
-            </CInputGroupText>
-            <CFormInput
-              type="email"
-              name="email"
-              placeholder="admin@company.com"
-              autoComplete="email"
-              value={formState.email}
-              onChange={handleChange}
-              required
-            />
-          </CInputGroup>
+        {success && (
+          <CAlert color="success" className="py-2" style={{ fontSize: '0.85rem' }}>
+            {success}
+          </CAlert>
+        )}
 
-          <CInputGroup className="mb-4">
-            <CInputGroupText>
-              <CIcon icon={cilLockLocked} />
-            </CInputGroupText>
-            <CFormInput
-              type="password"
-              name="password"
-              placeholder="••••••••"
-              autoComplete="current-password"
-              value={formState.password}
-              onChange={handleChange}
-              required
-            />
-          </CInputGroup>
+        {!success && (
+          <CForm onSubmit={handleSubmit}>
+            <CInputGroup className="mb-3">
+              <CInputGroupText>
+                <CIcon icon={cilUser} />
+              </CInputGroupText>
+              <CFormInput
+                type="text"
+                name="identifier"
+                placeholder="Email or account number"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                required
+              />
+            </CInputGroup>
 
-          <CButton color="primary" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Signing in…' : 'Sign in'}
-          </CButton>
-        </CForm>
+            <CInputGroup className="mb-4">
+              <CInputGroupText>
+                <CIcon icon={cilCommentSquare} />
+              </CInputGroupText>
+              <CFormTextarea
+                name="message"
+                placeholder="Optional message..."
+                rows={3}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+            </CInputGroup>
+
+            <CButton color="primary" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Submitting…' : 'Submit Request'}
+            </CButton>
+          </CForm>
+        )}
 
         <div
           style={{
-            marginTop: '1rem',
+            marginTop: '1.5rem',
             textAlign: 'center',
             fontSize: '0.85rem',
           }}
         >
-          <Link
-            to="/forgot-password"
-            style={{ color: '#2dd4bf', textDecoration: 'none' }}
-          >
-            Forgot password?
+          <Link to="/login" style={{ color: '#2dd4bf', textDecoration: 'none' }}>
+            ← Back to login
           </Link>
         </div>
 
@@ -187,4 +169,4 @@ const Login = () => {
   )
 }
 
-export default Login
+export default ForgotPassword

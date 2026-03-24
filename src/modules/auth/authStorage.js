@@ -1,8 +1,11 @@
 const TOKEN_KEY = 'ecom_admin_token'
+const REFRESH_TOKEN_KEY = 'ecom_admin_refresh_token'
 const ROLE_KEY = 'ecom_admin_roles'
 const MFA_EMAIL_KEY = 'ecom_admin_mfa_email'
 
 export const getToken = () => localStorage.getItem(TOKEN_KEY)
+
+export const getRefreshToken = () => localStorage.getItem(REFRESH_TOKEN_KEY)
 
 export const getRoles = () => {
   const raw = localStorage.getItem(ROLE_KEY)
@@ -44,15 +47,19 @@ export const getRolesFromToken = (token) => {
   }
 }
 
-export const setAuth = (token, roles = []) => {
+export const setAuth = (token, roles = [], refreshToken = null) => {
   localStorage.setItem(TOKEN_KEY, token)
   const rolesArray = Array.isArray(roles) ? roles : [roles]
   localStorage.setItem(ROLE_KEY, JSON.stringify(rolesArray))
+  if (refreshToken) {
+    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken)
+  }
 }
 
 export const clearAuth = () => {
   localStorage.removeItem(TOKEN_KEY)
   localStorage.removeItem(ROLE_KEY)
+  localStorage.removeItem(REFRESH_TOKEN_KEY)
 }
 
 export const setPendingMfaEmail = (email) => {
