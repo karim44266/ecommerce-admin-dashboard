@@ -15,7 +15,12 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked } from '@coreui/icons'
-import { getRolesFromToken, setAuth } from '../modules/auth/authStorage'
+import {
+  clearPendingMfaEmail,
+  getPendingMfaEmail,
+  getRolesFromToken,
+  setAuth,
+} from '../modules/auth/authStorage'
 import { getApiErrorMessage, verifyMfa } from '../services/authService'
 
 const Mfa = () => {
@@ -27,7 +32,7 @@ const Mfa = () => {
 
   const email = useMemo(() => {
     const stateEmail = (location.state as { email?: string } | null)?.email
-    return stateEmail || sessionStorage.getItem('mfa_email') || ''
+    return stateEmail || getPendingMfaEmail() || ''
   }, [location.state])
 
   useEffect(() => {
@@ -46,7 +51,7 @@ const Mfa = () => {
       if (response?.accessToken) {
         const roles = getRolesFromToken(response.accessToken)
         setAuth(response.accessToken, roles, response.refreshToken || null)
-        sessionStorage.removeItem('mfa_email')
+        clearPendingMfaEmail()
         navigate('/', { replace: true })
         return
       }
