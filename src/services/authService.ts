@@ -2,11 +2,24 @@ import api from './api'
 
 export type LoginResponse = {
   accessToken?: string
+  refreshToken?: string
   mfaRequired?: boolean
+  blocked?: boolean
+  blockedMessage?: string
 }
 
 export type MfaVerifyResponse = {
   accessToken: string
+  refreshToken: string
+}
+
+export type RefreshResponse = {
+  accessToken: string
+  refreshToken: string
+}
+
+export type InactivityConfigResponse = {
+  timeoutMinutes: number
 }
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
@@ -16,6 +29,37 @@ export const login = async (email: string, password: string): Promise<LoginRespo
 
 export const verifyMfa = async (email: string, otp: string): Promise<MfaVerifyResponse> => {
   const response = await api.post('/auth/mfa/verify', { email, otp })
+  return response.data
+}
+
+export const refreshAccessToken = async (refreshToken: string): Promise<RefreshResponse> => {
+  const response = await api.post('/auth/refresh', { refreshToken })
+  return response.data
+}
+
+export const logout = async (): Promise<void> => {
+  await api.post('/auth/logout')
+}
+
+export const forgotPassword = async (
+  identifier: string,
+  message?: string,
+): Promise<{ message: string }> => {
+  const response = await api.post('/auth/forgot-password', { identifier, message })
+  return response.data
+}
+
+export const submitBlockedAppeal = async (
+  name: string,
+  accountNumber: string,
+  explanation: string,
+): Promise<{ message: string }> => {
+  const response = await api.post('/auth/blocked-appeal', { name, accountNumber, explanation })
+  return response.data
+}
+
+export const getInactivityConfig = async (): Promise<InactivityConfigResponse> => {
+  const response = await api.get('/auth/inactivity-config')
   return response.data
 }
 

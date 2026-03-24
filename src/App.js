@@ -12,6 +12,8 @@ const DefaultLayout = React.lazy(() => import('./layouts/DefaultLayout'))
 // Pages
 const Login = React.lazy(() => import('./pages/Login'))
 const Mfa = React.lazy(() => import('./pages/Mfa'))
+const ForgotPassword = React.lazy(() => import('./pages/ForgotPassword'))
+const BlockedAccount = React.lazy(() => import('./pages/BlockedAccount'))
 const ProtectedRoute = React.lazy(() => import('./modules/auth/ProtectedRoute'))
 
 const App = () => {
@@ -45,6 +47,8 @@ const App = () => {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/mfa" element={<Mfa />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/blocked" element={<BlockedAccount />} />
             <Route element={<ProtectedRoute roles={['ADMIN', 'STAFF']} />}>
               <Route path="*" element={<DefaultLayout />} />
             </Route>
