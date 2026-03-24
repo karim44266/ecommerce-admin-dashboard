@@ -18,7 +18,13 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilSearch } from '@coreui/icons'
-import api from '../../services/api'
+import { useToast } from '../../shared/components/ToastProvider'
+import {
+  getApiErrorMessage,
+  getUsers,
+  updateUserStatus,
+} from '../../services/usersService'
+import { isAdmin } from '../auth/authStorage'
 import DataTable from '../../shared/components/DataTable'
 import PageHeader from '../../shared/components/PageHeader'
 
@@ -46,6 +52,7 @@ const UsersList = () => {
   const [togglingId, setTogglingId] = useState(null)
   const [confirmUser, setConfirmUser] = useState(null)
   const navigate = useNavigate()
+  const { addToast } = useToast()
 
   const fetchUsers = useCallback(async () => {
     setLoading(true)
@@ -53,31 +60,44 @@ const UsersList = () => {
     try {
       const params = { page, limit: 20 }
       if (search.trim()) params.search = search.trim()
-      const response = await api.get('/users', { params })
-      setUsers(response.data?.data || [])
-      setMeta(response.data?.meta || { total: 0, page: 1, limit: 20, totalPages: 1 })
+      const payload = await getUsers(params)
+      setUsers(payload?.data || [])
+      setMeta(payload?.meta || { total: 0, page: 1, limit: 20, totalPages: 1 })
     } catch (err) {
-      setError('Unable to load users. Make sure the backend is running.')
+      setError(getApiErrorMessage(err, 'Unable to load users. Make sure the backend is running.'))
     } finally {
       setLoading(false)
     }
   }, [page, search])
 
   useEffect(() => {
+    if (!isAdmin()) {
+      navigate('/dashboard', { replace: true })
+      return
+    }
     fetchUsers()
-  }, [fetchUsers])
+  }, [fetchUsers, navigate])
 
   const handleToggleStatus = async (user) => {
     const newStatus = user.status === 'active' ? 'blocked' : 'active'
     setTogglingId(user.id)
     setError('')
     try {
-      await api.patch(`/users/${user.id}/status`, { status: newStatus })
+      await updateUserStatus(user.id, newStatus)
       setUsers((prev) =>
         prev.map((u) => (u.id === user.id ? { ...u, status: newStatus } : u)),
       )
+      addToast(
+        `User ${newStatus === 'blocked' ? 'blocked' : 'unblocked'} successfully.`,
+        'success',
+      )
     } catch (err) {
-      setError(`Failed to ${newStatus === 'blocked' ? 'block' : 'unblock'} user.`)
+      setError(
+        getApiErrorMessage(
+          err,
+          `Failed to ${newStatus === 'blocked' ? 'block' : 'unblock'} user.`,
+        ),
+      )
     } finally {
       setTogglingId(null)
     }

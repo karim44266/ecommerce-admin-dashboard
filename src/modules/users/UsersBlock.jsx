@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { CAlert, CBadge, CButton, CFormLabel, CFormSelect, CSpinner } from '@coreui/react'
-import api from '../../services/api'
+import {
+  getApiErrorMessage,
+  getUserById,
+  updateUserStatus,
+} from '../../services/usersService'
 import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
 import useUnsavedWarning from '../../shared/hooks/useUnsavedWarning'
+import { useToast } from '../../shared/components/ToastProvider'
+import { isAdmin } from '../auth/authStorage'
 
 const statusBadgeColor = (status) => (status === 'active' ? 'success' : 'danger')
 
@@ -18,24 +24,29 @@ const UsersBlock = () => {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState('')
+  const { addToast } = useToast()
 
   useEffect(() => {
     const fetchUser = async () => {
+      if (!isAdmin()) {
+        navigate('/dashboard', { replace: true })
+        return
+      }
       setLoading(true)
       setError('')
       try {
-        const response = await api.get(`/users/${id}`)
-        setUser(response.data)
-        setStatus(response.data.status)
-        setOriginalStatus(response.data.status)
+        const payload = await getUserById(id)
+        setUser(payload)
+        setStatus(payload.status)
+        setOriginalStatus(payload.status)
       } catch (err) {
-        setError('Unable to load user details.')
+        setError(getApiErrorMessage(err, 'Unable to load user details.'))
       } finally {
         setLoading(false)
       }
     }
     fetchUser()
-  }, [id])
+  }, [id, navigate])
 
   useUnsavedWarning(status !== originalStatus)
 
@@ -46,11 +57,13 @@ const UsersBlock = () => {
     setSuccess('')
 
     try {
-      const response = await api.patch(`/users/${id}/status`, { status })
-      setUser(response.data)
-      setSuccess(`User status updated to "${response.data.status}" successfully.`)
+      const payload = await updateUserStatus(id, status)
+      setUser(payload)
+      setOriginalStatus(payload.status)
+      setSuccess(`User status updated to "${payload.status}" successfully.`)
+      addToast(`User status updated to ${payload.status}.`, 'success')
     } catch (err) {
-      setError('Unable to update user status. Please try again.')
+      setError(getApiErrorMessage(err, 'Unable to update user status. Please try again.'))
     } finally {
       setSubmitting(false)
     }

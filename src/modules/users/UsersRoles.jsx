@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { CAlert, CBadge, CButton, CFormLabel, CFormSelect, CSpinner } from '@coreui/react'
-import api from '../../services/api'
+import {
+  getApiErrorMessage,
+  getUserById,
+  updateUserRole,
+} from '../../services/usersService'
 import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
 import useUnsavedWarning from '../../shared/hooks/useUnsavedWarning'
+import { useToast } from '../../shared/components/ToastProvider'
+import { isAdmin } from '../auth/authStorage'
 
 const UsersRoles = () => {
   const { id } = useParams()
@@ -16,24 +22,29 @@ const UsersRoles = () => {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState('')
+  const { addToast } = useToast()
 
   useEffect(() => {
     const fetchUser = async () => {
+      if (!isAdmin()) {
+        navigate('/dashboard', { replace: true })
+        return
+      }
       setLoading(true)
       setError('')
       try {
-        const response = await api.get(`/users/${id}`)
-        setUser(response.data)
-        setRole(response.data.role)
-        setOriginalRole(response.data.role)
+        const payload = await getUserById(id)
+        setUser(payload)
+        setRole(payload.role)
+        setOriginalRole(payload.role)
       } catch (err) {
-        setError('Unable to load user details.')
+        setError(getApiErrorMessage(err, 'Unable to load user details.'))
       } finally {
         setLoading(false)
       }
     }
     fetchUser()
-  }, [id])
+  }, [id, navigate])
 
   useUnsavedWarning(role !== originalRole)
 
@@ -44,11 +55,13 @@ const UsersRoles = () => {
     setSuccess('')
 
     try {
-      const response = await api.patch(`/users/${id}/role`, { role })
-      setUser(response.data)
-      setSuccess(`Role updated to "${response.data.role}" successfully.`)
+      const payload = await updateUserRole(id, role)
+      setUser(payload)
+      setOriginalRole(payload.role)
+      setSuccess(`Role updated to "${payload.role}" successfully.`)
+      addToast(`Role updated to ${payload.role}.`, 'success')
     } catch (err) {
-      setError('Unable to update user role. Please try again.')
+      setError(getApiErrorMessage(err, 'Unable to update user role. Please try again.'))
     } finally {
       setSubmitting(false)
     }
