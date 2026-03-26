@@ -61,6 +61,11 @@ export const getUserById = async (id: string) => {
   return response.data
 }
 
+export const createUser = async (payload: { email: string; password: string; role: string }) => {
+  const response = await api.post('/users', payload)
+  return response.data
+}
+
 export const updateUserRole = async (id: string, role: string) => {
   const response = await api.patch(`/users/${id}/role`, { role })
   return response.data

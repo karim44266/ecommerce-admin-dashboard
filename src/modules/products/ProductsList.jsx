@@ -23,6 +23,7 @@ import DataTable from '../../shared/components/DataTable'
 import PageHeader from '../../shared/components/PageHeader'
 import TruncatedPagination from '../../shared/components/TruncatedPagination'
 import { useToast } from '../../shared/components/ToastProvider'
+import { getRoles } from '../auth/authStorage'
 
 const statusBadgeColor = (status) => {
   switch (status) {
@@ -39,6 +40,9 @@ const statusBadgeColor = (status) => {
 
 const ProductsList = () => {
   const navigate = useNavigate()
+  const userRoles = getRoles()
+  const isAdmin = userRoles.includes('ADMIN')
+  const isReseller = userRoles.includes('RESELLER') && !isAdmin
   const [products, setProducts] = useState([])
   const [meta, setMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 0 })
   const [categories, setCategories] = useState([])
@@ -51,10 +55,15 @@ const ProductsList = () => {
   const [status, setStatus] = useState('')
   const [sortBy, setSortBy] = useState('createdAt')
   const [sortOrder, setSortOrder] = useState('desc')
+  const [minPrice, setMinPrice] = useState('')
+  const [maxPrice, setMaxPrice] = useState('')
+  const [inStockOnly, setInStockOnly] = useState('')
+  const [personalOnly, setPersonalOnly] = useState(false)
   const [page, setPage] = useState(1)
   const [deleting, setDeleting] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [togglingId, setTogglingId] = useState(null)
   const debounceRef = useRef(null)
 
   // Load categories for the filter dropdown
@@ -74,11 +83,15 @@ const ProductsList = () => {
         limit: 20,
         ...(search && { search }),
         ...(categoryId && { categoryId }),
-        ...(status && { status }),
+        ...(status && isAdmin && { status }),
+        ...(minPrice !== '' && { minPrice: Number(minPrice) }),
+        ...(maxPrice !== '' && { maxPrice: Number(maxPrice) }),
+        ...(inStockOnly && { inStock: inStockOnly === 'true' }),
         sortBy,
         sortOrder,
       }
-      const response = await api.get('/products', { params })
+      const endpoint = isReseller && personalOnly ? '/products/personal' : '/products'
+      const response = await api.get(endpoint, { params })
       setProducts(response.data?.data || [])
       setMeta(response.data?.meta || { total: 0, page: 1, limit: 20, totalPages: 0 })
     } catch (err) {
@@ -86,7 +99,7 @@ const ProductsList = () => {
     } finally {
       setLoading(false)
     }
-  }, [page, search, categoryId, status, sortBy, sortOrder])
+  }, [page, search, categoryId, status, sortBy, sortOrder, minPrice, maxPrice, inStockOnly, isReseller, personalOnly, isAdmin])
 
   useEffect(() => {
     fetchProducts()
@@ -113,6 +126,22 @@ const ProductsList = () => {
       setError('Failed to delete product.')
     } finally {
       setDeleting(false)
+    }
+  }
+
+  const { addToast } = useToast()
+
+  const handleTogglePersonalCatalog = async (productId) => {
+    setTogglingId(productId)
+    try {
+      const response = await api.post('/products/personal/toggle', { productId })
+      addToast(response.data?.added ? 'Added to personal catalog.' : 'Removed from personal catalog.', 'success')
+      fetchProducts()
+    } catch (err) {
+      const msg = err?.response?.data?.message || 'Unable to update personal catalog.'
+      setError(Array.isArray(msg) ? msg.join(', ') : msg)
+    } finally {
+      setTogglingId(null)
     }
   }
 
@@ -150,7 +179,10 @@ const ProductsList = () => {
     {
       key: 'price',
       label: 'Price',
-      render: (row) => `$${Number(row.price).toFixed(2)}`,
+      render: (row) =>
+        isReseller
+          ? `$${Number(row.resellerPrice ?? row.price * 0.8).toFixed(2)}`
+          : `$${Number(row.price).toFixed(2)}`,
     },
     { key: 'inventory', label: 'Stock' },
     {
@@ -169,23 +201,40 @@ const ProductsList = () => {
       label: 'Actions',
       render: (row) => (
         <div className="d-flex gap-2">
-          <CButton
-            color="primary"
-            size="sm"
-            onClick={() => navigate(`/products/${row.id}`)}
-          >
-            Edit
-          </CButton>
-          <CButton
-            color="danger"
-            size="sm"
-            onClick={() => {
-              setDeleteTarget(row)
-              setConfirmOpen(true)
-            }}
-          >
-            Delete
-          </CButton>
+          {isAdmin ? (
+            <>
+              <CButton
+                color="primary"
+                size="sm"
+                onClick={() => navigate(`/products/${row.id}`)}
+              >
+                Edit
+              </CButton>
+              <CButton
+                color="danger"
+                size="sm"
+                onClick={() => {
+                  setDeleteTarget(row)
+                  setConfirmOpen(true)
+                }}
+              >
+                Delete
+              </CButton>
+            </>
+          ) : (
+            <CButton
+              color={row.inPersonalCatalog ? 'secondary' : 'success'}
+              size="sm"
+              disabled={togglingId === row.id}
+              onClick={() => handleTogglePersonalCatalog(row.id)}
+            >
+              {togglingId === row.id
+                ? 'Saving...'
+                : row.inPersonalCatalog
+                  ? 'Unselect'
+                  : 'Select'}
+            </CButton>
+          )}
         </div>
       ),
     },
@@ -194,13 +243,13 @@ const ProductsList = () => {
   return (
     <div>
       <PageHeader
-        title="Products"
-        subtitle="Manage catalog items, pricing, and inventory."
-        actions={
-          <CButton color="primary" onClick={() => navigate('/products/new')}>
-            Add Product
-          </CButton>
+        title={isReseller ? 'Catalog' : 'Products'}
+        subtitle={
+          isReseller
+            ? 'Select products from active company catalog into your personal catalog.'
+            : 'Manage catalog items, pricing, and inventory.'
         }
+        actions={isAdmin ? <CButton color="primary" onClick={() => navigate('/products/new')}>Add Product</CButton> : null}
       />
       {error && <CAlert color="danger">{error}</CAlert>}
 
@@ -240,6 +289,7 @@ const ProductsList = () => {
               setStatus(e.target.value)
               setPage(1)
             }}
+            disabled={!isAdmin}
           >
             <option value="">All statuses</option>
             <option value="active">Active</option>
@@ -247,6 +297,58 @@ const ProductsList = () => {
             <option value="archived">Archived</option>
           </CFormSelect>
         </CCol>
+        <CCol md={2}>
+          <CFormInput
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="Min price"
+            value={minPrice}
+            onChange={(e) => {
+              setMinPrice(e.target.value)
+              setPage(1)
+            }}
+          />
+        </CCol>
+        <CCol md={2}>
+          <CFormInput
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="Max price"
+            value={maxPrice}
+            onChange={(e) => {
+              setMaxPrice(e.target.value)
+              setPage(1)
+            }}
+          />
+        </CCol>
+        <CCol md={2}>
+          <CFormSelect
+            value={inStockOnly}
+            onChange={(e) => {
+              setInStockOnly(e.target.value)
+              setPage(1)
+            }}
+          >
+            <option value="">All stock</option>
+            <option value="true">In stock only</option>
+          </CFormSelect>
+        </CCol>
+        {isReseller && (
+          <CCol md={2}>
+            <CFormSelect
+              value={personalOnly ? 'personal' : 'all'}
+              onChange={(e) => {
+                setPersonalOnly(e.target.value === 'personal')
+                setPage(1)
+              }}
+            >
+              <option value="all">All active</option>
+              <option value="personal">My catalog</option>
+            </CFormSelect>
+          </CCol>
+        )}
         <CCol md={3}>
           <CFormSelect
             value={`${sortBy}:${sortOrder}`}
@@ -270,7 +372,7 @@ const ProductsList = () => {
       </CRow>
 
       <DataTable
-        title={`Product List (${meta.total})`}
+        title={`${isReseller ? 'Catalog' : 'Product List'} (${meta.total})`}
         columns={columns}
         data={products}
         loading={loading}

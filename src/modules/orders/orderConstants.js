@@ -4,46 +4,38 @@
  */
 
 export const STATUS_COLORS = {
-  PENDING: 'warning',
-  ACCEPTED: 'info',
-  PROCESSING: 'primary',
+  DRAFT: 'warning',
+  CONFIRMED: 'info',
+  IN_PREPARATION: 'primary',
   DELIVERED: 'success',
-  COMPLETED: 'primary',
+  SETTLED: 'primary',
   CANCELLED: 'danger',
-  REFUNDED: 'secondary',
-  FAILED: 'danger',
 }
 
 export const STATUS_LABELS = {
-  PENDING: 'Pending',
-  ACCEPTED: 'Accepted',
-  PROCESSING: 'Processing',
+  DRAFT: 'Draft',
+  CONFIRMED: 'Confirmed',
+  IN_PREPARATION: 'In Preparation',
   DELIVERED: 'Delivered',
-  COMPLETED: 'Completed',
+  SETTLED: 'Settled',
   CANCELLED: 'Cancelled',
-  REFUNDED: 'Refunded',
-  FAILED: 'Failed',
 }
 
 /** Mirrors STATUS_TRANSITIONS from the backend DTO */
 export const STATUS_TRANSITIONS = {
-  PENDING: ['ACCEPTED', 'CANCELLED'],
-  ACCEPTED: ['PROCESSING', 'CANCELLED'],
-  PROCESSING: ['DELIVERED', 'CANCELLED'],
-  DELIVERED: ['COMPLETED', 'REFUNDED'],
-  COMPLETED: [],
+  DRAFT: ['CONFIRMED', 'CANCELLED'],
+  CONFIRMED: ['IN_PREPARATION', 'CANCELLED'],
+  IN_PREPARATION: ['DELIVERED', 'CANCELLED'],
+  DELIVERED: ['SETTLED'],
+  SETTLED: [],
   CANCELLED: [],
-  REFUNDED: [],
-  FAILED: ['PROCESSING'],
 }
 
 export const ALL_STATUSES = [
-  'PENDING',
-  'ACCEPTED',
-  'PROCESSING',
+  'DRAFT',
+  'CONFIRMED',
+  'IN_PREPARATION',
   'DELIVERED',
-  'COMPLETED',
+  'SETTLED',
   'CANCELLED',
-  'REFUNDED',
-  'FAILED',
 ]

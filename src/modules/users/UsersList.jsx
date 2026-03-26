@@ -4,7 +4,9 @@ import {
   CAlert,
   CButton,
   CBadge,
+  CFormLabel,
   CFormInput,
+  CFormSelect,
   CInputGroup,
   CInputGroupText,
   CModal,
@@ -20,6 +22,7 @@ import CIcon from '@coreui/icons-react'
 import { cilSearch } from '@coreui/icons'
 import { useToast } from '../../shared/components/ToastProvider'
 import {
+  createUser,
   getApiErrorMessage,
   getUsers,
   updateUserStatus,
@@ -34,6 +37,8 @@ const roleBadgeColor = (role) => {
       return 'danger'
     case 'staff':
       return 'warning'
+    case 'reseller':
+      return 'primary'
     case 'customer':
     default:
       return 'info'
@@ -51,8 +56,23 @@ const UsersList = () => {
   const [page, setPage] = useState(1)
   const [togglingId, setTogglingId] = useState(null)
   const [confirmUser, setConfirmUser] = useState(null)
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [creatingUser, setCreatingUser] = useState(false)
+  const [createForm, setCreateForm] = useState({
+    email: '',
+    password: '',
+    role: 'reseller',
+  })
   const navigate = useNavigate()
   const { addToast } = useToast()
+
+  const resetCreateForm = () => {
+    setCreateForm({
+      email: '',
+      password: '',
+      role: 'reseller',
+    })
+  }
 
   const fetchUsers = useCallback(async () => {
     setLoading(true)
@@ -108,6 +128,33 @@ const UsersList = () => {
     setPage(1)
   }
 
+  const handleCreateUser = async (event) => {
+    event.preventDefault()
+    setCreatingUser(true)
+    setError('')
+
+    try {
+      const payload = {
+        email: createForm.email.trim(),
+        password: createForm.password,
+        role: createForm.role,
+      }
+      await createUser(payload)
+      addToast(`User ${payload.email} created successfully.`, 'success')
+      setShowCreateModal(false)
+      resetCreateForm()
+      if (page === 1) {
+        await fetchUsers()
+      } else {
+        setPage(1)
+      }
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'Unable to create user.'))
+    } finally {
+      setCreatingUser(false)
+    }
+  }
+
   const columns = [
     { key: 'email', label: 'Email' },
     { key: 'name', label: 'Name', render: (row) => row.name || '\u2014' },
@@ -150,7 +197,15 @@ const UsersList = () => {
 
   return (
     <div>
-      <PageHeader title="Users" subtitle="Manage users, roles, and access." />
+      <PageHeader
+        title="Users"
+        subtitle="Manage users, roles, and access."
+        actions={
+          <CButton color="primary" onClick={() => setShowCreateModal(true)}>
+            Add User
+          </CButton>
+        }
+      />
       {error && <CAlert color="danger">{error}</CAlert>}
       <form onSubmit={handleSearchSubmit}>
         <CInputGroup className="mb-3">
@@ -223,6 +278,82 @@ const UsersList = () => {
             {confirmUser?.status === 'active' ? 'Block' : 'Unblock'}
           </CButton>
         </CModalFooter>
+      </CModal>
+
+      <CModal
+        visible={showCreateModal}
+        onClose={() => {
+          if (creatingUser) return
+          setShowCreateModal(false)
+          resetCreateForm()
+        }}
+      >
+        <form onSubmit={handleCreateUser}>
+          <CModalHeader>
+            <CModalTitle>Add User</CModalTitle>
+          </CModalHeader>
+          <CModalBody>
+            <div className="mb-3">
+              <CFormLabel htmlFor="create-user-email">Email</CFormLabel>
+              <CFormInput
+                id="create-user-email"
+                type="email"
+                autoComplete="email"
+                value={createForm.email}
+                onChange={(event) =>
+                  setCreateForm((prev) => ({ ...prev, email: event.target.value }))
+                }
+                required
+              />
+            </div>
+            <div className="mb-3">
+              <CFormLabel htmlFor="create-user-password">Password</CFormLabel>
+              <CFormInput
+                id="create-user-password"
+                type="password"
+                autoComplete="new-password"
+                value={createForm.password}
+                onChange={(event) =>
+                  setCreateForm((prev) => ({ ...prev, password: event.target.value }))
+                }
+                minLength={6}
+                required
+              />
+            </div>
+            <div className="mb-0">
+              <CFormLabel htmlFor="create-user-role">Role</CFormLabel>
+              <CFormSelect
+                id="create-user-role"
+                value={createForm.role}
+                onChange={(event) =>
+                  setCreateForm((prev) => ({ ...prev, role: event.target.value }))
+                }
+              >
+                <option value="admin">Admin</option>
+                <option value="staff">Staff</option>
+                <option value="customer">Customer</option>
+                <option value="reseller">Reseller</option>
+              </CFormSelect>
+            </div>
+          </CModalBody>
+          <CModalFooter>
+            <CButton
+              color="secondary"
+              variant="ghost"
+              type="button"
+              disabled={creatingUser}
+              onClick={() => {
+                setShowCreateModal(false)
+                resetCreateForm()
+              }}
+            >
+              Cancel
+            </CButton>
+            <CButton color="primary" type="submit" disabled={creatingUser}>
+              {creatingUser ? 'Creating...' : 'Create User'}
+            </CButton>
+          </CModalFooter>
+        </form>
       </CModal>
     </div>
   )
