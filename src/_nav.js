@@ -9,6 +9,7 @@ import {
   cilSettings,
   cilStorage,
   cilLayers,
+  cilDollar,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -93,6 +94,30 @@ const _nav = [
         component: CNavItem,
         name: 'Order List',
         to: '/orders',
+      },
+    ],
+  },
+  {
+    component: CNavGroup,
+    name: 'Finance',
+    to: '/finance',
+    icon: <CIcon icon={cilDollar} customClassName="nav-icon" />,
+    roles: ['ADMIN', 'RESELLER'],
+    items: [
+      {
+        component: CNavItem,
+        name: 'Financial Dashboard',
+        to: '/finance',
+      },
+      {
+        component: CNavItem,
+        name: 'Payment History',
+        to: '/finance/settlements',
+      },
+      {
+        component: CNavItem,
+        name: 'Declare Payment',
+        to: '/finance/declare-payment',
       },
     ],
   },

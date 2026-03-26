@@ -16,6 +16,10 @@ const OrderDetails = React.lazy(() => import('../modules/orders/OrderDetails'))
 const OrderStatusUpdate = React.lazy(() => import('../modules/orders/OrderStatusUpdate'))
 const OrderTracking = React.lazy(() => import('../modules/orders/OrderTracking'))
 
+const FinanceDashboard = React.lazy(() => import('../modules/finance/FinanceDashboard'))
+const SettlementsList = React.lazy(() => import('../modules/finance/SettlementsList'))
+const DeclarePayment = React.lazy(() => import('../modules/finance/DeclarePayment'))
+
 const UsersList = React.lazy(() => import('../modules/users/UsersList'))
 const UsersRoles = React.lazy(() => import('../modules/users/UsersRoles'))
 const UsersBlock = React.lazy(() => import('../modules/users/UsersBlock'))
@@ -46,6 +50,10 @@ const routes = [
   { path: '/orders/:id/status', name: 'Update Order Status', element: OrderStatusUpdate },
   { path: '/orders/:id/tracking', name: 'Delivery Tracking', element: OrderTracking },
 
+  { path: '/finance', name: 'Financial Dashboard', element: FinanceDashboard },
+  { path: '/finance/settlements', name: 'Payment History', element: SettlementsList },
+  { path: '/finance/declare-payment', name: 'Declare Payment', element: DeclarePayment },
+
   { path: '/users', name: 'Users', element: UsersList },
   { path: '/users/:id/roles', name: 'Update User Role', element: UsersRoles },
   { path: '/users/:id/status', name: 'Block / Unblock User', element: UsersBlock },
@@ -61,3 +69,4 @@ const routes = [
 ]
 
 export default routes
+
