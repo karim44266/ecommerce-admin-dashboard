@@ -32,17 +32,15 @@ import PageHeader from '../../shared/components/PageHeader'
 import { STATUS_COLORS, STATUS_LABELS, STATUS_TRANSITIONS, ALL_STATUSES } from './orderConstants'
 import useUnsavedWarning from '../../shared/hooks/useUnsavedWarning'
 
-const HAPPY_PATH = ['PENDING', 'ACCEPTED', 'PROCESSING', 'DELIVERED', 'COMPLETED']
-const DESTRUCTIVE = ['CANCELLED', 'REFUNDED', 'FAILED']
+const HAPPY_PATH = ['DRAFT', 'CONFIRMED', 'IN_PREPARATION', 'DELIVERED', 'SETTLED']
+const DESTRUCTIVE = ['CANCELLED']
 
 const ACTION_META = {
-  ACCEPTED: { icon: cilCheckCircle, verb: 'Accept' },
-  PROCESSING: { icon: cilArrowRight, verb: 'Process' },
+  CONFIRMED: { icon: cilCheckCircle, verb: 'Confirm' },
+  IN_PREPARATION: { icon: cilArrowRight, verb: 'Prepare' },
   DELIVERED: { icon: cilTruck, verb: 'Mark Delivered' },
-  COMPLETED: { icon: cilCheckCircle, verb: 'Complete' },
+  SETTLED: { icon: cilCheckCircle, verb: 'Settle' },
   CANCELLED: { icon: cilXCircle, verb: 'Cancel' },
-  REFUNDED: { icon: cilXCircle, verb: 'Refund' },
-  FAILED: { icon: cilXCircle, verb: 'Mark Failed' },
 }
 
 const OrderStatusUpdate = () => {
@@ -100,7 +98,7 @@ const OrderStatusUpdate = () => {
   const pickStatus = (s) => {
     setSelected(s)
     setStaffId('')
-    if (s === 'PROCESSING') fetchStaff()
+    if (s === 'IN_PREPARATION') fetchStaff()
     if (DESTRUCTIVE.includes(s)) {
       setShowConfirm(true)
     }
@@ -108,7 +106,7 @@ const OrderStatusUpdate = () => {
 
   const handleSubmit = async () => {
     if (!selected) return
-    if (selected === 'PROCESSING' && !staffId) {
+    if (selected === 'IN_PREPARATION' && !staffId) {
       setError('Please select a staff member to assign delivery.')
       return
     }
@@ -125,7 +123,7 @@ const OrderStatusUpdate = () => {
         status: selected,
         ...(note.trim() ? { note: note.trim() } : {}),
       })
-      if (selected === 'PROCESSING' && staffId) {
+      if (selected === 'IN_PREPARATION' && staffId) {
         try {
           await api.post('/shipments', {
             orderId: id,
@@ -313,8 +311,8 @@ const OrderStatusUpdate = () => {
               className="mb-3"
             />
 
-            {/* ── Staff picker for PROCESSING ── */}
-            {selected === 'PROCESSING' && (
+            {/* ── Staff picker for IN_PREPARATION ── */}
+            {selected === 'IN_PREPARATION' && (
               <div className="mb-3">
                 <CFormLabel className="fw-semibold">Assign delivery staff *</CFormLabel>
                 {staffLoading ? (

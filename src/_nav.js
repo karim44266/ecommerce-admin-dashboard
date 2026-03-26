@@ -29,17 +29,18 @@ const _nav = [
     name: 'Products',
     to: '/products',
     icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
-    roles: ['ADMIN'],
+    roles: ['ADMIN', 'RESELLER'],
     items: [
       {
         component: CNavItem,
-        name: 'All Products',
+        name: 'Catalog',
         to: '/products',
       },
       {
         component: CNavItem,
         name: 'Add Product',
         to: '/products/new',
+        roles: ['ADMIN'],
       },
     ],
   },

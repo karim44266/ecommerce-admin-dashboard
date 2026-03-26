@@ -39,7 +39,9 @@ export const getRolesFromToken = (token) => {
     }
 
     const normalized = payloadSegment.replace(/-/g, '+').replace(/_/g, '/')
-    const payload = JSON.parse(atob(normalized))
+    const paddingLength = (4 - (normalized.length % 4)) % 4
+    const padded = normalized.padEnd(normalized.length + paddingLength, '=')
+    const payload = JSON.parse(atob(padded))
     const roles = Array.isArray(payload.roles) ? payload.roles : []
     return roles.map((role) => String(role).toUpperCase())
   } catch (error) {

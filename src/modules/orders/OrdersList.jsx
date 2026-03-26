@@ -47,16 +47,14 @@ import {
 
 // ── action button config per target status ──────────────────────
 const ACTION_STYLE = {
-  ACCEPTED: { color: 'info', label: 'Accept', icon: cilCheckCircle },
-  PROCESSING: { color: 'primary', label: 'Process', icon: cilArrowRight },
+  CONFIRMED: { color: 'info', label: 'Confirm', icon: cilCheckCircle },
+  IN_PREPARATION: { color: 'primary', label: 'Prepare', icon: cilArrowRight },
   DELIVERED: { color: 'success', label: 'Deliver', icon: cilTruck },
-  COMPLETED: { color: 'success', label: 'Complete', icon: cilCheckCircle },
+  SETTLED: { color: 'success', label: 'Settle', icon: cilCheckCircle },
   CANCELLED: { color: 'danger', label: 'Cancel', icon: cilXCircle },
-  REFUNDED: { color: 'secondary', label: 'Refund', icon: cilXCircle },
-  FAILED: { color: 'danger', label: 'Mark Failed', icon: cilXCircle },
 }
 
-const DESTRUCTIVE = ['CANCELLED', 'REFUNDED', 'FAILED']
+const DESTRUCTIVE = ['CANCELLED']
 
 const OrdersList = () => {
   const navigate = useNavigate()
@@ -69,6 +67,8 @@ const OrdersList = () => {
   const [search, setSearch] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
+  const [minTotal, setMinTotal] = useState('')
+  const [maxTotal, setMaxTotal] = useState('')
   const [page, setPage] = useState(1)
 
   // staff users for process + assign flow
@@ -94,6 +94,8 @@ const OrdersList = () => {
       if (search.trim()) params.search = search.trim()
       if (dateFrom) params.from = dateFrom
       if (dateTo) params.to = dateTo
+      if (minTotal.trim()) params.minTotal = Number(minTotal)
+      if (maxTotal.trim()) params.maxTotal = Number(maxTotal)
       const response = await api.get('/orders', { params })
       setOrders(response.data?.data || [])
       setMeta(response.data?.meta || { total: 0, page: 1, limit: 20, totalPages: 1 })
@@ -102,7 +104,7 @@ const OrdersList = () => {
     } finally {
       setLoading(false)
     }
-  }, [page, statusFilter, search, dateFrom, dateTo])
+  }, [page, statusFilter, search, dateFrom, dateTo, minTotal, maxTotal])
 
   useEffect(() => {
     fetchOrders()
@@ -133,7 +135,7 @@ const OrdersList = () => {
 
   // ── inline status update ──────────────────────────────────────
   const openStatusModal = (order, targetStatus) => {
-    const needsStaff = targetStatus === 'PROCESSING'
+    const needsStaff = targetStatus === 'IN_PREPARATION'
     if (needsStaff) fetchStaff()
     setModal({ visible: true, order, targetStatus, note: '', staffId: '', submitting: false })
   }
@@ -142,8 +144,8 @@ const OrdersList = () => {
 
   const confirmStatusUpdate = async () => {
     const { order, targetStatus, note, staffId } = modal
-    // require staff for PROCESSING
-    if (targetStatus === 'PROCESSING' && !staffId) {
+    // require staff for IN_PREPARATION
+    if (targetStatus === 'IN_PREPARATION' && !staffId) {
       setError('Please select a staff member to assign delivery.')
       return
     }
@@ -153,8 +155,8 @@ const OrdersList = () => {
         status: targetStatus,
         ...(note.trim() ? { note: note.trim() } : {}),
       })
-      // auto-create shipment when processing
-      if (targetStatus === 'PROCESSING' && staffId) {
+      // auto-create shipment when preparing
+      if (targetStatus === 'IN_PREPARATION' && staffId) {
         try {
           await api.post('/shipments', {
             orderId: order.id,
@@ -358,7 +360,7 @@ const OrdersList = () => {
         <CCol md={3}>
           <form onSubmit={handleSearchSubmit} className="d-flex gap-2">
             <CFormInput
-              placeholder="Search by order ID or email…"
+              placeholder="Search by order ID, email, phone, or name…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -401,6 +403,32 @@ const OrdersList = () => {
               <CIcon icon={cilReload} className={loading ? 'spin-animation' : ''} />
             </CButton>
           </CTooltip>
+        </CCol>
+        <CCol md={2}>
+          <CFormInput
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="Min Total"
+            value={minTotal}
+            onChange={(e) => {
+              setMinTotal(e.target.value)
+              setPage(1)
+            }}
+          />
+        </CCol>
+        <CCol md={2}>
+          <CFormInput
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="Max Total"
+            value={maxTotal}
+            onChange={(e) => {
+              setMaxTotal(e.target.value)
+              setPage(1)
+            }}
+          />
         </CCol>
       </CRow>
 
@@ -494,8 +522,8 @@ const OrdersList = () => {
                 </CAlert>
               )}
 
-              {/* ── Staff picker for PROCESSING ── */}
-              {modal.targetStatus === 'PROCESSING' && (
+              {/* ── Staff picker for IN_PREPARATION ── */}
+              {modal.targetStatus === 'IN_PREPARATION' && (
                 <div className="mb-3">
                   <CFormLabel className="fw-semibold">Assign delivery staff *</CFormLabel>
                   {staffLoading ? (

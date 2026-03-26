@@ -38,15 +38,13 @@ import api from '../../services/api'
 import PageHeader from '../../shared/components/PageHeader'
 import { STATUS_COLORS, STATUS_LABELS, STATUS_TRANSITIONS } from './orderConstants'
 
-const DESTRUCTIVE = ['CANCELLED', 'REFUNDED', 'FAILED']
+const DESTRUCTIVE = ['CANCELLED']
 const ACTION_META = {
-  ACCEPTED: { icon: cilCheckCircle, verb: 'Accept', color: 'info' },
-  PROCESSING: { icon: cilArrowRight, verb: 'Process', color: 'primary' },
+  CONFIRMED: { icon: cilCheckCircle, verb: 'Confirm', color: 'info' },
+  IN_PREPARATION: { icon: cilArrowRight, verb: 'Prepare', color: 'primary' },
   DELIVERED: { icon: cilTruck, verb: 'Mark Delivered', color: 'success' },
-  COMPLETED: { icon: cilCheckCircle, verb: 'Complete', color: 'success' },
+  SETTLED: { icon: cilCheckCircle, verb: 'Settle', color: 'success' },
   CANCELLED: { icon: cilXCircle, verb: 'Cancel', color: 'danger' },
-  REFUNDED: { icon: cilXCircle, verb: 'Refund', color: 'danger' },
-  FAILED: { icon: cilXCircle, verb: 'Mark Failed', color: 'danger' },
 }
 
 const OrderDetails = () => {
@@ -106,7 +104,7 @@ const OrderDetails = () => {
   }
 
   const openStatusModal = (targetStatus) => {
-    if (targetStatus === 'PROCESSING') fetchStaff()
+    if (targetStatus === 'IN_PREPARATION') fetchStaff()
     setModal({ visible: true, targetStatus, note: '', staffId: '', submitting: false })
   }
   const closeModal = () =>
@@ -114,7 +112,7 @@ const OrderDetails = () => {
 
   const confirmStatusUpdate = async () => {
     const { targetStatus, note, staffId } = modal
-    if (targetStatus === 'PROCESSING' && !staffId) {
+    if (targetStatus === 'IN_PREPARATION' && !staffId) {
       setError('Please select a staff member to assign delivery.')
       return
     }
@@ -124,7 +122,7 @@ const OrderDetails = () => {
         status: targetStatus,
         ...(note.trim() ? { note: note.trim() } : {}),
       })
-      if (targetStatus === 'PROCESSING' && staffId) {
+      if (targetStatus === 'IN_PREPARATION' && staffId) {
         try {
           await api.post('/shipments', {
             orderId: id,
@@ -399,8 +397,8 @@ const OrderDetails = () => {
             </CAlert>
           )}
 
-          {/* ── Staff picker for PROCESSING ── */}
-          {modal.targetStatus === 'PROCESSING' && (
+          {/* ── Staff picker for IN_PREPARATION ── */}
+          {modal.targetStatus === 'IN_PREPARATION' && (
             <div className="mb-3">
               <CFormLabel className="fw-semibold">Assign delivery staff *</CFormLabel>
               {staffLoading ? (
