@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import {
   CAlert,
   CButton,
@@ -34,7 +34,7 @@ const Login = () => {
 
       if (response?.accessToken) {
         const roles = getRolesFromToken(response.accessToken)
-        setAuth(response.accessToken, roles, response.refreshToken || null)
+        setAuth(response.accessToken, roles)
         navigate('/', { replace: true })
         return
       }
@@ -47,12 +47,6 @@ const Login = () => {
 
       setError('Unexpected response from server. Please try again.')
     } catch (err) {
-      // Handle blocked account
-      const maybeError = err;
-      if (maybeError?.response?.status === 403 && maybeError?.response?.data?.blocked) {
-        navigate('/blocked', { replace: true })
-        return
-      }
       setError(getApiErrorMessage(err))
     } finally {
       setIsSubmitting(false)
@@ -154,21 +148,6 @@ const Login = () => {
             {isSubmitting ? 'Signing in…' : 'Sign in'}
           </CButton>
         </CForm>
-
-        <div
-          style={{
-            marginTop: '1rem',
-            textAlign: 'center',
-            fontSize: '0.85rem',
-          }}
-        >
-          <Link
-            to="/forgot-password"
-            style={{ color: '#2dd4bf', textDecoration: 'none' }}
-          >
-            Forgot password?
-          </Link>
-        </div>
 
         <div
           style={{

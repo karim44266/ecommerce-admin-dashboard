@@ -1,12 +1,8 @@
 import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 import { getRoles, isAuthenticated } from './authStorage'
-import useInactivityLogout from './useInactivityLogout'
 
 const ProtectedRoute = ({ roles = ['ADMIN'] }) => {
-  // Activate inactivity auto-logout for authenticated users
-  useInactivityLogout()
-
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />
   }
