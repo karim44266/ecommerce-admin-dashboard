@@ -80,6 +80,7 @@ const DeliveryStatus = () => {
   const [selected, setSelected] = useState(null)
   const [newStatus, setNewStatus] = useState('')
   const [note, setNote] = useState('')
+  const [deliveryCode, setDeliveryCode] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
   // Confirm accept/decline modal
@@ -119,6 +120,7 @@ const DeliveryStatus = () => {
     setSelected(shipment)
     setNewStatus(allowed[0] || '')
     setNote('')
+    setDeliveryCode('')
     setShowModal(true)
     setSuccess('')
   }
@@ -126,12 +128,20 @@ const DeliveryStatus = () => {
   /* ── Submit status update ──────────────────────────────────── */
   const handleUpdate = async () => {
     if (!selected || !newStatus) return
+    if (newStatus === 'DELIVERED') {
+      if (!deliveryCode || deliveryCode.length !== 4) {
+        setError('A 4-digit PIN is strictly required from the customer to mark the shipment as DELIVERED.')
+        setShowModal(false)
+        return
+      }
+    }
     setSubmitting(true)
     setError('')
     try {
       await api.patch(`/shipments/${selected.id}/status`, {
         status: newStatus,
         note: note || undefined,
+        ...(newStatus === 'DELIVERED' ? { deliveryCode } : {}),
       })
       setSuccess(
         `Shipment ${selected.id.slice(0, 8)}… updated to ${LABEL[newStatus] || newStatus}.`,
@@ -348,6 +358,27 @@ const DeliveryStatus = () => {
               ))}
             </CFormSelect>
           </div>
+
+          {newStatus === 'DELIVERED' && (
+            <div className="mb-3 p-3 bg-success-subtle border border-success rounded">
+              <CFormLabel className="fw-bold text-success mb-1">
+                Customer Delivery PIN *
+              </CFormLabel>
+              <div className="small text-success-emphasis mb-2">
+                Ask the customer for their 4-digit code to securely confirm handoff.
+              </div>
+              <input
+                type="text"
+                className="form-control fw-bold tracking-widest text-lg px-3 py-2 border-dark"
+                maxLength={4}
+                placeholder="e.g. 1234"
+                value={deliveryCode}
+                onChange={(e) => setDeliveryCode(e.target.value.replace(/\D/g, ''))}
+                autoFocus
+              />
+            </div>
+          )}
+
           <div className="mb-3">
             <CFormLabel>Note (optional)</CFormLabel>
             <CFormTextarea

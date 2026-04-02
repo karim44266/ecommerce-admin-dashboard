@@ -82,6 +82,7 @@ const OrdersList = () => {
     targetStatus: '',
     note: '',
     staffId: '',
+    deliveryCode: '',
     submitting: false,
   })
 
@@ -137,23 +138,30 @@ const OrdersList = () => {
   const openStatusModal = (order, targetStatus) => {
     const needsStaff = targetStatus === 'IN_PREPARATION'
     if (needsStaff) fetchStaff()
-    setModal({ visible: true, order, targetStatus, note: '', staffId: '', submitting: false })
+    setModal({ visible: true, order, targetStatus, note: '', staffId: '', deliveryCode: '', submitting: false })
   }
   const closeModal = () =>
-    setModal({ visible: false, order: null, targetStatus: '', note: '', staffId: '', submitting: false })
+    setModal({ visible: false, order: null, targetStatus: '', note: '', staffId: '', deliveryCode: '', submitting: false })
 
   const confirmStatusUpdate = async () => {
-    const { order, targetStatus, note, staffId } = modal
+    const { order, targetStatus, note, staffId, deliveryCode } = modal
     // require staff for IN_PREPARATION
     if (targetStatus === 'IN_PREPARATION' && !staffId) {
       setError('Please select a staff member to assign delivery.')
       return
+    }
+    if (targetStatus === 'DELIVERED') {
+      if (!deliveryCode || deliveryCode.length !== 4) {
+        setError('A 4-digit delivery PIN is required to confirm delivery.')
+        return
+      }
     }
     setModal((m) => ({ ...m, submitting: true }))
     try {
       await api.patch(`/orders/${order.id}/status`, {
         status: targetStatus,
         ...(note.trim() ? { note: note.trim() } : {}),
+        ...(targetStatus === 'DELIVERED' ? { deliveryCode } : {}),
       })
       // auto-create shipment when preparing
       if (targetStatus === 'IN_PREPARATION' && staffId) {
@@ -541,6 +549,21 @@ const OrdersList = () => {
                       ))}
                     </CFormSelect>
                   )}
+                </div>
+              )}
+
+              {/* ── Delivery PIN for DELIVERED ── */}
+              {modal.targetStatus === 'DELIVERED' && (
+                <div className="mb-3">
+                  <CFormLabel className="fw-semibold text-success">Delivery Code (4-digit PIN) *</CFormLabel>
+                   <CFormInput
+                     type="text"
+                     maxLength="4"
+                     className="fw-bold tracking-widest text-lg"
+                     placeholder="e.g. 1234"
+                     value={modal.deliveryCode}
+                     onChange={(e) => setModal((m) => ({ ...m, deliveryCode: e.target.value.replace(/\D/g, '') }))}
+                   />
                 </div>
               )}
 
