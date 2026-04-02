@@ -65,6 +65,7 @@ const OrderDetails = () => {
     targetStatus: '',
     note: '',
     staffId: '',
+    deliveryCode: '',
     submitting: false,
   })
 
@@ -105,22 +106,29 @@ const OrderDetails = () => {
 
   const openStatusModal = (targetStatus) => {
     if (targetStatus === 'IN_PREPARATION') fetchStaff()
-    setModal({ visible: true, targetStatus, note: '', staffId: '', submitting: false })
+    setModal({ visible: true, targetStatus, note: '', staffId: '', deliveryCode: '', submitting: false })
   }
   const closeModal = () =>
-    setModal({ visible: false, targetStatus: '', note: '', staffId: '', submitting: false })
+    setModal({ visible: false, targetStatus: '', note: '', staffId: '', deliveryCode: '', submitting: false })
 
   const confirmStatusUpdate = async () => {
-    const { targetStatus, note, staffId } = modal
+    const { targetStatus, note, staffId, deliveryCode } = modal
     if (targetStatus === 'IN_PREPARATION' && !staffId) {
       setError('Please select a staff member to assign delivery.')
       return
+    }
+    if (targetStatus === 'DELIVERED') {
+      if (!deliveryCode || deliveryCode.length !== 4) {
+        setError('A 4-digit delivery PIN is required to confirm delivery.')
+        return
+      }
     }
     setModal((m) => ({ ...m, submitting: true }))
     try {
       await api.patch(`/orders/${id}/status`, {
         status: targetStatus,
         ...(note.trim() ? { note: note.trim() } : {}),
+        ...(targetStatus === 'DELIVERED' ? { deliveryCode } : {}),
       })
       if (targetStatus === 'IN_PREPARATION' && staffId) {
         try {
@@ -250,6 +258,14 @@ const OrderDetails = () => {
                 <dd className="col-sm-7">${Number(order.totalAmount).toFixed(2)}</dd>
                 <dt className="col-sm-5">Customer</dt>
                 <dd className="col-sm-7">{order.customerEmail || '—'}</dd>
+                {order.deliveryCode && (
+                  <>
+                    <dt className="col-sm-5 text-success">Delivery PIN</dt>
+                    <dd className="col-sm-7">
+                      <CBadge color="success" shape="rounded-pill" className="fw-bold tracking-widest">{order.deliveryCode}</CBadge>
+                    </dd>
+                  </>
+                )}
                 <dt className="col-sm-5">Shipping Address</dt>
                 <dd className="col-sm-7">
                   {order.shippingAddress && typeof order.shippingAddress === 'object' ? (
@@ -416,6 +432,21 @@ const OrderDetails = () => {
                   ))}
                 </CFormSelect>
               )}
+            </div>
+          )}
+
+          {/* ── Delivery PIN for DELIVERED ── */}
+          {modal.targetStatus === 'DELIVERED' && (
+            <div className="mb-3">
+              <CFormLabel className="fw-semibold text-success">Delivery Code (4-digit PIN) *</CFormLabel>
+               <CFormInput
+                 type="text"
+                 maxLength="4"
+                 className="fw-bold tracking-widest text-lg"
+                 placeholder="e.g. 1234"
+                 value={modal.deliveryCode}
+                 onChange={(e) => setModal((m) => ({ ...m, deliveryCode: e.target.value.replace(/\D/g, '') }))}
+               />
             </div>
           )}
 
