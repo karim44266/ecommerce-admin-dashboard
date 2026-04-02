@@ -5,6 +5,7 @@ import {
   cilSpeedometer,
   cilCart,
   cilPeople,
+  cilChart,
   cilTruck,
   cilSettings,
   cilStorage,
