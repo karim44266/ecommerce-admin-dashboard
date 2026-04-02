@@ -51,6 +51,45 @@ export interface UserListResponse {
   }
 }
 
+export interface ClientPurchasesQuery {
+  page?: number
+  limit?: number
+  search?: string
+  status?: string
+  from?: string
+  to?: string
+  minTotal?: number
+  maxTotal?: number
+}
+
+export interface ClientPurchasesResponse {
+  client: {
+    id: string
+    email: string
+    name?: string
+    status: string
+  }
+  summary: {
+    totalOrders: number
+    totalSpent: number
+    averageOrderValue: number
+    lastPurchaseDate: string | null
+  }
+  orders: Array<{
+    id: string
+    createdAt: string
+    status: string
+    totalAmount: number
+    itemCount: number
+  }>
+  meta: {
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+  }
+}
+
 export const getUsers = async (params: GetUsersParams = {}) => {
   const response = await api.get<UserListResponse>('/users', { params })
   return response.data
@@ -73,5 +112,10 @@ export const updateUserRole = async (id: string, role: string) => {
 
 export const updateUserStatus = async (id: string, status: string) => {
   const response = await api.patch(`/users/${id}/status`, { status })
+  return response.data
+}
+
+export const getClientPurchases = async (id: string, params: ClientPurchasesQuery = {}) => {
+  const response = await api.get<ClientPurchasesResponse>(`/users/${id}/purchases`, { params })
   return response.data
 }

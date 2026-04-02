@@ -198,7 +198,7 @@ const ProductsList = () => {
               </CButton>
             </>
           ) : (
-            '\u2014'
+            '—'
           )}
         </div>
       ),

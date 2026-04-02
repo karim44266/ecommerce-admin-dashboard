@@ -5,6 +5,7 @@ import {
   cilSpeedometer,
   cilCart,
   cilPeople,
+  cilChart,
   cilTruck,
   cilSettings,
   cilStorage,
@@ -133,6 +134,13 @@ const _nav = [
         to: '/users',
       },
     ],
+  },
+  {
+    component: CNavItem,
+    name: 'Client Tracking',
+    to: '/clients/tracking',
+    icon: <CIcon icon={cilChart} customClassName="nav-icon" />,
+    roles: ['ADMIN'],
   },
   {
     component: CNavTitle,
