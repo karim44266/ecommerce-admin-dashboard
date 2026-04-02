@@ -32,6 +32,14 @@ export interface GetUsersParams {
   search?: string
 }
 
+export interface GetClientPurchasesParams {
+  status?: string
+  from?: string
+  to?: string
+  page?: number
+  limit?: number
+}
+
 export interface UserListResponse {
   data: Array<{
     id: string
@@ -51,36 +59,26 @@ export interface UserListResponse {
   }
 }
 
-export interface ClientPurchasesQuery {
-  page?: number
-  limit?: number
-  search?: string
-  status?: string
-  from?: string
-  to?: string
-  minTotal?: number
-  maxTotal?: number
-}
-
 export interface ClientPurchasesResponse {
   client: {
     id: string
     email: string
-    name?: string
+    name?: string | null
     status: string
   }
   summary: {
     totalOrders: number
     totalSpent: number
     averageOrderValue: number
-    lastPurchaseDate: string | null
+    lastPurchaseAt: string | null
   }
-  orders: Array<{
+  purchases: Array<{
     id: string
-    createdAt: string
     status: string
     totalAmount: number
     itemCount: number
+    createdAt: string
+    shippingAddress?: Record<string, string | undefined> | null
   }>
   meta: {
     total: number
@@ -115,7 +113,12 @@ export const updateUserStatus = async (id: string, status: string) => {
   return response.data
 }
 
-export const getClientPurchases = async (id: string, params: ClientPurchasesQuery = {}) => {
-  const response = await api.get<ClientPurchasesResponse>(`/users/${id}/purchases`, { params })
+export const getClientPurchases = async (
+  id: string,
+  params: GetClientPurchasesParams = {},
+) => {
+  const response = await api.get<ClientPurchasesResponse>(`/users/${id}/purchases`, {
+    params,
+  })
   return response.data
 }

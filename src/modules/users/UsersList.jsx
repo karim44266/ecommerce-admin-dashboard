@@ -164,7 +164,17 @@ const UsersList = () => {
     {
       key: 'status',
       label: 'Status',
-      render: (row) => <CBadge color={statusBadgeColor(row.status)}>{row.status}</CBadge>,
+      render: (row) => {
+        if (row.role === 'staff') {
+          const isAvailable = row.availabilityStatus === 'AVAILABLE'
+          return (
+            <CBadge color={isAvailable ? 'success' : 'secondary'}>
+              {isAvailable ? 'Available' : 'Not Available'}
+            </CBadge>
+          )
+        }
+        return <CBadge color={statusBadgeColor(row.status)}>{row.status}</CBadge>
+      },
     },
     {
       key: 'actions',
@@ -174,9 +184,11 @@ const UsersList = () => {
           <CButton color="info" size="sm" onClick={() => navigate(`/users/${row.id}/roles`)}>
             Roles
           </CButton>
-          <CButton color="primary" size="sm" onClick={() => navigate(`/clients/${row.id}/tracking`)}>
-            Tracking
-          </CButton>
+          {row.role === 'customer' && (
+            <CButton color="primary" size="sm" onClick={() => navigate(`/clients/${row.id}/tracking`)}>
+              Tracking
+            </CButton>
+          )}
           <CButton
             color={row.status === 'active' ? 'warning' : 'success'}
             size="sm"

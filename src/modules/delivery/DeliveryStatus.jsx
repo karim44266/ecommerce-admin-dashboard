@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import {
   CAlert,
   CBadge,
@@ -67,6 +67,9 @@ const FILTER_TABS = [
 ]
 
 const DeliveryStatus = () => {
+  const [availabilityStatus, setAvailabilityStatus] = useState(null)
+  const [isStaffUser, setIsStaffUser] = useState(false)
+  const [availabilityLoading, setAvailabilityLoading] = useState(false)
   const [shipments, setShipments] = useState([])
   const [meta, setMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 1 })
   const [loading, setLoading] = useState(false)
@@ -85,6 +88,22 @@ const DeliveryStatus = () => {
 
   // Confirm accept/decline modal
   const [confirmAction, setConfirmAction] = useState(null) // { shipment, action: 'accept'|'decline' }
+
+  const fetchMyAvailability = useCallback(async () => {
+    setAvailabilityLoading(true)
+    try {
+      const { data } = await api.get('/users/me')
+      const roles = Array.isArray(data?.roles) ? data.roles : []
+      const isStaff = roles.includes('STAFF')
+      setIsStaffUser(isStaff)
+      setAvailabilityStatus(isStaff ? (data?.availabilityStatus || 'UNAVAILABLE') : null)
+    } catch {
+      setIsStaffUser(false)
+      setAvailabilityStatus(null)
+    } finally {
+      setAvailabilityLoading(false)
+    }
+  }, [])
 
   /* ── Fetch shipments ───────────────────────────────────────── */
   const fetchShipments = useCallback(async () => {
@@ -110,6 +129,10 @@ const DeliveryStatus = () => {
   useEffect(() => {
     fetchShipments()
   }, [fetchShipments])
+
+  useEffect(() => {
+    fetchMyAvailability()
+  }, [fetchMyAvailability])
 
   /* ── Filtered list ──────────────────────────────────────── */
   const filtered = shipments
@@ -159,6 +182,28 @@ const DeliveryStatus = () => {
   /* ── Allowed next statuses for selected shipment ───────────── */
   const allowedNext = selected ? TRANSITIONS[selected.status] || [] : []
 
+  const handleAvailabilityUpdate = async (nextStatus) => {
+    if (!isStaffUser || availabilityStatus === nextStatus) return
+    setAvailabilityLoading(true)
+    setError('')
+    try {
+      const { data } = await api.patch('/users/me/availability', {
+        availabilityStatus: nextStatus,
+      })
+      setAvailabilityStatus(data?.availabilityStatus || nextStatus)
+      setSuccess(
+        nextStatus === 'AVAILABLE'
+          ? 'You are now marked as Available.'
+          : 'You are now marked as Not Available.',
+      )
+    } catch (err) {
+      const msg = err?.response?.data?.message || 'Unable to update availability.'
+      setError(Array.isArray(msg) ? msg.join(', ') : msg)
+    } finally {
+      setAvailabilityLoading(false)
+    }
+  }
+
   return (
     <div>
       <PageHeader
@@ -175,6 +220,36 @@ const DeliveryStatus = () => {
         <CAlert color="success" dismissible onClose={() => setSuccess('')}>
           {success}
         </CAlert>
+      )}
+
+      {isStaffUser && (
+        <CCard className="mb-4">
+          <CCardHeader className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span>My Availability</span>
+            <CBadge color={availabilityStatus === 'AVAILABLE' ? 'success' : 'secondary'}>
+              {availabilityStatus === 'AVAILABLE' ? 'Available' : 'Not Available'}
+            </CBadge>
+          </CCardHeader>
+          <div className="p-3 d-flex gap-2 flex-wrap">
+            <CButton
+              color="success"
+              variant={availabilityStatus === 'AVAILABLE' ? 'solid' : 'outline'}
+              disabled={availabilityLoading || availabilityStatus === 'AVAILABLE'}
+              onClick={() => handleAvailabilityUpdate('AVAILABLE')}
+            >
+              Set Available
+            </CButton>
+            <CButton
+              color="secondary"
+              variant={availabilityStatus === 'UNAVAILABLE' ? 'solid' : 'outline'}
+              disabled={availabilityLoading || availabilityStatus === 'UNAVAILABLE'}
+              onClick={() => handleAvailabilityUpdate('UNAVAILABLE')}
+            >
+              Set Not Available
+            </CButton>
+            {availabilityLoading && <CSpinner size="sm" />}
+          </div>
+        </CCard>
       )}
 
       {/* ── Filter bar ──────────────────────────────────────── */}
