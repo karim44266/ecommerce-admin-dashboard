@@ -37,8 +37,6 @@ const roleBadgeColor = (role) => {
       return 'danger'
     case 'staff':
       return 'warning'
-    case 'reseller':
-      return 'primary'
     case 'customer':
     default:
       return 'info'
@@ -61,7 +59,7 @@ const UsersList = () => {
   const [createForm, setCreateForm] = useState({
     email: '',
     password: '',
-    role: 'reseller',
+    role: 'customer',
   })
   const navigate = useNavigate()
   const { addToast } = useToast()
@@ -70,7 +68,7 @@ const UsersList = () => {
     setCreateForm({
       email: '',
       password: '',
-      role: 'reseller',
+      role: 'customer',
     })
   }
 
@@ -332,7 +330,6 @@ const UsersList = () => {
                 <option value="admin">Admin</option>
                 <option value="staff">Staff</option>
                 <option value="customer">Customer</option>
-                <option value="reseller">Reseller</option>
               </CFormSelect>
             </div>
           </CModalBody>

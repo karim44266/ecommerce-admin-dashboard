@@ -22,7 +22,6 @@ import api from '../../services/api'
 import DataTable from '../../shared/components/DataTable'
 import PageHeader from '../../shared/components/PageHeader'
 import TruncatedPagination from '../../shared/components/TruncatedPagination'
-import { useToast } from '../../shared/components/ToastProvider'
 import { getRoles } from '../auth/authStorage'
 
 const statusBadgeColor = (status) => {
@@ -42,7 +41,6 @@ const ProductsList = () => {
   const navigate = useNavigate()
   const userRoles = getRoles()
   const isAdmin = userRoles.includes('ADMIN')
-  const isReseller = userRoles.includes('RESELLER') && !isAdmin
   const [products, setProducts] = useState([])
   const [meta, setMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 0 })
   const [categories, setCategories] = useState([])
@@ -58,12 +56,10 @@ const ProductsList = () => {
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
   const [inStockOnly, setInStockOnly] = useState('')
-  const [personalOnly, setPersonalOnly] = useState(false)
   const [page, setPage] = useState(1)
   const [deleting, setDeleting] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [togglingId, setTogglingId] = useState(null)
   const debounceRef = useRef(null)
 
   // Load categories for the filter dropdown
@@ -90,8 +86,7 @@ const ProductsList = () => {
         sortBy,
         sortOrder,
       }
-      const endpoint = isReseller && personalOnly ? '/products/personal' : '/products'
-      const response = await api.get(endpoint, { params })
+      const response = await api.get('/products', { params })
       setProducts(response.data?.data || [])
       setMeta(response.data?.meta || { total: 0, page: 1, limit: 20, totalPages: 0 })
     } catch (err) {
@@ -99,7 +94,7 @@ const ProductsList = () => {
     } finally {
       setLoading(false)
     }
-  }, [page, search, categoryId, status, sortBy, sortOrder, minPrice, maxPrice, inStockOnly, isReseller, personalOnly, isAdmin])
+  }, [page, search, categoryId, status, sortBy, sortOrder, minPrice, maxPrice, inStockOnly, isAdmin])
 
   useEffect(() => {
     fetchProducts()
@@ -126,22 +121,6 @@ const ProductsList = () => {
       setError('Failed to delete product.')
     } finally {
       setDeleting(false)
-    }
-  }
-
-  const { addToast } = useToast()
-
-  const handleTogglePersonalCatalog = async (productId) => {
-    setTogglingId(productId)
-    try {
-      const response = await api.post('/products/personal/toggle', { productId })
-      addToast(response.data?.added ? 'Added to personal catalog.' : 'Removed from personal catalog.', 'success')
-      fetchProducts()
-    } catch (err) {
-      const msg = err?.response?.data?.message || 'Unable to update personal catalog.'
-      setError(Array.isArray(msg) ? msg.join(', ') : msg)
-    } finally {
-      setTogglingId(null)
     }
   }
 
@@ -179,10 +158,7 @@ const ProductsList = () => {
     {
       key: 'price',
       label: 'Price',
-      render: (row) =>
-        isReseller
-          ? `$${Number(row.resellerPrice ?? row.price * 0.8).toFixed(2)}`
-          : `$${Number(row.price).toFixed(2)}`,
+      render: (row) => `$${Number(row.price).toFixed(2)}`,
     },
     { key: 'inventory', label: 'Stock' },
     {
@@ -222,18 +198,7 @@ const ProductsList = () => {
               </CButton>
             </>
           ) : (
-            <CButton
-              color={row.inPersonalCatalog ? 'secondary' : 'success'}
-              size="sm"
-              disabled={togglingId === row.id}
-              onClick={() => handleTogglePersonalCatalog(row.id)}
-            >
-              {togglingId === row.id
-                ? 'Saving...'
-                : row.inPersonalCatalog
-                  ? 'Unselect'
-                  : 'Select'}
-            </CButton>
+            '\u2014'
           )}
         </div>
       ),
@@ -243,12 +208,8 @@ const ProductsList = () => {
   return (
     <div>
       <PageHeader
-        title={isReseller ? 'Catalog' : 'Products'}
-        subtitle={
-          isReseller
-            ? 'Select products from active company catalog into your personal catalog.'
-            : 'Manage catalog items, pricing, and inventory.'
-        }
+        title="Products"
+        subtitle="Manage catalog items, pricing, and inventory."
         actions={isAdmin ? <CButton color="primary" onClick={() => navigate('/products/new')}>Add Product</CButton> : null}
       />
       {error && <CAlert color="danger">{error}</CAlert>}
@@ -335,20 +296,6 @@ const ProductsList = () => {
             <option value="true">In stock only</option>
           </CFormSelect>
         </CCol>
-        {isReseller && (
-          <CCol md={2}>
-            <CFormSelect
-              value={personalOnly ? 'personal' : 'all'}
-              onChange={(e) => {
-                setPersonalOnly(e.target.value === 'personal')
-                setPage(1)
-              }}
-            >
-              <option value="all">All active</option>
-              <option value="personal">My catalog</option>
-            </CFormSelect>
-          </CCol>
-        )}
         <CCol md={3}>
           <CFormSelect
             value={`${sortBy}:${sortOrder}`}
@@ -372,7 +319,7 @@ const ProductsList = () => {
       </CRow>
 
       <DataTable
-        title={`${isReseller ? 'Catalog' : 'Product List'} (${meta.total})`}
+        title={`Product List (${meta.total})`}
         columns={columns}
         data={products}
         loading={loading}
