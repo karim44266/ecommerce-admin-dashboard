@@ -107,7 +107,6 @@ const UsersRoles = () => {
             <option value="admin">Admin</option>
             <option value="staff">Staff</option>
             <option value="customer">Customer</option>
-            <option value="reseller">Reseller</option>
           </CFormSelect>
         </div>
       </FormCard>
