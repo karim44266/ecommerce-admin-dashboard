@@ -165,8 +165,17 @@ const DeliveryAssign = () => {
         ) : orders.length === 0 ? (
           <div className="p-4">
             <p className="text-body-secondary mb-0">No orders waiting for delivery assignment.</p>
+            {staffUsers.length === 0 && (
+              <p className="text-warning mb-0 mt-2">No available staff right now.</p>
+            )}
           </div>
         ) : (
+          <>
+          {staffUsers.length === 0 && (
+            <div className="p-4 border-bottom">
+              <p className="text-warning mb-0">No available staff right now.</p>
+            </div>
+          )}
           <CTable responsive hover align="middle" className="mb-0">
               <CTableHead>
                 <CTableRow>
@@ -197,6 +206,7 @@ const DeliveryAssign = () => {
                 ))}
               </CTableBody>
           </CTable>
+          </>
         )}
       </CCard>
 
@@ -294,7 +304,7 @@ const DeliveryAssign = () => {
           </div>
           {staffUsers.length === 0 && (
             <CAlert color="warning" className="mb-0">
-              No staff users found. Create a user with the &quot;staff&quot; role first.
+              No available staff right now.
             </CAlert>
           )}
         </CModalBody>

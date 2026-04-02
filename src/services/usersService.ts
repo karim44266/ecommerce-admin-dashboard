@@ -32,6 +32,14 @@ export interface GetUsersParams {
   search?: string
 }
 
+export interface GetClientPurchasesParams {
+  status?: string
+  from?: string
+  to?: string
+  page?: number
+  limit?: number
+}
+
 export interface UserListResponse {
   data: Array<{
     id: string
@@ -42,6 +50,35 @@ export interface UserListResponse {
     roles?: string[]
     createdAt?: string
     updatedAt?: string
+  }>
+  meta: {
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+  }
+}
+
+export interface ClientPurchasesResponse {
+  client: {
+    id: string
+    email: string
+    name?: string | null
+    status: string
+  }
+  summary: {
+    totalOrders: number
+    totalSpent: number
+    averageOrderValue: number
+    lastPurchaseAt: string | null
+  }
+  purchases: Array<{
+    id: string
+    status: string
+    totalAmount: number
+    itemCount: number
+    createdAt: string
+    shippingAddress?: Record<string, string | undefined> | null
   }>
   meta: {
     total: number
@@ -73,5 +110,15 @@ export const updateUserRole = async (id: string, role: string) => {
 
 export const updateUserStatus = async (id: string, status: string) => {
   const response = await api.patch(`/users/${id}/status`, { status })
+  return response.data
+}
+
+export const getClientPurchases = async (
+  id: string,
+  params: GetClientPurchasesParams = {},
+) => {
+  const response = await api.get<ClientPurchasesResponse>(`/users/${id}/purchases`, {
+    params,
+  })
   return response.data
 }

@@ -135,6 +135,13 @@ const _nav = [
     ],
   },
   {
+    component: CNavItem,
+    name: 'Client Tracking',
+    to: '/clients/tracking',
+    roles: ['ADMIN'],
+    icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
+  },
+  {
     component: CNavTitle,
     name: 'Account',
   },

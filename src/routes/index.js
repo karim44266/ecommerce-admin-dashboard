@@ -19,6 +19,8 @@ const OrderTracking = React.lazy(() => import('../modules/orders/OrderTracking')
 const UsersList = React.lazy(() => import('../modules/users/UsersList'))
 const UsersRoles = React.lazy(() => import('../modules/users/UsersRoles'))
 const UsersBlock = React.lazy(() => import('../modules/users/UsersBlock'))
+const ClientTracking = React.lazy(() => import('../modules/users/ClientTracking'))
+const ClientTrackingIndex = React.lazy(() => import('../modules/users/ClientTrackingIndex'))
 
 const DeliveryAssign = React.lazy(() => import('../modules/delivery/DeliveryAssign'))
 const DeliveryStatus = React.lazy(() => import('../modules/delivery/DeliveryStatus'))
@@ -49,6 +51,8 @@ const routes = [
   { path: '/users', name: 'Users', element: UsersList },
   { path: '/users/:id/roles', name: 'Update User Role', element: UsersRoles },
   { path: '/users/:id/status', name: 'Block / Unblock User', element: UsersBlock },
+  { path: '/clients/tracking', name: 'Client Tracking', element: ClientTrackingIndex },
+  { path: '/clients/:id/tracking', name: 'Client Tracking Details', element: ClientTracking },
 
   { path: '/delivery/assign', name: 'Assign Delivery', element: DeliveryAssign },
   { path: '/delivery/status', name: 'Delivery Status', element: DeliveryStatus },
