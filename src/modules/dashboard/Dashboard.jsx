@@ -16,6 +16,7 @@ import {
   CTableHeaderCell,
   CTableRow,
 } from '@coreui/react'
+import { CChartBar, CChartDoughnut, CChartLine } from '@coreui/react-chartjs'
 import CIcon from '@coreui/icons-react'
 import {
   cilCart,
@@ -36,33 +37,49 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
     totalOrders: 0,
-    revenue: 0,
+    totalRevenue: 0,
+    grossSales: 0,
+    totalCost: 0,
     pendingOrders: 0,
     activeDeliveries: 0,
+    avgOrderValue: 0,
+    fulfilmentRate: 0,
   })
+  const [trendData, setTrendData] = useState({
+    labels: [],
+    ordersPerDay: [],
+    grossSalesPerDay: [],
+    totalCostPerDay: [],
+    revenuePerDay: [],
+    marginPercentPerDay: [],
+  })
+  const [statusDistribution, setStatusDistribution] = useState([])
   const [recentOrders, setRecentOrders] = useState([])
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
         setLoading(true)
-        const [ordersRes, shipmentsRes] = await Promise.all([
-          api.get('/orders', { params: { limit: 200, page: 1 } }),
-          api.get('/shipments', { params: { limit: 200, page: 1 } }),
+        const [summaryRes, trendsRes, statusRes, recentOrdersRes] = await Promise.all([
+          api.get('/analytics/dashboard/summary'),
+          api.get('/analytics/dashboard/trends', { params: { days: 7 } }),
+          api.get('/analytics/dashboard/status-distribution'),
+          api.get('/orders', { params: { limit: 5, page: 1 } }),
         ])
 
-        const allOrders = ordersRes.data?.data || []
-        const shipments = shipmentsRes.data?.data || shipmentsRes.data || []
-
-        const totalOrders = ordersRes.data?.meta?.total || allOrders.length
-        const revenue = allOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0)
-        const pendingOrders = allOrders.filter((o) => o.status === 'PENDING').length
-        const activeDeliveries = shipments.filter(
-          (s) => s.status === 'ASSIGNED' || s.status === 'IN_TRANSIT',
-        ).length
-
-        setStats({ totalOrders, revenue, pendingOrders, activeDeliveries })
-        setRecentOrders(allOrders.slice(0, 5))
+        setStats(summaryRes.data || {})
+        setTrendData(
+          trendsRes.data || {
+            labels: [],
+            ordersPerDay: [],
+            grossSalesPerDay: [],
+            totalCostPerDay: [],
+            revenuePerDay: [],
+            marginPercentPerDay: [],
+          },
+        )
+        setStatusDistribution(statusRes.data?.statuses || [])
+        setRecentOrders(recentOrdersRes.data?.data || [])
       } catch {
         // silently fail — dashboard is non-critical
       } finally {
@@ -88,8 +105,8 @@ const Dashboard = () => {
       variant: '--primary',
     },
     {
-      label: 'Revenue',
-      value: `$${stats.revenue.toFixed(2)}`,
+      label: 'Net Revenue',
+      value: `$${Number(stats.totalRevenue || 0).toFixed(2)}`,
       icon: cilDollar,
       variant: '--success',
     },
@@ -113,6 +130,139 @@ const Dashboard = () => {
     { label: 'Manage Users', icon: cilPeople, path: '/users' },
   ]
 
+  const quickKpis = [
+    { label: 'Gross Sales', value: `$${Number(stats.grossSales || 0).toFixed(2)}` },
+    { label: 'Total Cost', value: `$${Number(stats.totalCost || 0).toFixed(2)}` },
+    { label: 'Fulfilment Rate', value: `${Number(stats.fulfilmentRate || 0).toFixed(0)}%` },
+  ]
+
+  const trendChartData = {
+    labels: trendData.labels,
+    datasets: [
+      {
+        type: 'bar',
+        label: 'Orders',
+        data: trendData.ordersPerDay,
+        backgroundColor: 'rgba(13, 148, 136, 0.35)',
+        borderRadius: 6,
+      },
+      {
+        type: 'line',
+        label: 'Revenue ($)',
+        data: trendData.revenuePerDay,
+        borderColor: '#0ea5e9',
+        backgroundColor: 'rgba(14, 165, 233, 0.15)',
+        tension: 0.35,
+        fill: false,
+        yAxisID: 'y1',
+      },
+    ],
+  }
+
+  const financeBreakdownData = {
+    labels: trendData.labels,
+    datasets: [
+      {
+        type: 'bar',
+        label: 'Gross Sales ($)',
+        data: trendData.grossSalesPerDay,
+        backgroundColor: 'rgba(14, 165, 233, 0.35)',
+        borderRadius: 6,
+      },
+      {
+        type: 'bar',
+        label: 'Cost ($)',
+        data: trendData.totalCostPerDay,
+        backgroundColor: 'rgba(245, 158, 11, 0.35)',
+        borderRadius: 6,
+      },
+      {
+        type: 'line',
+        label: 'Net Revenue ($)',
+        data: trendData.revenuePerDay,
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.15)',
+        tension: 0.35,
+        fill: false,
+      },
+    ],
+  }
+
+  const financeBreakdownOptions = {
+    maintainAspectRatio: false,
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom' },
+    },
+  }
+
+  const marginTrendData = {
+    labels: trendData.labels,
+    datasets: [
+      {
+        label: 'Margin (%)',
+        data: trendData.marginPercentPerDay,
+        borderColor: '#7c3aed',
+        backgroundColor: 'rgba(124, 58, 237, 0.15)',
+        tension: 0.35,
+        fill: true,
+      },
+    ],
+  }
+
+  const marginTrendOptions = {
+    maintainAspectRatio: false,
+    responsive: true,
+    scales: {
+      y: {
+        beginAtZero: true,
+        suggestedMax: 100,
+        title: { display: true, text: 'Margin %' },
+      },
+    },
+    plugins: {
+      legend: { position: 'bottom' },
+    },
+  }
+
+  const trendChartOptions = {
+    maintainAspectRatio: false,
+    responsive: true,
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: { display: true, text: 'Orders' },
+      },
+      y1: {
+        beginAtZero: true,
+        position: 'right',
+        grid: { drawOnChartArea: false },
+        title: { display: true, text: 'Revenue ($)' },
+      },
+    },
+    plugins: {
+      legend: { position: 'bottom' },
+    },
+  }
+
+  const statusChartData = {
+    labels: statusDistribution.map((row) => STATUS_LABELS[row.status] || row.status),
+    datasets: [
+      {
+        data: statusDistribution.map((row) => row.count),
+        backgroundColor: ['#0d9488', '#f59e0b', '#0ea5e9', '#10b981', '#ef4444', '#64748b'],
+        borderWidth: 0,
+      },
+    ],
+  }
+
+  const statusChartOptions = {
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom' },
+    },
+  }
+
   return (
     <div>
       <PageHeader title="Dashboard" subtitle="Operational snapshot for your ecommerce store." />
@@ -132,6 +282,79 @@ const Dashboard = () => {
             </div>
           </CCol>
         ))}
+      </CRow>
+
+      <CRow className="mb-4 g-3">
+        {quickKpis.map((kpi, i) => (
+          <CCol md={4} key={kpi.label}>
+            <CCard className={`h-100 nx-fade-in nx-fade-in-d${Math.min(i + 1, 4)}`}>
+              <CCardBody>
+                <div className="text-medium-emphasis text-uppercase" style={{ fontSize: '0.72rem', letterSpacing: '0.07em' }}>
+                  {kpi.label}
+                </div>
+                <div style={{ fontSize: '1.4rem', fontWeight: 700, lineHeight: 1.2 }}>{kpi.value}</div>
+              </CCardBody>
+            </CCard>
+          </CCol>
+        ))}
+      </CRow>
+
+      <CRow className="mb-4 g-3">
+        <CCol lg={8}>
+          <CCard className="h-100 nx-fade-in nx-fade-in-d2">
+            <CCardHeader>
+              <strong>Last 7 Days</strong>
+              <div className="small text-medium-emphasis">Orders and net revenue trend</div>
+            </CCardHeader>
+            <CCardBody>
+              <div style={{ height: 280 }}>
+                <CChartBar data={trendChartData} options={trendChartOptions} />
+              </div>
+            </CCardBody>
+          </CCard>
+        </CCol>
+        <CCol lg={4}>
+          <CCard className="h-100 nx-fade-in nx-fade-in-d3">
+            <CCardHeader>
+              <strong>Order Status</strong>
+              <div className="small text-medium-emphasis">Split of all orders</div>
+            </CCardHeader>
+            <CCardBody>
+              <div style={{ height: 280 }}>
+                <CChartDoughnut data={statusChartData} options={statusChartOptions} />
+              </div>
+            </CCardBody>
+          </CCard>
+        </CCol>
+      </CRow>
+
+      <CRow className="mb-4 g-3">
+        <CCol lg={8}>
+          <CCard className="h-100 nx-fade-in nx-fade-in-d2">
+            <CCardHeader>
+              <strong>Financial Breakdown</strong>
+              <div className="small text-medium-emphasis">Gross sales vs cost vs net revenue</div>
+            </CCardHeader>
+            <CCardBody>
+              <div style={{ height: 280 }}>
+                <CChartBar data={financeBreakdownData} options={financeBreakdownOptions} />
+              </div>
+            </CCardBody>
+          </CCard>
+        </CCol>
+        <CCol lg={4}>
+          <CCard className="h-100 nx-fade-in nx-fade-in-d3">
+            <CCardHeader>
+              <strong>Margin Trend</strong>
+              <div className="small text-medium-emphasis">Daily profit margin percentage</div>
+            </CCardHeader>
+            <CCardBody>
+              <div style={{ height: 280 }}>
+                <CChartLine data={marginTrendData} options={marginTrendOptions} />
+              </div>
+            </CCardBody>
+          </CCard>
+        </CCol>
       </CRow>
 
       <CRow>
