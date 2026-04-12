@@ -74,11 +74,18 @@ const ProductsEdit = () => {
     setError('')
 
     try {
+      const parsedPrice = Number(formState.price)
+      if (Number.isNaN(parsedPrice) || parsedPrice <= 0) {
+        setError('Price must be greater than 0.')
+        setSubmitting(false)
+        return
+      }
+
       const payload = {
         name: formState.name,
         sku: formState.sku,
         description: formState.description || undefined,
-        price: Number(formState.price),
+        price: parsedPrice,
         image: formState.image || undefined,
         inventory: formState.inventory ? Number(formState.inventory) : 0,
         status: formState.status,
@@ -136,7 +143,7 @@ const ProductsEdit = () => {
           <CFormInput
             name="price"
             type="number"
-            min="0"
+            min="0.01"
             step="0.01"
             value={formState.price}
             onChange={handleChange}

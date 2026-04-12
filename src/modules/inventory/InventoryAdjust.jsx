@@ -45,6 +45,7 @@ const InventoryAdjust = () => {
   const [historyMeta, setHistoryMeta] = useState({ total: 0, page: 1, limit: 10, totalPages: 1 })
   const [historyPage, setHistoryPage] = useState(1)
   const [adjustment, setAdjustment] = useState('')
+  const [purchasePrice, setPurchasePrice] = useState('')
   const [reason, setReason] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -118,6 +119,20 @@ const InventoryAdjust = () => {
       setError('Adjustment must be a non-zero integer.')
       return
     }
+
+    if (adjValue > 0 && purchasePrice === '') {
+      setError('Purchase price is required when adding stock.')
+      return
+    }
+
+    if (purchasePrice !== '') {
+      const parsedPurchasePrice = Number(purchasePrice)
+      if (Number.isNaN(parsedPurchasePrice) || parsedPurchasePrice <= 0) {
+        setError('Purchase price must be greater than 0 when provided.')
+        return
+      }
+    }
+
     // Show confirmation dialog
     setConfirmVisible(true)
   }
@@ -131,13 +146,15 @@ const InventoryAdjust = () => {
     const adjValue = parseInt(adjustment, 10)
     const payload = { adjustment: adjValue }
     if (reason.trim()) payload.reason = reason.trim()
+    if (purchasePrice !== '') payload.purchasePrice = Number(purchasePrice)
 
     const res = await adjustStock(productId, payload)
     if (res?.data) {
       setSuccess(
-        `Stock ${adjValue > 0 ? 'increased' : 'decreased'} by ${Math.abs(adjValue)} units.`,
+        `Stock ${adjValue > 0 ? 'increased' : 'decreased'} by ${Math.abs(adjValue)} units${purchasePrice !== '' ? ' with purchase price recorded' : ''}.`,
       )
       setAdjustment('')
+      setPurchasePrice('')
       setReason('')
       setHistoryPage(1)
       loadData(1)
@@ -205,6 +222,14 @@ const InventoryAdjust = () => {
               <CCol md={3}>
                 <strong>Current Stock</strong>
                 <h3 className="mt-1">{inventory.quantity}</h3>
+              </CCol>
+              <CCol md={3}>
+                <strong>Current Price</strong>
+                <h3 className="mt-1">${Number(inventory.currentPrice || 0).toFixed(2)}</h3>
+              </CCol>
+              <CCol md={3}>
+                <strong>Current Cost</strong>
+                <h3 className="mt-1">${Number(inventory.currentCostPrice || 0).toFixed(2)}</h3>
               </CCol>
               <CCol md={3}>
                 <strong>Low Stock Threshold</strong>
@@ -302,6 +327,17 @@ const InventoryAdjust = () => {
                 required
               />
             </div>
+            <div className="mb-3">
+              <CFormLabel>Purchase Price (required when adding stock)</CFormLabel>
+              <CFormInput
+                type="number"
+                min="0.01"
+                step="0.01"
+                value={purchasePrice}
+                onChange={(e) => setPurchasePrice(e.target.value)}
+                placeholder={`Current avg cost: $${Number(inventory?.currentCostPrice || 0).toFixed(2)}`}
+              />
+            </div>
           </CCol>
           <CCol md={6}>
             {/* Quick adjustment buttons */}
@@ -358,6 +394,11 @@ const InventoryAdjust = () => {
             Stock will change from <strong>{inventory?.quantity}</strong> to{' '}
             <strong>{previewQty}</strong>.
           </p>
+          {purchasePrice !== '' && (
+            <p>
+              Purchase price for this stock: <strong>${Number(purchasePrice).toFixed(2)}</strong>.
+            </p>
+          )}
           {reason && <p>Reason: <em>{reason}</em></p>}
         </CModalBody>
         <CModalFooter>
@@ -387,6 +428,8 @@ const InventoryAdjust = () => {
                   <CTableRow>
                     <CTableHeaderCell>Date</CTableHeaderCell>
                     <CTableHeaderCell>Adjustment</CTableHeaderCell>
+                    <CTableHeaderCell>Purchase Price</CTableHeaderCell>
+                    <CTableHeaderCell>Cost Basis</CTableHeaderCell>
                     <CTableHeaderCell>Reason</CTableHeaderCell>
                     <CTableHeaderCell>By</CTableHeaderCell>
                   </CTableRow>
@@ -401,6 +444,16 @@ const InventoryAdjust = () => {
                         <CBadge color={entry.adjustment > 0 ? 'success' : 'danger'}>
                           {entry.adjustment > 0 ? `+${entry.adjustment}` : entry.adjustment}
                         </CBadge>
+                      </CTableDataCell>
+                      <CTableDataCell>
+                        {entry.purchasePrice != null
+                          ? `$${Number(entry.purchasePrice).toFixed(2)}`
+                          : '—'}
+                      </CTableDataCell>
+                      <CTableDataCell>
+                        {entry.previousCostPrice != null && entry.newCostPrice != null
+                          ? `$${Number(entry.previousCostPrice).toFixed(2)} -> $${Number(entry.newCostPrice).toFixed(2)}`
+                          : '—'}
                       </CTableDataCell>
                       <CTableDataCell>{entry.reason || '—'}</CTableDataCell>
                       <CTableDataCell>{entry.adjustedBy || '—'}</CTableDataCell>
