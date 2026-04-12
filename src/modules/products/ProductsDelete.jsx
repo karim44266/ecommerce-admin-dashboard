@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { CAlert, CButton, CSpinner } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilTrash, cilXCircle } from '@coreui/icons'
 import api from '../../services/api'
 import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
@@ -53,9 +55,11 @@ const ProductsDelete = () => {
         actions={
           <>
             <CButton color="danger" type="submit" disabled={submitting}>
+              <CIcon icon={cilTrash} className="me-1" />
               {submitting ? 'Deleting…' : 'Delete Product'}
             </CButton>
             <CButton color="secondary" type="button" onClick={() => navigate('/products')}>
+              <CIcon icon={cilXCircle} className="me-1" />
               Cancel
             </CButton>
           </>

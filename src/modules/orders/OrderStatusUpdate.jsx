@@ -159,7 +159,7 @@ const OrderStatusUpdate = () => {
           color="secondary"
           variant="outline"
           size="sm"
-          className="flex-shrink-0 mt-1"
+          className="flex-shrink-0 mt-1 nx-utility-btn"
           onClick={() => navigate(`/orders/${id}`)}
         >
           <CIcon icon={cilArrowLeft} className="me-1" />
@@ -351,6 +351,7 @@ const OrderStatusUpdate = () => {
                 variant="ghost"
                 onClick={() => { setSelected(''); setNote(''); setStaffId('') }}
               >
+                <CIcon icon={cilXCircle} className="me-1" />
                 Clear
               </CButton>
             </div>
@@ -395,6 +396,7 @@ const OrderStatusUpdate = () => {
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" variant="ghost" onClick={() => { setShowConfirm(false); setSelected('') }}>
+            <CIcon icon={cilArrowLeft} className="me-1" />
             Go Back
           </CButton>
           <CButton
@@ -402,6 +404,7 @@ const OrderStatusUpdate = () => {
             disabled={submitting}
             onClick={handleSubmit}
           >
+            <CIcon icon={cilXCircle} className="me-1" />
             {submitting ? 'Updating…' : `Yes, ${ACTION_META[selected]?.verb || STATUS_LABELS[selected]}`}
           </CButton>
         </CModalFooter>

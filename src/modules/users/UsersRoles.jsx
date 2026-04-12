@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { CAlert, CBadge, CButton, CFormLabel, CFormSelect, CSpinner } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilPencil, cilArrowLeft } from '@coreui/icons'
 import {
   getApiErrorMessage,
   getUserById,
@@ -86,9 +88,11 @@ const UsersRoles = () => {
         actions={
           <>
             <CButton color="primary" type="submit" disabled={submitting}>
+              <CIcon icon={cilPencil} className="me-1" />
               {submitting ? 'Updating...' : 'Update Role'}
             </CButton>
             <CButton color="secondary" type="button" onClick={() => navigate('/users')}>
+              <CIcon icon={cilArrowLeft} className="me-1" />
               Back to Users
             </CButton>
           </>

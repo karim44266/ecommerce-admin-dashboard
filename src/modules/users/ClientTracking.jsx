@@ -13,6 +13,8 @@ import {
   CRow,
   CSpinner,
 } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilArrowLeft, cilSearch, cilXCircle, cilChart, cilArrowRight } from '@coreui/icons'
 import DataTable from '../../shared/components/DataTable'
 import PageHeader from '../../shared/components/PageHeader'
 import { getApiErrorMessage, getClientPurchases } from '../../services/usersService'
@@ -61,9 +63,12 @@ const ClientTracking = () => {
         title="Client Tracking"
         subtitle={client ? `Purchase history for ${client.email}` : 'Purchase history'}
         actions={
-          <CButton color="secondary" variant="outline" onClick={() => navigate('/clients/tracking')}>
-            Back to Clients
-          </CButton>
+          <div className="nx-utility-actions">
+            <CButton color="secondary" variant="outline" className="nx-utility-btn" onClick={() => navigate('/clients/tracking')}>
+              <CIcon icon={cilArrowLeft} className="me-1" />
+              Back to Clients
+            </CButton>
+          </div>
         }
       />
 
@@ -115,15 +120,17 @@ const ClientTracking = () => {
               />
             </CCol>
             <CCol md={3}>
-              <div className="d-flex gap-2">
+              <div className="d-flex gap-2 nx-utility-actions">
                 <CButton color="primary" onClick={fetchData} disabled={loading}>
-                  {loading ? <CSpinner size="sm" /> : 'Apply'}
+                  {loading ? <CSpinner size="sm" /> : <CIcon icon={cilSearch} className="me-1" />}
+                  Apply
                 </CButton>
                 <CButton
                   color="light"
                   onClick={() => setFilters({ status: 'ALL', from: '', to: '', page: 1, limit: 10 })}
                   disabled={loading}
                 >
+                  <CIcon icon={cilXCircle} className="me-1" />
                   Reset
                 </CButton>
               </div>
@@ -188,9 +195,12 @@ const ClientTracking = () => {
             key: 'actions',
             label: 'Actions',
             render: (row) => (
-              <CButton color="secondary" size="sm" onClick={() => navigate(`/orders/${row.id}`)}>
-                View Order
-              </CButton>
+              <div className="nx-row-actions">
+                <CButton color="secondary" size="sm" className="nx-row-action-btn" onClick={() => navigate(`/orders/${row.id}`)}>
+                  <CIcon icon={cilChart} className="me-1" />
+                  View Order
+                </CButton>
+              </div>
             ),
           },
         ]}
@@ -208,6 +218,7 @@ const ClientTracking = () => {
               disabled={filters.page <= 1 || loading}
               onClick={() => setFilters((prev) => ({ ...prev, page: prev.page - 1 }))}
             >
+              <CIcon icon={cilArrowLeft} className="me-1" />
               Previous
             </CButton>
             <CButton
@@ -216,6 +227,7 @@ const ClientTracking = () => {
               disabled={filters.page >= meta.totalPages || loading}
               onClick={() => setFilters((prev) => ({ ...prev, page: prev.page + 1 }))}
             >
+              <CIcon icon={cilArrowRight} className="me-1" />
               Next
             </CButton>
           </div>

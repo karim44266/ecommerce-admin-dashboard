@@ -21,6 +21,8 @@ import {
   CTableHeaderCell,
   CTableRow,
 } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilPlus, cilReload, cilPencil, cilXCircle } from '@coreui/icons'
 import api from '../../services/api'
 import PageHeader from '../../shared/components/PageHeader'
 
@@ -151,11 +153,13 @@ const DeliveryAssign = () => {
       <CCard className="mb-4">
         <CCardHeader className="d-flex justify-content-between align-items-center">
           <span>Orders Ready for Assignment ({orders.length})</span>
-          <div className="d-flex gap-2">
-            <CButton color="primary" size="sm" onClick={openCreate} disabled={loading || orders.length === 0 || staffUsers.length === 0}>
+          <div className="d-flex gap-2 nx-utility-actions">
+            <CButton color="primary" size="sm" className="nx-utility-btn" onClick={openCreate} disabled={loading || orders.length === 0 || staffUsers.length === 0}>
+              <CIcon icon={cilPlus} className="me-1" />
               Create Shipment
             </CButton>
-            <CButton color="light" size="sm" onClick={fetchData} disabled={loading}>
+            <CButton color="light" size="sm" className="nx-utility-btn" onClick={fetchData} disabled={loading}>
+              <CIcon icon={cilReload} className="me-1" />
               Refresh
             </CButton>
           </div>
@@ -245,9 +249,12 @@ const DeliveryAssign = () => {
                     <CTableDataCell>{new Date(s.assignedAt).toLocaleDateString()}</CTableDataCell>
                     <CTableDataCell>
                       {['ASSIGNED', 'PENDING'].includes(s.status) && (
-                        <CButton color="warning" size="sm" variant="outline" onClick={() => openReassign(s)}>
-                          Reassign
-                        </CButton>
+                        <div className="nx-row-actions">
+                          <CButton color="warning" size="sm" variant="outline" className="nx-row-action-btn" onClick={() => openReassign(s)}>
+                            <CIcon icon={cilPencil} className="me-1" />
+                            Reassign
+                          </CButton>
+                        </div>
                       )}
                     </CTableDataCell>
                   </CTableRow>
@@ -310,9 +317,11 @@ const DeliveryAssign = () => {
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" variant="ghost" onClick={() => setShowCreate(false)}>
+            <CIcon icon={cilXCircle} className="me-1" />
             Cancel
           </CButton>
           <CButton color="primary" onClick={handleCreate} disabled={submitting || !selectedOrderId || !selectedStaffId}>
+            <CIcon icon={cilPlus} className="me-1" />
             {submitting ? 'Creating…' : 'Create Shipment'}
           </CButton>
         </CModalFooter>
@@ -337,9 +346,11 @@ const DeliveryAssign = () => {
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" variant="ghost" onClick={() => setShowReassign(false)}>
+            <CIcon icon={cilXCircle} className="me-1" />
             Cancel
           </CButton>
           <CButton color="warning" onClick={handleReassign} disabled={submitting || !reassignStaffId}>
+            <CIcon icon={cilPencil} className="me-1" />
             {submitting ? 'Reassigning…' : 'Reassign'}
           </CButton>
         </CModalFooter>

@@ -15,7 +15,7 @@ import {
   CSpinner,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilSearch, cilReload } from '@coreui/icons'
+import { cilSearch, cilReload, cilPencil, cilPlus } from '@coreui/icons'
 import useInventoryApi from '../../shared/hooks/useInventoryApi'
 import DataTable from '../../shared/components/DataTable'
 import PageHeader from '../../shared/components/PageHeader'
@@ -133,13 +133,17 @@ const InventoryList = () => {
       key: 'actions',
       label: 'Actions',
       render: (row) => (
-        <CButton
-          color="primary"
-          size="sm"
-          onClick={() => navigate(`/inventory/${row.productId}/adjust`)}
-        >
-          Adjust
-        </CButton>
+        <div className="nx-row-actions">
+          <CButton
+            color="primary"
+            size="sm"
+            className="nx-row-action-btn"
+            onClick={() => navigate(`/inventory/${row.productId}/adjust`)}
+          >
+            <CIcon icon={cilPencil} className="me-1" />
+            Adjust
+          </CButton>
+        </div>
       ),
     },
   ]
@@ -150,11 +154,12 @@ const InventoryList = () => {
         title="Inventory Management"
         subtitle={`${summary.total} total item${summary.total !== 1 ? 's' : ''}`}
         actions={
-          <div className="d-flex gap-2">
-            <CButton color="light" size="sm" onClick={() => { loadInventory(); loadSummary() }} title="Refresh">
+          <div className="d-flex gap-2 nx-utility-actions">
+            <CButton color="light" size="sm" className="nx-utility-btn" onClick={() => { loadInventory(); loadSummary() }} title="Refresh">
               <CIcon icon={cilReload} />
             </CButton>
-            <CButton color="info" size="sm" onClick={handleBackfill} disabled={backfilling}>
+            <CButton color="info" size="sm" className="nx-utility-btn" onClick={handleBackfill} disabled={backfilling}>
+              {!backfilling && <CIcon icon={cilPlus} className="me-1" />}
               {backfilling ? <CSpinner size="sm" /> : 'Backfill Missing'}
             </CButton>
           </div>

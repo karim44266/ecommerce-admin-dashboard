@@ -18,7 +18,7 @@ export const AppSidebarNav = ({ items }) => {
                 <span className="nav-icon-bullet"></span>
               </span>
             )}
-        {name && name}
+        {name && <span className="nx-nav-label">{name}</span>}
         {badge && (
           <CBadge color={badge.color} className="ms-auto" size="sm">
             {badge.text}
@@ -31,6 +31,7 @@ export const AppSidebarNav = ({ items }) => {
   const navItem = (item, index, indent = false) => {
     const { component, name, badge, icon, ...rest } = item
     const Component = component
+    const linkClassName = ['nx-sidebar-link', rest.className].filter(Boolean).join(' ')
     return (
       <Component as="div" key={index}>
         {rest.to || rest.href ? (
@@ -38,6 +39,7 @@ export const AppSidebarNav = ({ items }) => {
             {...(rest.to && { as: NavLink })}
             {...(rest.href && { target: '_blank', rel: 'noopener noreferrer' })}
             {...rest}
+            className={linkClassName}
           >
             {navLink(name, icon, badge, indent)}
           </CNavLink>
@@ -49,10 +51,11 @@ export const AppSidebarNav = ({ items }) => {
   }
 
   const navGroup = (item, index) => {
-    const { component, name, icon, items, to, ...rest } = item
+    const { component, name, icon, items, to, className, ...rest } = item
     const Component = component
+    const groupClassName = ['nx-sidebar-group', className].filter(Boolean).join(' ')
     return (
-      <Component compact as="div" key={index} toggler={navLink(name, icon)} {...rest}>
+      <Component compact as="div" key={index} toggler={navLink(name, icon)} className={groupClassName} {...rest}>
         {items?.map((item, index) =>
           item.items ? navGroup(item, index) : navItem(item, index, true),
         )}
@@ -61,7 +64,7 @@ export const AppSidebarNav = ({ items }) => {
   }
 
   return (
-    <CSidebarNav as={SimpleBar}>
+    <CSidebarNav as={SimpleBar} className="nx-sidebar-nav">
       {items &&
         items.map((item, index) => (item.items ? navGroup(item, index) : navItem(item, index)))}
     </CSidebarNav>

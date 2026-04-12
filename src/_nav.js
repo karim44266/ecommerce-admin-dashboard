@@ -18,11 +18,13 @@ const _nav = [
     component: CNavItem,
     name: 'Dashboard',
     to: '/dashboard',
+    end: true,
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
   },
   {
     component: CNavTitle,
-    name: 'Management',
+    name: 'MANAGEMENT',
+    className: 'nx-nav-section-title',
     roles: ['ADMIN'],
   },
   {
@@ -36,6 +38,7 @@ const _nav = [
         component: CNavItem,
         name: 'Catalog',
         to: '/products',
+        end: true,
       },
       {
         component: CNavItem,
@@ -56,6 +59,7 @@ const _nav = [
         component: CNavItem,
         name: 'All Categories',
         to: '/categories',
+        end: true,
       },
       {
         component: CNavItem,
@@ -75,6 +79,7 @@ const _nav = [
         component: CNavItem,
         name: 'Stock Levels',
         to: '/inventory',
+        end: true,
       },
       {
         component: CNavItem,
@@ -94,6 +99,7 @@ const _nav = [
         component: CNavItem,
         name: 'Order List',
         to: '/orders',
+        end: true,
       },
     ],
   },
@@ -132,6 +138,7 @@ const _nav = [
         component: CNavItem,
         name: 'User List',
         to: '/users',
+        end: true,
       },
     ],
   },

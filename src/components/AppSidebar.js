@@ -40,7 +40,7 @@ const AppSidebar = () => {
 
   return (
     <CSidebar
-      className="border-end"
+      className="nx-app-sidebar border-end"
       colorScheme="dark"
       position="fixed"
       unfoldable={unfoldable}
@@ -49,7 +49,7 @@ const AppSidebar = () => {
         dispatch({ type: 'set', sidebarShow: visible })
       }}
     >
-      <CSidebarHeader className="border-bottom">
+      <CSidebarHeader className="nx-sidebar-header border-bottom">
         <CSidebarBrand to="/" className="nx-sidebar-brand">
           <span className="sidebar-brand-full d-flex align-items-center gap-2">
             <span className="nx-brand-mark">PB</span>
@@ -67,7 +67,7 @@ const AppSidebar = () => {
         />
       </CSidebarHeader>
       <AppSidebarNav items={filterNavByRole(navigation, userRoles)} />
-      <CSidebarFooter className="border-top d-none d-lg-flex">
+      <CSidebarFooter className="nx-sidebar-footer border-top d-none d-lg-flex">
         <CSidebarToggler
           onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
         />

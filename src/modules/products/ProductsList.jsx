@@ -17,7 +17,16 @@ import {
   CRow,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilSearch } from '@coreui/icons'
+import {
+  cilSearch,
+  cilChart,
+  cilPencil,
+  cilTrash,
+  cilPlus,
+  cilArrowLeft,
+  cilArrowRight,
+  cilXCircle,
+} from '@coreui/icons'
 import api from '../../services/api'
 import DataTable from '../../shared/components/DataTable'
 import PageHeader from '../../shared/components/PageHeader'
@@ -176,24 +185,37 @@ const ProductsList = () => {
       key: 'actions',
       label: 'Actions',
       render: (row) => (
-        <div className="d-flex gap-2">
+        <div className="d-flex gap-2 nx-row-actions">
           {isAdmin ? (
             <>
               <CButton
+                color="info"
+                size="sm"
+                className="nx-row-action-btn"
+                onClick={() => navigate(`/products/${row.id}/details`)}
+              >
+                <CIcon icon={cilChart} className="me-1" />
+                Detail
+              </CButton>
+              <CButton
                 color="primary"
                 size="sm"
+                className="nx-row-action-btn"
                 onClick={() => navigate(`/products/${row.id}`)}
               >
+                <CIcon icon={cilPencil} className="me-1" />
                 Edit
               </CButton>
               <CButton
                 color="danger"
                 size="sm"
+                className="nx-row-action-btn"
                 onClick={() => {
                   setDeleteTarget(row)
                   setConfirmOpen(true)
                 }}
               >
+                <CIcon icon={cilTrash} className="me-1" />
                 Delete
               </CButton>
             </>
@@ -210,7 +232,16 @@ const ProductsList = () => {
       <PageHeader
         title="Products"
         subtitle="Manage catalog items, pricing, and inventory."
-        actions={isAdmin ? <CButton color="primary" onClick={() => navigate('/products/new')}>Add Product</CButton> : null}
+        actions={
+          isAdmin ? (
+            <div className="nx-utility-actions">
+              <CButton color="primary" className="nx-utility-btn" onClick={() => navigate('/products/new')}>
+                <CIcon icon={cilPlus} className="me-1" />
+                Add Product
+              </CButton>
+            </div>
+          ) : null
+        }
       />
       {error && <CAlert color="danger">{error}</CAlert>}
 
@@ -334,6 +365,7 @@ const ProductsList = () => {
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
           >
+            <CIcon icon={cilArrowLeft} className="me-1" />
             Previous
           </CButton>
           <span className="align-self-center text-muted">
@@ -345,6 +377,7 @@ const ProductsList = () => {
             disabled={page >= meta.totalPages}
             onClick={() => setPage((p) => p + 1)}
           >
+            <CIcon icon={cilArrowRight} className="me-1" />
             Next
           </CButton>
         </div>
@@ -359,9 +392,11 @@ const ProductsList = () => {
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => setConfirmOpen(false)}>
+            <CIcon icon={cilXCircle} className="me-1" />
             Cancel
           </CButton>
           <CButton color="danger" onClick={handleDelete} disabled={deleting}>
+            <CIcon icon={cilTrash} className="me-1" />
             {deleting ? 'Deleting…' : 'Delete'}
           </CButton>
         </CModalFooter>

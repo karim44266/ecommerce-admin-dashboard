@@ -19,7 +19,14 @@ import {
   CSpinner,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilSearch } from '@coreui/icons'
+import {
+  cilSearch,
+  cilPencil,
+  cilChart,
+  cilXCircle,
+  cilCheckCircle,
+  cilPlus,
+} from '@coreui/icons'
 import { useToast } from '../../shared/components/ToastProvider'
 import {
   createUser,
@@ -51,6 +58,7 @@ const UsersList = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
+  const [roleFilter, setRoleFilter] = useState('all')
   const [page, setPage] = useState(1)
   const [togglingId, setTogglingId] = useState(null)
   const [confirmUser, setConfirmUser] = useState(null)
@@ -78,6 +86,7 @@ const UsersList = () => {
     try {
       const params = { page, limit: 20 }
       if (search.trim()) params.search = search.trim()
+      if (roleFilter !== 'all') params.role = roleFilter
       const payload = await getUsers(params)
       setUsers(payload?.data || [])
       setMeta(payload?.meta || { total: 0, page: 1, limit: 20, totalPages: 1 })
@@ -86,7 +95,7 @@ const UsersList = () => {
     } finally {
       setLoading(false)
     }
-  }, [page, search])
+  }, [page, search, roleFilter])
 
   useEffect(() => {
     if (!isAdmin()) {
@@ -180,27 +189,36 @@ const UsersList = () => {
       key: 'actions',
       label: 'Actions',
       render: (row) => (
-        <div className="d-flex gap-2">
-          <CButton color="info" size="sm" onClick={() => navigate(`/users/${row.id}/roles`)}>
+        <div className="d-flex gap-2 nx-row-actions">
+          <CButton color="info" size="sm" className="nx-row-action-btn" onClick={() => navigate(`/users/${row.id}/roles`)}>
+            <CIcon icon={cilPencil} className="me-1" />
             Roles
           </CButton>
           {row.role === 'customer' && (
-            <CButton color="primary" size="sm" onClick={() => navigate(`/clients/${row.id}/tracking`)}>
+            <CButton color="primary" size="sm" className="nx-row-action-btn" onClick={() => navigate(`/clients/${row.id}/tracking`)}>
+              <CIcon icon={cilChart} className="me-1" />
               Tracking
             </CButton>
           )}
           <CButton
             color={row.status === 'active' ? 'warning' : 'success'}
             size="sm"
+            className="nx-row-action-btn"
             disabled={togglingId === row.id}
             onClick={() => setConfirmUser(row)}
           >
             {togglingId === row.id ? (
               <CSpinner size="sm" />
             ) : row.status === 'active' ? (
-              'Block'
+              <>
+                <CIcon icon={cilXCircle} className="me-1" />
+                Block
+              </>
             ) : (
-              'Unblock'
+              <>
+                <CIcon icon={cilCheckCircle} className="me-1" />
+                Unblock
+              </>
             )}
           </CButton>
         </div>
@@ -214,23 +232,41 @@ const UsersList = () => {
         title="Users"
         subtitle="Manage users, roles, and access."
         actions={
-          <CButton color="primary" onClick={() => setShowCreateModal(true)}>
-            Add User
-          </CButton>
+          <div className="nx-utility-actions">
+            <CButton color="primary" className="nx-utility-btn" onClick={() => setShowCreateModal(true)}>
+              <CIcon icon={cilPlus} className="me-1" />
+              Add User
+            </CButton>
+          </div>
         }
       />
       {error && <CAlert color="danger">{error}</CAlert>}
       <form onSubmit={handleSearchSubmit}>
-        <CInputGroup className="mb-3">
-          <CInputGroupText>
-            <CIcon icon={cilSearch} />
-          </CInputGroupText>
-          <CFormInput
-            placeholder="Search by name or email…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </CInputGroup>
+        <div className="d-flex flex-column flex-md-row gap-2 mb-3">
+          <CInputGroup>
+            <CInputGroupText>
+              <CIcon icon={cilSearch} />
+            </CInputGroupText>
+            <CFormInput
+              placeholder="Search by name or email…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </CInputGroup>
+          <CFormSelect
+            value={roleFilter}
+            onChange={(e) => {
+              setRoleFilter(e.target.value)
+              setPage(1)
+            }}
+            style={{ maxWidth: '220px' }}
+          >
+            <option value="all">All Roles</option>
+            <option value="customer">Clients</option>
+            <option value="admin">Admins</option>
+            <option value="staff">Staff</option>
+          </CFormSelect>
+        </div>
       </form>
       <DataTable
         title={`User Directory (${meta.total})`}
@@ -279,6 +315,7 @@ const UsersList = () => {
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" variant="ghost" onClick={() => setConfirmUser(null)}>
+            <CIcon icon={cilXCircle} className="me-1" />
             Cancel
           </CButton>
           <CButton
@@ -288,6 +325,7 @@ const UsersList = () => {
               setConfirmUser(null)
             }}
           >
+            <CIcon icon={confirmUser?.status === 'active' ? cilXCircle : cilCheckCircle} className="me-1" />
             {confirmUser?.status === 'active' ? 'Block' : 'Unblock'}
           </CButton>
         </CModalFooter>
@@ -359,9 +397,11 @@ const UsersList = () => {
                 resetCreateForm()
               }}
             >
+              <CIcon icon={cilXCircle} className="me-1" />
               Cancel
             </CButton>
             <CButton color="primary" type="submit" disabled={creatingUser}>
+              <CIcon icon={cilPlus} className="me-1" />
               {creatingUser ? 'Creating...' : 'Create User'}
             </CButton>
           </CModalFooter>

@@ -175,12 +175,12 @@ const OrderDetails = () => {
     <div>
       <div className="d-flex justify-content-between align-items-start mb-3">
         <PageHeader title="Order Details" subtitle={`Order #${order.id.slice(0, 8)}`} />
-        <div className="d-flex gap-2 flex-shrink-0 pt-1">
-          <CButton color="light" size="sm" onClick={() => fetchOrder()} disabled={loading}>
+        <div className="d-flex gap-2 flex-shrink-0 pt-1 nx-utility-actions">
+          <CButton color="light" size="sm" className="nx-utility-btn" onClick={() => fetchOrder()} disabled={loading}>
             <CIcon icon={cilReload} className="me-1" />
             Refresh
           </CButton>
-          <CButton color="secondary" variant="outline" size="sm" onClick={() => navigate('/orders')}>
+          <CButton color="secondary" variant="outline" size="sm" className="nx-utility-btn" onClick={() => navigate('/orders')}>
             <CIcon icon={cilArrowLeft} className="me-1" />
             Back
           </CButton>
@@ -201,7 +201,7 @@ const OrderDetails = () => {
       {/* ── Quick-action bar ──────────────────────────────────── */}
       {allowedStatuses.length > 0 && (
         <CCard className="mb-4 border-0 bg-light">
-          <CCardBody className="d-flex flex-wrap align-items-center gap-2 py-2">
+          <CCardBody className="d-flex flex-wrap align-items-center gap-2 py-2 nx-utility-actions">
             <span className="text-medium-emphasis small fw-semibold me-2">Quick Actions:</span>
             {happyNext.map((s) => {
               const m = ACTION_META[s] || {}
@@ -210,7 +210,7 @@ const OrderDetails = () => {
                   key={s}
                   color={m.color || 'primary'}
                   size="sm"
-                  className="fw-semibold"
+                  className="fw-semibold nx-utility-btn"
                   onClick={() => openStatusModal(s)}
                 >
                   <CIcon icon={m.icon || cilArrowRight} size="sm" className="me-1" />
@@ -226,6 +226,7 @@ const OrderDetails = () => {
                   color="danger"
                   variant="ghost"
                   size="sm"
+                  className="nx-utility-btn"
                   onClick={() => openStatusModal(s)}
                 >
                   <CIcon icon={m.icon || cilXCircle} size="sm" className="me-1" />
@@ -464,6 +465,7 @@ const OrderDetails = () => {
             onClick={closeModal}
             disabled={modal.submitting}
           >
+            <CIcon icon={cilXCircle} className="me-1" />
             Cancel
           </CButton>
           <CButton

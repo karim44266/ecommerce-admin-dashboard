@@ -13,7 +13,7 @@ import {
   CSpinner,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilArrowLeft } from '@coreui/icons'
+import { cilArrowLeft, cilTruck, cilXCircle } from '@coreui/icons'
 import api from '../../services/api'
 import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
@@ -91,7 +91,7 @@ const OrderTracking = () => {
           color="secondary"
           variant="outline"
           size="sm"
-          className="flex-shrink-0 mt-1"
+          className="flex-shrink-0 mt-1 nx-utility-btn"
           onClick={() => navigate(`/orders/${id}`)}
         >
           <CIcon icon={cilArrowLeft} className="me-1" />
@@ -130,9 +130,11 @@ const OrderTracking = () => {
         actions={
           <>
             <CButton color="primary" type="submit" disabled={submitting}>
+              <CIcon icon={cilTruck} className="me-1" />
               {submitting ? 'Saving…' : 'Save Tracking'}
             </CButton>
             <CButton color="secondary" type="button" onClick={() => navigate(`/orders/${id}`)}>
+              <CIcon icon={cilXCircle} className="me-1" />
               Cancel
             </CButton>
           </>
