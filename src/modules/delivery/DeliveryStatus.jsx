@@ -23,6 +23,8 @@ import {
   CTableHeaderCell,
   CTableRow,
 } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilCheckCircle, cilXCircle, cilPencil, cilSearch, cilReload } from '@coreui/icons'
 import api from '../../services/api'
 import PageHeader from '../../shared/components/PageHeader'
 
@@ -237,6 +239,7 @@ const DeliveryStatus = () => {
               disabled={availabilityLoading || availabilityStatus === 'AVAILABLE'}
               onClick={() => handleAvailabilityUpdate('AVAILABLE')}
             >
+              <CIcon icon={cilCheckCircle} className="me-1" />
               Set Available
             </CButton>
             <CButton
@@ -245,6 +248,7 @@ const DeliveryStatus = () => {
               disabled={availabilityLoading || availabilityStatus === 'UNAVAILABLE'}
               onClick={() => handleAvailabilityUpdate('UNAVAILABLE')}
             >
+              <CIcon icon={cilXCircle} className="me-1" />
               Set Not Available
             </CButton>
             {availabilityLoading && <CSpinner size="sm" />}
@@ -256,18 +260,21 @@ const DeliveryStatus = () => {
       <CCard className="mb-4">
         <CCardHeader className="d-flex justify-content-between align-items-center flex-wrap gap-2">
           <span>Shipments ({filtered.length})</span>
-          <div className="d-flex gap-1 flex-wrap">
+          <div className="d-flex gap-1 flex-wrap nx-utility-actions nx-utility-actions--tight">
             {FILTER_TABS.map((tab) => (
               <CButton
                 key={tab.value}
                 color={statusFilter === tab.value ? 'primary' : 'light'}
                 size="sm"
+                className="nx-utility-btn"
                 onClick={() => { setStatusFilter(tab.value); setPage(1) }}
               >
+                <CIcon icon={cilSearch} className="me-1" />
                 {tab.label}
               </CButton>
             ))}
-            <CButton color="light" size="sm" onClick={fetchShipments} disabled={loading}>
+            <CButton color="light" size="sm" className="nx-utility-btn" onClick={fetchShipments} disabled={loading}>
+              <CIcon icon={cilReload} className="me-1" />
               ↻ Refresh
             </CButton>
           </div>
@@ -338,22 +345,26 @@ const DeliveryStatus = () => {
                       </CTableDataCell>
                       <CTableDataCell>
                         {s.status === 'ASSIGNED' ? (
-                          <div className="d-flex gap-1">
+                          <div className="d-flex gap-1 nx-row-actions nx-row-actions--tight">
                             <CButton
                               color="success"
                               size="sm"
+                              className="nx-row-action-btn"
                               disabled={submitting}
                               onClick={() => setConfirmAction({ shipment: s, action: 'accept' })}
                             >
+                              <CIcon icon={cilCheckCircle} className="me-1" />
                               Accept
                             </CButton>
                             <CButton
                               color="danger"
                               size="sm"
                               variant="outline"
+                              className="nx-row-action-btn"
                               disabled={submitting}
                               onClick={() => setConfirmAction({ shipment: s, action: 'decline' })}
                             >
+                              <CIcon icon={cilXCircle} className="me-1" />
                               Decline
                             </CButton>
                           </div>
@@ -361,8 +372,10 @@ const DeliveryStatus = () => {
                           <CButton
                             color="success"
                             size="sm"
+                            className="nx-row-action-btn"
                             onClick={() => openUpdate(s)}
                           >
+                            <CIcon icon={cilPencil} className="me-1" />
                             Update
                           </CButton>
                         ) : (
@@ -470,6 +483,7 @@ const DeliveryStatus = () => {
             variant="ghost"
             onClick={() => setShowModal(false)}
           >
+            <CIcon icon={cilXCircle} className="me-1" />
             Cancel
           </CButton>
           <CButton
@@ -477,6 +491,7 @@ const DeliveryStatus = () => {
             onClick={handleUpdate}
             disabled={submitting || !newStatus}
           >
+            <CIcon icon={cilCheckCircle} className="me-1" />
             {submitting ? 'Updating…' : 'Confirm'}
           </CButton>
         </CModalFooter>
@@ -498,6 +513,7 @@ const DeliveryStatus = () => {
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" variant="ghost" onClick={() => setConfirmAction(null)}>
+            <CIcon icon={cilXCircle} className="me-1" />
             Cancel
           </CButton>
           <CButton
@@ -528,6 +544,7 @@ const DeliveryStatus = () => {
               }
             }}
           >
+            <CIcon icon={confirmAction?.action === 'accept' ? cilCheckCircle : cilXCircle} className="me-1" />
             {submitting ? 'Processing…' : confirmAction?.action === 'accept' ? 'Accept' : 'Decline'}
           </CButton>
         </CModalFooter>

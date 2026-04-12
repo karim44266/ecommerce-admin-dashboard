@@ -9,7 +9,7 @@ import {
   CInputGroupText,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser } from '@coreui/icons'
+import { cilLockLocked, cilUser, cilCheckCircle } from '@coreui/icons'
 import { getRolesFromToken, setAuth, setPendingMfaEmail } from '../modules/auth/authStorage'
 import { getApiErrorMessage, login } from '../services/authService'
 
@@ -145,6 +145,7 @@ const Login = () => {
           </CInputGroup>
 
           <CButton color="primary" type="submit" disabled={isSubmitting}>
+            <CIcon icon={cilCheckCircle} className="me-1" />
             {isSubmitting ? 'Signing in…' : 'Sign in'}
           </CButton>
         </CForm>

@@ -1,6 +1,8 @@
 import React from 'react'
 import { CButton } from '@coreui/react'
 import { useNavigate } from 'react-router-dom'
+import CIcon from '@coreui/icons-react'
+import { cilArrowLeft } from '@coreui/icons'
 
 const NotFound = () => {
   const navigate = useNavigate()
@@ -13,6 +15,7 @@ const NotFound = () => {
         The page you're looking for doesn't exist or has been moved.
       </p>
       <CButton color="primary" onClick={() => navigate('/')}>
+        <CIcon icon={cilArrowLeft} className="me-1" />
         Back to Dashboard
       </CButton>
     </div>

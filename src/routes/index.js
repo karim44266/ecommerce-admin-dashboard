@@ -4,11 +4,13 @@ const Dashboard = React.lazy(() => import('../modules/dashboard/Dashboard'))
 
 const ProductsList = React.lazy(() => import('../modules/products/ProductsList'))
 const ProductsCreate = React.lazy(() => import('../modules/products/ProductsCreate'))
+const ProductsDetail = React.lazy(() => import('../modules/products/ProductsDetail'))
 const ProductsEdit = React.lazy(() => import('../modules/products/ProductsEdit'))
 const ProductsDelete = React.lazy(() => import('../modules/products/ProductsDelete'))
 
 const CategoriesList = React.lazy(() => import('../modules/categories/CategoriesList'))
 const CategoriesCreate = React.lazy(() => import('../modules/categories/CategoriesCreate'))
+const CategoryDetailsPage = React.lazy(() => import('../modules/categories/CategoryDetailsPage'))
 const CategoriesEdit = React.lazy(() => import('../modules/categories/CategoriesEdit'))
 
 const OrdersList = React.lazy(() => import('../modules/orders/OrdersList'))
@@ -36,11 +38,13 @@ const routes = [
 
   { path: '/products', name: 'Products', element: ProductsList },
   { path: '/products/new', name: 'Create Product', element: ProductsCreate },
+  { path: '/products/:id/details', name: 'Product Details', element: ProductsDetail },
   { path: '/products/:id', name: 'Edit Product', element: ProductsEdit },
   { path: '/products/:id/delete', name: 'Delete Product', element: ProductsDelete },
 
   { path: '/categories', name: 'Categories', element: CategoriesList },
   { path: '/categories/new', name: 'Create Category', element: CategoriesCreate },
+  { path: '/categories/:id/details', name: 'Category Details', element: CategoryDetailsPage },
   { path: '/categories/:id', name: 'Edit Category', element: CategoriesEdit },
 
   { path: '/orders', name: 'Orders', element: OrdersList },

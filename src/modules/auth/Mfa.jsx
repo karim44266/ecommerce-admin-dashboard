@@ -15,7 +15,13 @@ import {
   CAlert,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilEnvelopeClosed } from '@coreui/icons'
+import {
+  cilLockLocked,
+  cilEnvelopeClosed,
+  cilCheckCircle,
+  cilArrowLeft,
+  cilClipboard,
+} from '@coreui/icons'
 import api from '../../services/api'
 import { clearPendingMfaEmail, getPendingMfaEmail, getRolesFromToken, setAuth } from './authStorage'
 
@@ -101,11 +107,13 @@ const Mfa = () => {
                     <CRow>
                       <CCol xs={6}>
                         <CButton color="primary" type="submit" disabled={isSubmitting}>
+                          <CIcon icon={cilCheckCircle} className="me-1" />
                           {isSubmitting ? 'Verifying...' : 'Verify'}
                         </CButton>
                       </CCol>
                       <CCol xs={6} className="text-end">
                         <CButton color="link" className="px-0" onClick={handleBackToLogin}>
+                          <CIcon icon={cilArrowLeft} className="me-1" />
                           Back to login
                         </CButton>
                       </CCol>
@@ -119,6 +127,7 @@ const Mfa = () => {
                     <h2>Secure sign-in</h2>
                     <p>We sent a one-time code to keep your account safe.</p>
                     <CButton color="light" variant="outline" disabled>
+                      <CIcon icon={cilClipboard} className="me-1" />
                       Need help?
                     </CButton>
                   </div>

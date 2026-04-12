@@ -14,7 +14,7 @@ import {
   CRow,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilLockLocked } from '@coreui/icons'
+import { cilLockLocked, cilCheckCircle } from '@coreui/icons'
 import {
   clearPendingMfaEmail,
   getPendingMfaEmail,
@@ -93,6 +93,7 @@ const Mfa = () => {
                   <CRow>
                     <CCol xs={12}>
                       <CButton color="primary" type="submit" disabled={isSubmitting}>
+                        <CIcon icon={cilCheckCircle} className="me-1" />
                         {isSubmitting ? 'Verifying...' : 'Verify'}
                       </CButton>
                     </CCol>

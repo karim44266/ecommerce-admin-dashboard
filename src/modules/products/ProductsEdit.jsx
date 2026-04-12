@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { CAlert, CButton, CFormInput, CFormLabel, CFormSelect, CFormTextarea } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilPencil, cilXCircle } from '@coreui/icons'
 import api from '../../services/api'
 import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
@@ -18,7 +20,6 @@ const ProductsEdit = () => {
     description: '',
     price: '',
     image: '',
-    inventory: '',
     status: 'active',
     categoryId: '',
   })
@@ -47,7 +48,6 @@ const ProductsEdit = () => {
           description: p?.description || '',
           price: p?.price != null ? String(p.price) : '',
           image: p?.image || '',
-          inventory: p?.inventory != null ? String(p.inventory) : '',
           status: p?.status || 'active',
           categoryId: p?.categoryId || '',
         }
@@ -87,7 +87,6 @@ const ProductsEdit = () => {
         description: formState.description || undefined,
         price: parsedPrice,
         image: formState.image || undefined,
-        inventory: formState.inventory ? Number(formState.inventory) : 0,
         status: formState.status,
         categoryId: formState.categoryId || undefined,
       }
@@ -113,9 +112,11 @@ const ProductsEdit = () => {
         actions={
           <>
             <CButton color="primary" type="submit" disabled={submitting || loading}>
+              <CIcon icon={cilPencil} className="me-1" />
               {submitting ? 'Saving...' : 'Save Changes'}
             </CButton>
             <CButton color="secondary" type="button" onClick={() => navigate(-1)}>
+              <CIcon icon={cilXCircle} className="me-1" />
               Cancel
             </CButton>
           </>
@@ -170,16 +171,6 @@ const ProductsEdit = () => {
               />
             </div>
           )}
-        </div>
-        <div className="mb-3">
-          <CFormLabel>Inventory</CFormLabel>
-          <CFormInput
-            name="inventory"
-            type="number"
-            min="0"
-            value={formState.inventory}
-            onChange={handleChange}
-          />
         </div>
         <div className="mb-3">
           <CFormLabel>Category</CFormLabel>

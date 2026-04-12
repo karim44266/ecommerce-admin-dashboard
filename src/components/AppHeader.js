@@ -15,7 +15,15 @@ import {
   useColorModes,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilContrast, cilMenu, cilMoon, cilSun } from '@coreui/icons'
+import {
+  cilContrast,
+  cilMenu,
+  cilMoon,
+  cilSun,
+  cilSpeedometer,
+  cilCart,
+  cilClipboard,
+} from '@coreui/icons'
 
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
@@ -39,32 +47,35 @@ const AppHeader = () => {
   }, [])
 
   return (
-    <CHeader position="sticky" className="mb-4 p-0" ref={headerRef}>
-      <CContainer className="border-bottom px-4" fluid>
+    <CHeader position="sticky" className="nx-app-header p-0" ref={headerRef}>
+      <CContainer className="nx-header-main border-bottom px-3 px-lg-4" fluid>
         <CHeaderToggler
+          className="nx-header-toggler"
           onClick={() => dispatch({ type: 'set', sidebarShow: !sidebarShow })}
-          style={{ marginInlineStart: '-14px' }}
         >
           <CIcon icon={cilMenu} size="lg" />
         </CHeaderToggler>
-        <CHeaderNav className="d-none d-md-flex">
+        <CHeaderNav className="nx-header-primary-nav">
           <CNavItem>
-            <CNavLink to="/dashboard" as={NavLink}>
-              Dashboard
+            <CNavLink to="/dashboard" as={NavLink} className="nx-header-primary-link">
+              <CIcon icon={cilSpeedometer} size="sm" className="nx-header-link-icon" />
+              <span>Dashboard</span>
             </CNavLink>
           </CNavItem>
           <CNavItem>
-            <CNavLink to="/products" as={NavLink}>
-              Products
+            <CNavLink to="/products" as={NavLink} className="nx-header-primary-link">
+              <CIcon icon={cilCart} size="sm" className="nx-header-link-icon" />
+              <span>Products</span>
             </CNavLink>
           </CNavItem>
           <CNavItem>
-            <CNavLink to="/orders" as={NavLink}>
-              Orders
+            <CNavLink to="/orders" as={NavLink} className="nx-header-primary-link">
+              <CIcon icon={cilClipboard} size="sm" className="nx-header-link-icon" />
+              <span>Orders</span>
             </CNavLink>
           </CNavItem>
         </CHeaderNav>
-        <CHeaderNav className="ms-auto">
+        <CHeaderNav className="nx-header-actions ms-auto">
           <NotificationBell />
           <li className="nav-item py-1">
             <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
@@ -115,7 +126,7 @@ const AppHeader = () => {
           <AppHeaderDropdown />
         </CHeaderNav>
       </CContainer>
-      <CContainer className="px-4" fluid>
+      <CContainer className="nx-header-breadcrumb px-3 px-lg-4" fluid>
         <AppBreadcrumb />
       </CContainer>
     </CHeader>

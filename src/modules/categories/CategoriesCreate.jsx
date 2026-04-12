@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CAlert, CButton, CFormInput, CFormLabel, CFormTextarea } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilPlus, cilXCircle } from '@coreui/icons'
 import api from '../../services/api'
 import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
@@ -54,9 +56,11 @@ const CategoriesCreate = () => {
         actions={
           <>
             <CButton color="primary" type="submit" disabled={submitting}>
+              <CIcon icon={cilPlus} className="me-1" />
               {submitting ? 'Saving…' : 'Save Category'}
             </CButton>
             <CButton color="secondary" type="button" onClick={() => navigate(-1)}>
+              <CIcon icon={cilXCircle} className="me-1" />
               Cancel
             </CButton>
           </>

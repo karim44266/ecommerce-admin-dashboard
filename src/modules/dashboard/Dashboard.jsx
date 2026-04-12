@@ -21,6 +21,7 @@ import CIcon from '@coreui/icons-react'
 import {
   cilCart,
   cilDollar,
+  cilChart,
   cilClock,
   cilTruck,
   cilClipboard,
@@ -368,7 +369,8 @@ const Dashboard = () => {
                 size="sm"
                 onClick={() => navigate('/orders')}
               >
-                View all <CIcon icon={cilArrowRight} size="sm" />
+                <CIcon icon={cilChart} className="me-1" />
+                View all
               </CButton>
             </CCardHeader>
             <CCardBody className="p-0">

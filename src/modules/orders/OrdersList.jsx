@@ -28,7 +28,7 @@ import CIcon from '@coreui/icons-react'
 import {
   cilSearch,
   cilReload,
-  cilClipboard,
+  cilChart,
   cilTruck,
   cilOptions,
   cilCheckCircle,
@@ -247,14 +247,14 @@ const OrdersList = () => {
         const style = primary ? ACTION_STYLE[primary] : null
 
         return (
-          <div className="d-flex align-items-center gap-1 justify-content-end">
+          <div className="d-flex align-items-center gap-1 justify-content-end nx-row-actions nx-row-actions--tight">
             {/* ── Quick-advance button ── */}
             {primary && style && (
               <CTooltip content={`${style.label} this order`}>
                 <CButton
                   color={style.color}
                   size="sm"
-                  className="fw-semibold"
+                  className="fw-semibold nx-row-action-btn"
                   onClick={() => openStatusModal(row, primary)}
                 >
                   <CIcon icon={style.icon} size="sm" className="me-1" />
@@ -278,7 +278,7 @@ const OrdersList = () => {
                   onClick={() => navigate(`/orders/${row.id}`)}
                 >
                   <span className="order-actions-icon bg-primary-subtle text-primary">
-                    <CIcon icon={cilClipboard} size="sm" />
+                    <CIcon icon={cilChart} size="sm" />
                   </span>
                   <span>View Details</span>
                 </CDropdownItem>
@@ -366,13 +366,13 @@ const OrdersList = () => {
           </CFormSelect>
         </CCol>
         <CCol md={3}>
-          <form onSubmit={handleSearchSubmit} className="d-flex gap-2">
+          <form onSubmit={handleSearchSubmit} className="d-flex gap-2 nx-utility-actions nx-utility-actions--tight">
             <CFormInput
               placeholder="Search by order ID, email, phone, or name…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <CButton type="submit" color="primary" variant="outline" size="sm">
+            <CButton type="submit" color="primary" variant="outline" size="sm" className="nx-utility-btn">
               <CIcon icon={cilSearch} />
             </CButton>
           </form>
@@ -583,6 +583,7 @@ const OrdersList = () => {
             onClick={closeModal}
             disabled={modal.submitting}
           >
+            <CIcon icon={cilXCircle} className="me-1" />
             Cancel
           </CButton>
           <CButton

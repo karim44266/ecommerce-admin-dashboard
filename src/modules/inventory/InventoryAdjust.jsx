@@ -25,6 +25,14 @@ import {
   CTableHeaderCell,
   CTableRow,
 } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import {
+  cilArrowLeft,
+  cilCheckCircle,
+  cilXCircle,
+  cilPencil,
+  cilPlus,
+} from '@coreui/icons'
 import useInventoryApi from '../../shared/hooks/useInventoryApi'
 import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
@@ -205,9 +213,12 @@ const InventoryAdjust = () => {
         title="Adjust Inventory"
         subtitle={inventory ? `${inventory.productName} (${inventory.productSku})` : ''}
         actions={
-          <CButton color="secondary" onClick={() => navigate('/inventory')}>
-            Back to Inventory
-          </CButton>
+          <div className="nx-utility-actions">
+            <CButton color="secondary" className="nx-utility-btn" onClick={() => navigate('/inventory')}>
+              <CIcon icon={cilArrowLeft} className="me-1" />
+              Back to Inventory
+            </CButton>
+          </div>
         }
       />
 
@@ -244,9 +255,11 @@ const InventoryAdjust = () => {
                       style={{ width: '80px' }}
                     />
                     <CButton color="success" size="sm" onClick={handleThresholdSave} disabled={thresholdSaving}>
+                      <CIcon icon={cilCheckCircle} className="me-1" />
                       {thresholdSaving ? '...' : 'Save'}
                     </CButton>
                     <CButton color="secondary" size="sm" onClick={() => setEditingThreshold(false)}>
+                      <CIcon icon={cilXCircle} className="me-1" />
                       Cancel
                     </CButton>
                   </div>
@@ -261,6 +274,7 @@ const InventoryAdjust = () => {
                         setEditingThreshold(true)
                       }}
                     >
+                      <CIcon icon={cilPencil} className="me-1" />
                       Edit
                     </CButton>
                   </div>
@@ -307,9 +321,11 @@ const InventoryAdjust = () => {
         actions={
           <>
             <CButton color="primary" type="submit" disabled={submitting}>
+              <CIcon icon={cilPencil} className="me-1" />
               {submitting ? 'Adjusting...' : 'Apply Adjustment'}
             </CButton>
             <CButton color="secondary" type="button" onClick={() => navigate('/inventory')}>
+              <CIcon icon={cilXCircle} className="me-1" />
               Cancel
             </CButton>
           </>
@@ -351,6 +367,7 @@ const InventoryAdjust = () => {
                   size="sm"
                   onClick={() => handleQuickAdjust(v)}
                 >
+                  <CIcon icon={v > 0 ? cilPlus : cilXCircle} className="me-1" />
                   {v > 0 ? `+${v}` : v}
                 </CButton>
               ))}
@@ -403,9 +420,11 @@ const InventoryAdjust = () => {
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => setConfirmVisible(false)}>
+            <CIcon icon={cilXCircle} className="me-1" />
             Cancel
           </CButton>
           <CButton color="primary" onClick={executeAdjustment}>
+            <CIcon icon={cilCheckCircle} className="me-1" />
             Confirm
           </CButton>
         </CModalFooter>

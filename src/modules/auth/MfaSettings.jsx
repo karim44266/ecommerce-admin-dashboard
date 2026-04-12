@@ -10,6 +10,8 @@ import {
   CRow,
   CSpinner,
 } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilCheckCircle, cilXCircle } from '@coreui/icons'
 import api from '../../services/api'
 
 const MfaSettings = () => {
@@ -117,9 +119,15 @@ const MfaSettings = () => {
                   Updating...
                 </>
               ) : mfaEnabled ? (
-                'Disable MFA'
+                <>
+                  <CIcon icon={cilXCircle} className="me-1" />
+                  Disable MFA
+                </>
               ) : (
-                'Enable MFA'
+                <>
+                  <CIcon icon={cilCheckCircle} className="me-1" />
+                  Enable MFA
+                </>
               )}
             </CButton>
           </CCardBody>

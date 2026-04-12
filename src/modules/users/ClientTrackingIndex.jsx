@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CAlert, CBadge, CButton, CFormInput, CInputGroup, CInputGroupText, CSpinner } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilSearch } from '@coreui/icons'
+import { cilSearch, cilChart } from '@coreui/icons'
 import DataTable from '../../shared/components/DataTable'
 import PageHeader from '../../shared/components/PageHeader'
 import { getApiErrorMessage, getUsers } from '../../services/usersService'
@@ -55,7 +55,8 @@ const ClientTrackingIndex = () => {
           onChange={(event) => setSearch(event.target.value)}
         />
         <CButton color="light" onClick={fetchUsers} disabled={loading}>
-          {loading ? <CSpinner size="sm" /> : 'Search'}
+          {loading ? <CSpinner size="sm" /> : <CIcon icon={cilSearch} className="me-1" />}
+          Search
         </CButton>
       </CInputGroup>
 
@@ -78,9 +79,12 @@ const ClientTrackingIndex = () => {
             key: 'actions',
             label: 'Actions',
             render: (row) => (
-              <CButton color="info" size="sm" onClick={() => navigate(`/clients/${row.id}/tracking`)}>
-                Open Tracking
-              </CButton>
+              <div className="nx-row-actions">
+                <CButton color="info" size="sm" className="nx-row-action-btn" onClick={() => navigate(`/clients/${row.id}/tracking`)}>
+                  <CIcon icon={cilChart} className="me-1" />
+                  Open Tracking
+                </CButton>
+              </div>
             ),
           },
         ]}

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { CBadge, CButton } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilReload } from '@coreui/icons'
+import { cilReload, cilPlus } from '@coreui/icons'
 import useInventoryApi from '../../shared/hooks/useInventoryApi'
 import DataTable from '../../shared/components/DataTable'
 import PageHeader from '../../shared/components/PageHeader'
@@ -62,13 +62,17 @@ const InventoryLowStock = () => {
       key: 'actions',
       label: 'Actions',
       render: (row) => (
-        <CButton
-          color="warning"
-          size="sm"
-          onClick={() => navigate(`/inventory/${row.productId}/adjust`)}
-        >
-          Restock
-        </CButton>
+        <div className="nx-row-actions">
+          <CButton
+            color="warning"
+            size="sm"
+            className="nx-row-action-btn"
+            onClick={() => navigate(`/inventory/${row.productId}/adjust`)}
+          >
+            <CIcon icon={cilPlus} className="me-1" />
+            Restock
+          </CButton>
+        </div>
       ),
     },
   ]
@@ -79,7 +83,7 @@ const InventoryLowStock = () => {
         title="Low Stock Alerts"
         subtitle={`${meta.total} item${meta.total !== 1 ? 's' : ''} below threshold`}
         actions={
-          <CButton color="light" size="sm" onClick={loadLowStock} title="Refresh">
+          <CButton color="light" size="sm" className="nx-utility-btn" onClick={loadLowStock} title="Refresh">
             <CIcon icon={cilReload} /> Refresh
           </CButton>
         }

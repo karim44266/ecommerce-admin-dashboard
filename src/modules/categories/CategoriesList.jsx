@@ -14,7 +14,7 @@ import {
   CModalTitle,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilSearch } from '@coreui/icons'
+import { cilChart, cilSearch, cilPencil, cilTrash, cilPlus, cilXCircle } from '@coreui/icons'
 import api from '../../services/api'
 import DataTable from '../../shared/components/DataTable'
 import PageHeader from '../../shared/components/PageHeader'
@@ -109,21 +109,35 @@ const CategoriesList = () => {
       key: 'actions',
       label: 'Actions',
       render: (row) => (
-        <div className="d-flex gap-2">
+        <div className="d-flex gap-2 nx-row-actions">
+          <CButton
+            color="info"
+            size="sm"
+            variant="outline"
+            className="nx-row-action-btn"
+            onClick={() => navigate(`/categories/${row.id}/details`)}
+          >
+            <CIcon icon={cilChart} className="me-1" />
+            Details
+          </CButton>
           <CButton
             color="primary"
             size="sm"
+            className="nx-row-action-btn"
             onClick={() => navigate(`/categories/${row.id}`)}
           >
+            <CIcon icon={cilPencil} className="me-1" />
             Edit
           </CButton>
           <CButton
             color="danger"
             size="sm"
+            className="nx-row-action-btn"
             disabled={row.productCount > 0}
             title={row.productCount > 0 ? 'Reassign products first' : 'Delete category'}
             onClick={() => openDeleteModal(row)}
           >
+            <CIcon icon={cilTrash} className="me-1" />
             Delete
           </CButton>
         </div>
@@ -137,9 +151,12 @@ const CategoriesList = () => {
         title="Categories"
         subtitle="Organize products into categories."
         actions={
-          <CButton color="primary" onClick={() => navigate('/categories/new')}>
+          <div className="nx-utility-actions">
+            <CButton color="primary" className="nx-utility-btn" onClick={() => navigate('/categories/new')}>
+              <CIcon icon={cilPlus} className="me-1" />
             Add Category
-          </CButton>
+            </CButton>
+          </div>
         }
       />
       {error && <CAlert color="danger">{error}</CAlert>}
@@ -177,6 +194,7 @@ const CategoriesList = () => {
         </CModalBody>
         <CModalFooter>
           <CButton color="secondary" onClick={() => setDeleteModal(false)} disabled={deleting}>
+            <CIcon icon={cilXCircle} className="me-1" />
             Cancel
           </CButton>
           <CButton
@@ -184,6 +202,7 @@ const CategoriesList = () => {
             onClick={() => handleDelete(deleteTarget?.id, deleteTarget?.name)}
             disabled={deleting}
           >
+            <CIcon icon={cilTrash} className="me-1" />
             {deleting ? 'Deleting…' : 'Delete'}
           </CButton>
         </CModalFooter>
