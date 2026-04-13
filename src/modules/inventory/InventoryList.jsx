@@ -175,7 +175,7 @@ const InventoryList = () => {
       {/* Summary Cards — counts from dedicated /inventory/summary endpoint */}
       <CRow className="mb-3">
         <CCol sm={3}>
-          <CCard className="text-center">
+          <CCard className="nx-kpi-card text-center">
             <CCardBody>
               <div className="text-medium-emphasis small">Total Products</div>
               <div className="fs-4 fw-semibold">{summary.total}</div>
@@ -183,7 +183,7 @@ const InventoryList = () => {
           </CCard>
         </CCol>
         <CCol sm={3}>
-          <CCard className="text-center border-success">
+          <CCard className="nx-kpi-card text-center border-success">
             <CCardBody>
               <div className="text-medium-emphasis small">In Stock</div>
               <div className="fs-4 fw-semibold text-success">{summary.inStock}</div>
@@ -191,7 +191,7 @@ const InventoryList = () => {
           </CCard>
         </CCol>
         <CCol sm={3}>
-          <CCard className="text-center border-warning">
+          <CCard className="nx-kpi-card text-center border-warning">
             <CCardBody>
               <div className="text-medium-emphasis small">Low Stock</div>
               <div className="fs-4 fw-semibold text-warning">{summary.low}</div>
@@ -199,7 +199,7 @@ const InventoryList = () => {
           </CCard>
         </CCol>
         <CCol sm={3}>
-          <CCard className="text-center border-danger">
+          <CCard className="nx-kpi-card text-center border-danger">
             <CCardBody>
               <div className="text-medium-emphasis small">Out of Stock</div>
               <div className="fs-4 fw-semibold text-danger">{summary.out}</div>

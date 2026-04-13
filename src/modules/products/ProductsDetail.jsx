@@ -178,7 +178,7 @@ const ProductsDetail = () => {
               <PerformanceOverviewCard insights={insights} marginValue={grossMargin} />
             </CCol>
             <CCol md={6} lg={2}>
-              <CCard className="h-100 border-0 shadow-sm">
+              <CCard className="nx-kpi-card h-100 border-0 shadow-sm">
                 <CCardBody>
                   <div className="text-medium-emphasis small mb-1">Stock</div>
                   <div className="fs-3 fw-bold">{inventory.quantity}</div>
@@ -189,7 +189,7 @@ const ProductsDetail = () => {
               </CCard>
             </CCol>
             <CCol md={6} lg={2}>
-              <CCard className="h-100 border-0 shadow-sm">
+              <CCard className="nx-kpi-card h-100 border-0 shadow-sm">
                 <CCardBody>
                   <div className="text-medium-emphasis small mb-1">Last Refill</div>
                   <div className="fs-6 fw-bold">{lastRefill ? formatDate(lastRefill.createdAt) : 'Never refilled'}</div>

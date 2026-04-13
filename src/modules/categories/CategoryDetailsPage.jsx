@@ -105,7 +105,7 @@ const CategoryDetailsPage = () => {
         <>
           <CRow className="g-3 mb-4">
             <CCol md={3}>
-              <CCard className="h-100 shadow-sm border-0">
+              <CCard className="nx-kpi-card h-100 shadow-sm border-0">
                 <CCardBody>
                   <div className="text-medium-emphasis small mb-1">Total Products</div>
                   <div className="fs-4 fw-bold">{summary?.totalProducts ?? 0}</div>
@@ -113,7 +113,7 @@ const CategoryDetailsPage = () => {
               </CCard>
             </CCol>
             <CCol md={3}>
-              <CCard className="h-100 shadow-sm border-0">
+              <CCard className="nx-kpi-card h-100 shadow-sm border-0">
                 <CCardBody>
                   <div className="text-medium-emphasis small mb-1">Total Orders</div>
                   <div className="fs-4 fw-bold">{summary?.totalOrders ?? 0}</div>
@@ -121,7 +121,7 @@ const CategoryDetailsPage = () => {
               </CCard>
             </CCol>
             <CCol md={3}>
-              <CCard className="h-100 shadow-sm border-0">
+              <CCard className="nx-kpi-card h-100 shadow-sm border-0">
                 <CCardBody>
                   <div className="text-medium-emphasis small mb-1">Total Revenue</div>
                   <div className="fs-4 fw-bold">{money(summary?.totalRevenue)}</div>
@@ -129,7 +129,7 @@ const CategoryDetailsPage = () => {
               </CCard>
             </CCol>
             <CCol md={3}>
-              <CCard className="h-100 shadow-sm border-0">
+              <CCard className="nx-kpi-card h-100 shadow-sm border-0">
                 <CCardBody>
                   <div className="text-medium-emphasis small mb-1">Average Margin</div>
                   <div className="fs-4 fw-bold">{avgMarginLabel}</div>
@@ -138,7 +138,7 @@ const CategoryDetailsPage = () => {
             </CCol>
           </CRow>
 
-          <CCard className="mb-4 shadow-sm border-0">
+          <CCard className="nx-dashboard-chart-card mb-4 shadow-sm border-0">
             <CCardHeader className="d-flex flex-wrap justify-content-between align-items-center gap-2">
               <div>
                 <strong>Last {days} Days - Category Performance</strong>
@@ -157,7 +157,7 @@ const CategoryDetailsPage = () => {
                 </CFormSelect>
               </div>
             </CCardHeader>
-            <CCardBody>
+            <CCardBody className="nx-dashboard-chart-body">
               <CategoryPerformanceChart trend={details?.trend} />
             </CCardBody>
           </CCard>

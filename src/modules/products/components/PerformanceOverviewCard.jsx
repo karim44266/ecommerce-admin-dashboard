@@ -113,7 +113,7 @@ const PerformanceOverviewCard = ({ insights, marginValue }) => {
   )
 
   return (
-    <CCard className="h-100 shadow-sm border-0 d-flex">
+    <CCard className="nx-dashboard-chart-card h-100 shadow-sm border-0 d-flex">
       <CCardHeader className="pb-2">
         <div className="d-flex flex-wrap justify-content-between align-items-start gap-2">
           <div>
@@ -138,10 +138,8 @@ const PerformanceOverviewCard = ({ insights, marginValue }) => {
           </div>
         </div>
       </CCardHeader>
-      <CCardBody className="pt-2 d-flex align-items-center justify-content-center">
-        <div style={{ height: 230, width: '90%', maxWidth: 860 }}>
-          <CChartBar data={chartData} options={chartOptions} />
-        </div>
+      <CCardBody className="nx-dashboard-chart-body">
+        <CChartBar className="nx-dashboard-chart" height={170} data={chartData} options={chartOptions} />
       </CCardBody>
     </CCard>
   )

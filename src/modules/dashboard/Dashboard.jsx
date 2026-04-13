@@ -149,7 +149,7 @@ const Dashboard = () => {
       },
       {
         type: 'line',
-        label: 'Revenue ($)',
+        label: 'Projected Revenue ($)',
         data: trendData.revenuePerDay,
         borderColor: '#0ea5e9',
         backgroundColor: 'rgba(14, 165, 233, 0.15)',
@@ -288,7 +288,7 @@ const Dashboard = () => {
       <CRow className="mb-4 g-3">
         {quickKpis.map((kpi, i) => (
           <CCol md={4} key={kpi.label}>
-            <CCard className={`h-100 nx-fade-in nx-fade-in-d${Math.min(i + 1, 4)}`}>
+            <CCard className={`h-100 nx-dashboard-kpi-card nx-fade-in nx-fade-in-d${Math.min(i + 1, 4)}`}>
               <CCardBody>
                 <div className="text-medium-emphasis text-uppercase" style={{ fontSize: '0.72rem', letterSpacing: '0.07em' }}>
                   {kpi.label}
@@ -302,28 +302,24 @@ const Dashboard = () => {
 
       <CRow className="mb-4 g-3">
         <CCol lg={8}>
-          <CCard className="h-100 nx-fade-in nx-fade-in-d2">
+          <CCard className="nx-dashboard-chart-card nx-fade-in nx-fade-in-d2">
             <CCardHeader>
               <strong>Last 7 Days</strong>
-              <div className="small text-medium-emphasis">Orders and net revenue trend</div>
+              <div className="small text-medium-emphasis">Orders and projected revenue trend</div>
             </CCardHeader>
-            <CCardBody>
-              <div style={{ height: 280 }}>
-                <CChartBar data={trendChartData} options={trendChartOptions} />
-              </div>
+            <CCardBody className="nx-dashboard-chart-body">
+              <CChartBar className="nx-dashboard-chart" height={170} data={trendChartData} options={trendChartOptions} />
             </CCardBody>
           </CCard>
         </CCol>
         <CCol lg={4}>
-          <CCard className="h-100 nx-fade-in nx-fade-in-d3">
+          <CCard className="nx-dashboard-chart-card nx-fade-in nx-fade-in-d3">
             <CCardHeader>
               <strong>Order Status</strong>
               <div className="small text-medium-emphasis">Split of all orders</div>
             </CCardHeader>
-            <CCardBody>
-              <div style={{ height: 280 }}>
-                <CChartDoughnut data={statusChartData} options={statusChartOptions} />
-              </div>
+            <CCardBody className="nx-dashboard-chart-body">
+              <CChartDoughnut className="nx-dashboard-chart" height={170} data={statusChartData} options={statusChartOptions} />
             </CCardBody>
           </CCard>
         </CCol>
@@ -331,28 +327,24 @@ const Dashboard = () => {
 
       <CRow className="mb-4 g-3">
         <CCol lg={8}>
-          <CCard className="h-100 nx-fade-in nx-fade-in-d2">
+          <CCard className="nx-dashboard-chart-card nx-fade-in nx-fade-in-d2">
             <CCardHeader>
               <strong>Financial Breakdown</strong>
               <div className="small text-medium-emphasis">Gross sales vs cost vs net revenue</div>
             </CCardHeader>
-            <CCardBody>
-              <div style={{ height: 280 }}>
-                <CChartBar data={financeBreakdownData} options={financeBreakdownOptions} />
-              </div>
+            <CCardBody className="nx-dashboard-chart-body">
+              <CChartBar className="nx-dashboard-chart" height={170} data={financeBreakdownData} options={financeBreakdownOptions} />
             </CCardBody>
           </CCard>
         </CCol>
         <CCol lg={4}>
-          <CCard className="h-100 nx-fade-in nx-fade-in-d3">
+          <CCard className="nx-dashboard-chart-card nx-fade-in nx-fade-in-d3">
             <CCardHeader>
               <strong>Margin Trend</strong>
               <div className="small text-medium-emphasis">Daily profit margin percentage</div>
             </CCardHeader>
-            <CCardBody>
-              <div style={{ height: 280 }}>
-                <CChartLine data={marginTrendData} options={marginTrendOptions} />
-              </div>
+            <CCardBody className="nx-dashboard-chart-body">
+              <CChartLine className="nx-dashboard-chart" height={170} data={marginTrendData} options={marginTrendOptions} />
             </CCardBody>
           </CCard>
         </CCol>

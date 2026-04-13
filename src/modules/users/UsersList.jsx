@@ -67,7 +67,7 @@ const UsersList = () => {
   const [createForm, setCreateForm] = useState({
     email: '',
     password: '',
-    role: 'customer',
+    role: 'CUSTOMER',
   })
   const navigate = useNavigate()
   const { addToast } = useToast()
@@ -76,7 +76,7 @@ const UsersList = () => {
     setCreateForm({
       email: '',
       password: '',
-      role: 'customer',
+      role: 'CUSTOMER',
     })
   }
 
@@ -144,7 +144,7 @@ const UsersList = () => {
       const payload = {
         email: createForm.email.trim(),
         password: createForm.password,
-        role: createForm.role,
+        role: createForm.role.toUpperCase(),
       }
       await createUser(payload)
       addToast(`User ${payload.email} created successfully.`, 'success')
@@ -380,9 +380,9 @@ const UsersList = () => {
                   setCreateForm((prev) => ({ ...prev, role: event.target.value }))
                 }
               >
-                <option value="admin">Admin</option>
-                <option value="staff">Staff</option>
-                <option value="customer">Customer</option>
+                <option value="ADMIN">Admin</option>
+                <option value="STAFF">Staff</option>
+                <option value="CUSTOMER">Customer</option>
               </CFormSelect>
             </div>
           </CModalBody>

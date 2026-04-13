@@ -141,7 +141,7 @@ const ClientTracking = () => {
 
       <CRow className="g-3 mb-4">
         <CCol md={3}>
-          <CCard>
+          <CCard className="nx-kpi-card">
             <CCardBody>
               <div className="text-medium-emphasis small">Total Orders</div>
               <div className="fs-4 fw-semibold">{summary?.totalOrders ?? 0}</div>
@@ -149,7 +149,7 @@ const ClientTracking = () => {
           </CCard>
         </CCol>
         <CCol md={3}>
-          <CCard>
+          <CCard className="nx-kpi-card">
             <CCardBody>
               <div className="text-medium-emphasis small">Total Spent</div>
               <div className="fs-4 fw-semibold">${Number(summary?.totalSpent || 0).toFixed(2)}</div>
@@ -157,7 +157,7 @@ const ClientTracking = () => {
           </CCard>
         </CCol>
         <CCol md={3}>
-          <CCard>
+          <CCard className="nx-kpi-card">
             <CCardBody>
               <div className="text-medium-emphasis small">Average Order</div>
               <div className="fs-4 fw-semibold">${Number(summary?.averageOrderValue || 0).toFixed(2)}</div>
@@ -165,7 +165,7 @@ const ClientTracking = () => {
           </CCard>
         </CCol>
         <CCol md={3}>
-          <CCard>
+          <CCard className="nx-kpi-card">
             <CCardBody>
               <div className="text-medium-emphasis small">Last Purchase</div>
               <div className="fw-semibold">

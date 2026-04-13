@@ -724,7 +724,7 @@ h1, h2, h3, h4, h5, h6,
   overflow: hidden;
   background: #fff;
   border-radius: var(--nx-radius);
-  padding: 1.35rem 1.5rem;
+  padding: 2rem;
   border: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
   display: flex;
@@ -792,6 +792,29 @@ h1, h2, h3, h4, h5, h6,
 .nx-stat-card--warning { --stat-color: #f59e0b; }
 .nx-stat-card--info    { --stat-color: #0ea5e9; }
 .nx-stat-card--danger  { --stat-color: #ef4444; }
+
+.nx-kpi-card > .card-body {
+  padding: 2rem;
+}
+
+.nx-dashboard-kpi-card > .card-body {
+  padding: 2rem;
+}
+
+// ─── Dashboard Charts ────────────────────────────────────────────
+.nx-dashboard-chart-card {
+  min-height: 0;
+}
+
+.nx-dashboard-chart-card > .card-body.nx-dashboard-chart-body {
+  display: block;
+  padding: 2rem;
+}
+
+.nx-dashboard-chart-card > .card-body.nx-dashboard-chart-body > .nx-dashboard-chart {
+  width: 100%;
+  display: block;
+}
 
 // ─── Quick Action Cards ───────────────────────────────────────────
 .nx-action-card {
