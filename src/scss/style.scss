@@ -1020,6 +1020,709 @@ h1, h2, h3, h4, h5, h6,
   }
 }
 
+// ─── Discount Suggestions ────────────────────────────────────────
+.nx-discount-suggestions {
+  .nx-discount-intro {
+    border-left: 3px solid color-mix(in srgb, var(--cui-info) 45%, transparent);
+    font-size: 0.82rem;
+    line-height: 1.45;
+    padding-block: 0.7rem;
+  }
+
+  .nx-preview-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .nx-preview-meta-primary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .nx-preview-meta-secondary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1rem;
+    font-size: 0.72rem;
+    color: var(--cui-secondary-color);
+  }
+
+  .nx-preview-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .nx-preview-meta-item strong {
+    color: var(--cui-body-color);
+    font-family: var(--nx-font-display);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .nx-preview-meta-badge {
+    font-size: 0.67rem;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 0.3rem 0.55rem;
+  }
+
+  .nx-discount-offer-controls-card > .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.95rem;
+  }
+
+  .nx-offer-summary-strip {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.8rem 1rem;
+    border: 1px solid var(--cui-border-color-translucent);
+    border-radius: 0.85rem;
+    padding: 0.8rem;
+    background: color-mix(in srgb, var(--cui-body-bg) 80%, transparent);
+  }
+
+  .nx-offer-summary-kpis {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.55rem;
+    flex: 1 1 420px;
+    min-width: min(100%, 420px);
+  }
+
+  .nx-offer-kpi {
+    border: 1px solid var(--cui-border-color-translucent);
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.65rem;
+    background: var(--cui-body-bg);
+    display: flex;
+    flex-direction: column;
+    gap: 0.12rem;
+  }
+
+  .nx-offer-kpi-label {
+    font-size: 0.64rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--cui-secondary-color);
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .nx-offer-kpi strong {
+    font-family: var(--nx-font-display);
+    font-size: 1.06rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .nx-offer-kpi--primary {
+    border-color: color-mix(in srgb, var(--cui-primary) 35%, transparent);
+    background: color-mix(in srgb, var(--cui-primary) 8%, transparent);
+  }
+
+  .nx-offer-kpi--active {
+    border-color: color-mix(in srgb, var(--cui-success) 32%, transparent);
+    background: color-mix(in srgb, var(--cui-success) 8%, transparent);
+  }
+
+  .nx-offer-kpi--draft {
+    border-color: color-mix(in srgb, var(--cui-secondary) 28%, transparent);
+    background: color-mix(in srgb, var(--cui-secondary) 8%, transparent);
+  }
+
+  .nx-offer-summary-meta {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .nx-offer-summary-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.55rem;
+    flex: 0 1 auto;
+  }
+
+  .nx-offer-meta-badge {
+    font-size: 0.65rem;
+    border-radius: 999px;
+    padding: 0.28rem 0.5rem;
+    opacity: 0.9;
+  }
+
+  .nx-offer-main-cta,
+  .nx-offer-secondary-cta {
+    min-height: 2rem;
+    min-width: 9.8rem;
+  }
+
+  .nx-offer-summary-cta {
+    align-self: flex-end;
+  }
+
+  .nx-offer-main-cta {
+    font-weight: 700;
+  }
+
+  .nx-offer-secondary-cta {
+    color: var(--cui-secondary-color);
+    border-color: color-mix(in srgb, var(--cui-border-color-translucent) 85%, transparent);
+  }
+
+  .nx-offer-secondary-cta:hover:not(:disabled) {
+    color: var(--cui-body-color);
+    border-color: color-mix(in srgb, var(--cui-primary) 25%, transparent);
+    background: color-mix(in srgb, var(--cui-primary) 6%, transparent);
+  }
+
+  .nx-offers-section-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+  }
+
+  .nx-offers-section-header h5 {
+    font-size: 1.02rem;
+    letter-spacing: -0.02em;
+  }
+
+  .nx-offers-count-badge {
+    font-size: 0.68rem;
+    border-radius: 999px;
+    padding: 0.3rem 0.58rem;
+    align-self: center;
+  }
+
+  .nx-offers-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .nx-offer-card {
+    border: 1px solid var(--cui-border-color-translucent);
+    box-shadow: var(--nx-shadow-card);
+  }
+
+  .nx-offer-card .nx-offer-card-body {
+    padding: 0.95rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .nx-offer-section {
+    border: 1px solid var(--cui-border-color-translucent);
+    border-radius: 0.75rem;
+    padding: 0.65rem;
+    background: color-mix(in srgb, var(--cui-body-bg) 86%, transparent);
+  }
+
+  .nx-offer-section--header {
+    background: color-mix(in srgb, var(--cui-tertiary-bg) 78%, transparent);
+  }
+
+  .nx-offer-title {
+    font-size: 1rem;
+    line-height: 1.2;
+    letter-spacing: -0.018em;
+    font-weight: 800;
+  }
+
+  .nx-offer-description {
+    font-size: 0.79rem;
+    line-height: 1.4;
+  }
+
+  .nx-offer-type-badge {
+    border-radius: 999px;
+    padding: 0.3rem 0.55rem;
+    font-size: 0.66rem;
+    font-weight: 700;
+  }
+
+  .nx-offer-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.5rem;
+    margin-top: 0.6rem;
+  }
+
+  .nx-offer-meta-item {
+    border: 1px solid var(--cui-border-color-translucent);
+    background: var(--cui-body-bg);
+    border-radius: 999px;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.69rem;
+    color: var(--cui-secondary-color);
+    line-height: 1.2;
+  }
+
+  .nx-offer-section-label {
+    margin-bottom: 0.45rem;
+    font-size: 0.64rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.085em;
+    color: var(--cui-secondary-color);
+  }
+
+  .nx-offer-label {
+    margin-bottom: 0.22rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--cui-secondary-color);
+  }
+
+  .nx-offer-input.form-control,
+  .nx-offer-input.form-select {
+    min-height: 2.2rem;
+    font-size: 0.84rem;
+  }
+
+  .nx-offer-products {
+    margin-top: 0.35rem;
+  }
+
+  .nx-offer-products summary {
+    list-style: none;
+    cursor: pointer;
+    font-size: 0.74rem;
+    color: var(--cui-secondary-color);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    user-select: none;
+  }
+
+  .nx-offer-products summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .nx-offer-products summary::before {
+    content: '▸';
+    font-size: 0.68rem;
+    transition: transform var(--nx-transition-fast);
+  }
+
+  .nx-offer-products[open] summary::before {
+    transform: rotate(90deg);
+  }
+
+  .nx-offer-product-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-top: 0.45rem;
+  }
+
+  .nx-offer-product-tag {
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    opacity: 0.9;
+  }
+
+  .nx-offer-section--actions {
+    padding-top: 0.62rem;
+  }
+
+  .nx-offer-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+
+  .nx-metrics-kpi-header {
+    margin: 0 0 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .nx-metrics-kpi-header h5 {
+    margin: 0;
+    font-size: 1.02rem;
+    letter-spacing: -0.02em;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  .nx-metrics-kpi-header p {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--cui-secondary-color);
+    line-height: 1.35;
+  }
+
+  .nx-metrics-kpi-card {
+    border: 1px solid var(--cui-border-color-translucent);
+    box-shadow: var(--nx-shadow-card);
+    transition: transform var(--nx-transition-fast), box-shadow var(--nx-transition-fast);
+  }
+
+  .nx-metrics-kpi-card:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--nx-shadow-card-hover);
+  }
+
+  .nx-metrics-kpi-label {
+    font-size: 0.63rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--cui-secondary-color);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .nx-metrics-kpi-value {
+    margin-top: 0.25rem;
+    font-family: var(--nx-font-display);
+    font-size: 1.28rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.08;
+  }
+
+  .nx-metrics-kpi-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-height: 100%;
+  }
+
+  .nx-metrics-kpi-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .nx-kpi-sparkline {
+    width: 4.6rem;
+    height: 1.6rem;
+    flex: 0 0 auto;
+    opacity: 0.92;
+  }
+
+  .nx-metrics-kpi-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    margin-top: 0.02rem;
+  }
+
+  .nx-metrics-kpi-trend-arrow {
+    font-size: 0.62rem;
+    line-height: 1;
+  }
+
+  .nx-metrics-kpi-trend--up {
+    color: #10b981;
+  }
+
+  .nx-metrics-kpi-trend--down {
+    color: #ef4444;
+  }
+
+  .nx-metrics-kpi-trend--flat {
+    color: var(--cui-secondary-color);
+  }
+
+  .nx-metrics-kpi-detail {
+    margin-top: 0.38rem;
+    font-size: 0.72rem;
+    color: var(--cui-secondary-color);
+    line-height: 1.35;
+  }
+
+  .nx-metrics-kpi-card--neutral {
+    border-color: color-mix(in srgb, var(--cui-secondary) 20%, transparent);
+    background: color-mix(in srgb, var(--cui-body-bg) 88%, transparent);
+  }
+
+  .nx-metrics-kpi-card--primary {
+    border-color: color-mix(in srgb, var(--cui-primary) 32%, transparent);
+    background: color-mix(in srgb, var(--cui-primary) 8%, transparent);
+  }
+
+  .nx-metrics-kpi-card--success {
+    border-color: color-mix(in srgb, var(--cui-success) 32%, transparent);
+    background: color-mix(in srgb, var(--cui-success) 8%, transparent);
+  }
+
+  .nx-metrics-kpi-card--info {
+    border-color: color-mix(in srgb, var(--cui-info) 34%, transparent);
+    background: color-mix(in srgb, var(--cui-info) 8%, transparent);
+  }
+
+  .nx-metrics-kpi-card--warning {
+    border-color: color-mix(in srgb, var(--cui-warning) 40%, transparent);
+    background: color-mix(in srgb, var(--cui-warning) 12%, transparent);
+  }
+
+  .nx-analytics-chart-card {
+    border: 1px solid var(--cui-border-color-translucent);
+    box-shadow: var(--nx-shadow-card);
+  }
+
+  .nx-analytics-chart-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.78rem;
+  }
+
+  .nx-analytics-card-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.18rem;
+  }
+
+  .nx-analytics-card-header h6 {
+    margin: 0;
+    font-size: 0.95rem;
+    letter-spacing: -0.015em;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  .nx-analytics-card-header p {
+    margin: 0;
+    font-size: 0.72rem;
+    color: var(--cui-secondary-color);
+    line-height: 1.35;
+  }
+
+  .nx-analytics-card-header--split {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.7rem;
+  }
+
+  .nx-analytics-sort-control {
+    min-width: 8.8rem;
+  }
+
+  .nx-analytics-sort-control .form-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--cui-secondary-color);
+    font-weight: 700;
+  }
+
+  .nx-analytics-chart-wrap {
+    min-height: 15rem;
+  }
+
+  .nx-analytics-chart-wrap--short {
+    min-height: 13.6rem;
+  }
+
+  .nx-analytics-chart-wrap--funnel {
+    min-height: 12.6rem;
+  }
+
+  .nx-analytics-chart {
+    width: 100%;
+  }
+
+  .nx-top-offers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .nx-top-offer-item {
+    border: 1px solid var(--cui-border-color-translucent);
+    border-radius: 0.65rem;
+    padding: 0.45rem 0.6rem;
+    background: color-mix(in srgb, var(--cui-body-bg) 90%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+  }
+
+  .nx-top-offer-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .nx-top-offer-main strong {
+    font-size: 0.78rem;
+    line-height: 1.2;
+  }
+
+  .nx-top-offer-main span {
+    font-size: 0.68rem;
+    color: var(--cui-secondary-color);
+  }
+
+  .nx-top-offer-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.08rem;
+    font-size: 0.68rem;
+    color: var(--cui-secondary-color);
+    white-space: nowrap;
+  }
+
+  .nx-top-offer-meta span:first-child {
+    color: var(--cui-body-color);
+    font-weight: 700;
+  }
+
+  .nx-funnel-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .nx-funnel-step {
+    border-radius: 0.7rem;
+    padding: 0.5rem 0.66rem;
+    border: 1px solid var(--cui-border-color-translucent);
+    background: color-mix(in srgb, var(--cui-body-bg) 88%, transparent);
+    display: flex;
+    flex-direction: column;
+    gap: 0.08rem;
+  }
+
+  .nx-funnel-step-label {
+    font-size: 0.64rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--cui-secondary-color);
+    font-weight: 700;
+  }
+
+  .nx-funnel-step strong {
+    font-family: var(--nx-font-display);
+    font-size: 1.02rem;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .nx-funnel-step-rate {
+    font-size: 0.7rem;
+    color: var(--cui-secondary-color);
+    line-height: 1.3;
+  }
+
+  .nx-funnel-step--impressions {
+    border-color: color-mix(in srgb, #14b8a6 34%, transparent);
+    background: color-mix(in srgb, #14b8a6 12%, transparent);
+  }
+
+  .nx-funnel-step--clicks {
+    border-color: color-mix(in srgb, #0ea5e9 34%, transparent);
+    background: color-mix(in srgb, #0ea5e9 12%, transparent);
+  }
+
+  .nx-funnel-step--conversions {
+    border-color: color-mix(in srgb, #22c55e 34%, transparent);
+    background: color-mix(in srgb, #22c55e 12%, transparent);
+  }
+
+  @media (min-width: 992px) {
+    .nx-offers-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 991.98px) {
+    .nx-offer-summary-kpis {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      flex: 1 1 100%;
+      min-width: 100%;
+    }
+
+    .nx-offer-summary-right {
+      width: 100%;
+      align-items: flex-start;
+    }
+
+    .nx-offer-summary-meta {
+      justify-content: flex-start;
+      width: 100%;
+    }
+
+    .nx-offer-summary-cta {
+      align-self: flex-start;
+    }
+
+    .nx-analytics-card-header--split {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .nx-analytics-sort-control {
+      width: 100%;
+      max-width: 12rem;
+    }
+
+    .nx-top-offer-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .nx-top-offer-meta {
+      align-items: flex-start;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .nx-metrics-kpi-header h5 {
+      font-size: 0.96rem;
+    }
+
+    .nx-offer-summary-kpis {
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+
+    .nx-offer-main-cta,
+    .nx-offer-secondary-cta {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .nx-kpi-sparkline {
+      width: 4rem;
+      height: 1.4rem;
+    }
+
+    .nx-analytics-chart-wrap {
+      min-height: 12.8rem;
+    }
+
+    .nx-analytics-chart-wrap--short,
+    .nx-analytics-chart-wrap--funnel {
+      min-height: 12rem;
+    }
+  }
+}
+
 // ─── Custom Scrollbar ─────────────────────────────────────────────
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -1270,6 +1973,180 @@ h1, h2, h3, h4, h5, h6,
     &:hover {
       border-color: #2dd4bf;
       background: rgba(45, 212, 191, 0.06);
+    }
+  }
+
+  .nx-discount-suggestions {
+    .nx-discount-intro {
+      border-left-color: rgba(125, 211, 252, 0.45);
+      background: rgba(14, 165, 233, 0.07);
+    }
+
+    .nx-preview-meta-item strong {
+      color: #f1f5f9;
+    }
+
+    .nx-offer-summary-strip {
+      background: rgba(15, 23, 42, 0.38);
+      border-color: rgba(255, 255, 255, 0.09);
+    }
+
+    .nx-offer-kpi {
+      background: rgba(15, 23, 42, 0.54);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .nx-offer-kpi--primary {
+      border-color: rgba(45, 212, 191, 0.34);
+      background: rgba(45, 212, 191, 0.1);
+    }
+
+    .nx-offer-kpi--active {
+      border-color: rgba(16, 185, 129, 0.32);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .nx-offer-kpi--draft {
+      border-color: rgba(148, 163, 184, 0.25);
+      background: rgba(148, 163, 184, 0.1);
+    }
+
+    .nx-offer-kpi strong {
+      color: #f8fafc;
+    }
+
+    .nx-metrics-kpi-header p,
+    .nx-metrics-kpi-detail {
+      color: #94a3b8;
+    }
+
+    .nx-metrics-kpi-card {
+      background: rgba(15, 23, 42, 0.54);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .nx-metrics-kpi-value {
+      color: #f8fafc;
+    }
+
+    .nx-metrics-kpi-card--primary {
+      border-color: rgba(45, 212, 191, 0.34);
+      background: rgba(45, 212, 191, 0.1);
+    }
+
+    .nx-metrics-kpi-card--success {
+      border-color: rgba(16, 185, 129, 0.32);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .nx-metrics-kpi-card--info {
+      border-color: rgba(125, 211, 252, 0.34);
+      background: rgba(14, 165, 233, 0.1);
+    }
+
+    .nx-metrics-kpi-card--warning {
+      border-color: rgba(251, 191, 36, 0.35);
+      background: rgba(251, 191, 36, 0.1);
+    }
+
+    .nx-kpi-sparkline {
+      opacity: 1;
+    }
+
+    .nx-metrics-kpi-trend--up {
+      color: #34d399;
+    }
+
+    .nx-metrics-kpi-trend--down {
+      color: #f87171;
+    }
+
+    .nx-metrics-kpi-trend--flat {
+      color: #94a3b8;
+    }
+
+    .nx-analytics-chart-card {
+      background: rgba(15, 23, 42, 0.46);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .nx-analytics-card-header p,
+    .nx-top-offer-main span,
+    .nx-top-offer-meta,
+    .nx-funnel-step-rate,
+    .nx-analytics-sort-control .form-label {
+      color: #94a3b8;
+    }
+
+    .nx-top-offer-item,
+    .nx-funnel-step {
+      background: rgba(15, 23, 42, 0.54);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .nx-top-offer-main strong,
+    .nx-funnel-step strong,
+    .nx-top-offer-meta span:first-child {
+      color: #f8fafc;
+    }
+
+    .nx-funnel-step--impressions {
+      border-color: rgba(20, 184, 166, 0.4);
+      background: rgba(20, 184, 166, 0.12);
+    }
+
+    .nx-funnel-step--clicks {
+      border-color: rgba(14, 165, 233, 0.4);
+      background: rgba(14, 165, 233, 0.12);
+    }
+
+    .nx-funnel-step--conversions {
+      border-color: rgba(34, 197, 94, 0.4);
+      background: rgba(34, 197, 94, 0.12);
+    }
+
+    .nx-offer-meta-item {
+      background: rgba(15, 23, 42, 0.62);
+      border-color: rgba(255, 255, 255, 0.1);
+      color: #94a3b8;
+    }
+
+    .nx-offer-card {
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .nx-offer-section {
+      background: rgba(15, 23, 42, 0.35);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .nx-offer-section--header {
+      background: rgba(15, 23, 42, 0.5);
+    }
+
+    .nx-offer-type-badge {
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+
+    .nx-offer-secondary-cta {
+      border-color: rgba(255, 255, 255, 0.18);
+      color: #cbd5e1;
+      background: rgba(15, 23, 42, 0.35);
+    }
+
+    .nx-offer-secondary-cta:hover:not(:disabled) {
+      border-color: rgba(45, 212, 191, 0.38);
+      color: #e2e8f0;
+      background: rgba(45, 212, 191, 0.09);
+    }
+
+    .nx-offer-products summary {
+      color: #99f6e4;
+    }
+
+    .nx-offer-product-tag {
+      background: rgba(148, 163, 184, 0.2) !important;
+      color: #cbd5e1;
     }
   }
 

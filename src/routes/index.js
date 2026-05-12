@@ -23,6 +23,7 @@ const UsersRoles = React.lazy(() => import('../modules/users/UsersRoles'))
 const UsersBlock = React.lazy(() => import('../modules/users/UsersBlock'))
 const ClientTracking = React.lazy(() => import('../modules/users/ClientTracking'))
 const ClientTrackingIndex = React.lazy(() => import('../modules/users/ClientTrackingIndex'))
+const DiscountSuggestions = React.lazy(() => import('../modules/promotions/DiscountSuggestions'))
 
 const DeliveryAssign = React.lazy(() => import('../modules/delivery/DeliveryAssign'))
 const DeliveryStatus = React.lazy(() => import('../modules/delivery/DeliveryStatus'))
@@ -57,6 +58,7 @@ const routes = [
   { path: '/users/:id/status', name: 'Block / Unblock User', element: UsersBlock },
   { path: '/clients/tracking', name: 'Client Tracking', element: ClientTrackingIndex },
   { path: '/clients/:id/tracking', name: 'Client Tracking Details', element: ClientTracking },
+  { path: '/promotions/suggestions', name: 'Discount Suggestions', element: DiscountSuggestions },
 
   { path: '/delivery/assign', name: 'Assign Delivery', element: DeliveryAssign },
   { path: '/delivery/status', name: 'Delivery Status', element: DeliveryStatus },
