@@ -150,6 +150,13 @@ const _nav = [
     icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
   },
   {
+    component: CNavItem,
+    name: 'Discount Suggestions',
+    to: '/promotions/suggestions',
+    roles: ['ADMIN'],
+    icon: <CIcon icon={cilChart} customClassName="nav-icon" />,
+  },
+  {
     component: CNavTitle,
     name: 'Account',
   },

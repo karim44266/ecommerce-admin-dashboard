@@ -100,11 +100,7 @@ const CategoryPerformanceChart = ({ trend }) => {
     [],
   )
 
-  return (
-    <div style={{ height: 300 }}>
-      <CChartBar data={chartData} options={chartOptions} />
-    </div>
-  )
+  return <CChartBar className="nx-dashboard-chart" height={170} data={chartData} options={chartOptions} />
 }
 
 export default CategoryPerformanceChart

@@ -100,7 +100,10 @@ export const getUserById = async (id: string) => {
 }
 
 export const createUser = async (payload: { email: string; password: string; role: string }) => {
-  const response = await api.post('/users', payload)
+  const response = await api.post('/users', {
+    ...payload,
+    role: payload.role.trim().toUpperCase(),
+  })
   return response.data
 }
 
