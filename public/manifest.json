@@ -1,10 +1,10 @@
 {
-  "short_name": "CoreUI-React",
-  "name": "CoreUI-React sample",
+  "short_name": "EMM Admin",
+  "name": "Établissement Mohamed Moalla (EMM) Admin Console",
   "icons": [
     {
-      "src": "./assets/img/favicon.png",
-      "sizes": "100x100",
+      "src": "/logo_2.png",
+      "sizes": "any",
       "type": "image/png"
     }
   ],

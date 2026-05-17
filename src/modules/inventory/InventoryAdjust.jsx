@@ -37,6 +37,7 @@ import useInventoryApi from '../../shared/hooks/useInventoryApi'
 import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
 import TruncatedPagination from '../../shared/components/TruncatedPagination'
+import { formatCurrency } from '../../shared/utils/formatters'
 
 const InventoryAdjust = () => {
   const { productId } = useParams()
@@ -236,11 +237,11 @@ const InventoryAdjust = () => {
               </CCol>
               <CCol md={3}>
                 <strong>Current Price</strong>
-                <h3 className="mt-1">${Number(inventory.currentPrice || 0).toFixed(2)}</h3>
+                <h3 className="mt-1">{formatCurrency(inventory.currentPrice)}</h3>
               </CCol>
               <CCol md={3}>
                 <strong>Current Cost</strong>
-                <h3 className="mt-1">${Number(inventory.currentCostPrice || 0).toFixed(2)}</h3>
+                <h3 className="mt-1">{formatCurrency(inventory.currentCostPrice)}</h3>
               </CCol>
               <CCol md={3}>
                 <strong>Low Stock Threshold</strong>
@@ -351,7 +352,7 @@ const InventoryAdjust = () => {
                 step="0.01"
                 value={purchasePrice}
                 onChange={(e) => setPurchasePrice(e.target.value)}
-                placeholder={`Current avg cost: $${Number(inventory?.currentCostPrice || 0).toFixed(2)}`}
+                placeholder={`Current avg cost: ${formatCurrency(inventory?.currentCostPrice)}`}
               />
             </div>
           </CCol>
@@ -413,7 +414,7 @@ const InventoryAdjust = () => {
           </p>
           {purchasePrice !== '' && (
             <p>
-              Purchase price for this stock: <strong>${Number(purchasePrice).toFixed(2)}</strong>.
+              Purchase price for this stock: <strong>{formatCurrency(purchasePrice)}</strong>.
             </p>
           )}
           {reason && <p>Reason: <em>{reason}</em></p>}
@@ -466,12 +467,12 @@ const InventoryAdjust = () => {
                       </CTableDataCell>
                       <CTableDataCell>
                         {entry.purchasePrice != null
-                          ? `$${Number(entry.purchasePrice).toFixed(2)}`
+                          ? formatCurrency(entry.purchasePrice)
                           : '—'}
                       </CTableDataCell>
                       <CTableDataCell>
                         {entry.previousCostPrice != null && entry.newCostPrice != null
-                          ? `$${Number(entry.previousCostPrice).toFixed(2)} -> $${Number(entry.newCostPrice).toFixed(2)}`
+                          ? `${formatCurrency(entry.previousCostPrice)} -> ${formatCurrency(entry.newCostPrice)}`
                           : '—'}
                       </CTableDataCell>
                       <CTableDataCell>{entry.reason || '—'}</CTableDataCell>

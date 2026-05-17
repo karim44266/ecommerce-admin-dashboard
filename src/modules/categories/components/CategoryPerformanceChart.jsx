@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import { CChartBar } from '@coreui/react-chartjs'
+import { formatCurrency } from '../../../shared/utils/formatters'
 
 const CategoryPerformanceChart = ({ trend }) => {
   const chartData = useMemo(() => {
@@ -21,7 +22,7 @@ const CategoryPerformanceChart = ({ trend }) => {
         },
         {
           type: 'line',
-          label: 'Net Revenue ($)',
+          label: 'Net Revenue (TND)',
           data: revenuePerDay,
           borderColor: '#0ea5e9',
           backgroundColor: 'rgba(14, 165, 233, 0.18)',
@@ -65,7 +66,7 @@ const CategoryPerformanceChart = ({ trend }) => {
             label: (context) => {
               const label = context.dataset.label || ''
               if (label.includes('Revenue')) {
-                return ` ${label}: $${Number(context.parsed.y || 0).toFixed(2)}`
+                return ` ${label}: ${formatCurrency(context.parsed.y)}`
               }
               if (label.includes('Margin')) {
                 return ` ${label}: ${Number(context.parsed.y || 0).toFixed(1)}%`
@@ -84,7 +85,7 @@ const CategoryPerformanceChart = ({ trend }) => {
         y1: {
           beginAtZero: true,
           position: 'right',
-          title: { display: true, text: 'Revenue ($)' },
+          title: { display: true, text: 'Revenue (TND)' },
           grid: { drawOnChartArea: false },
         },
         y2: {

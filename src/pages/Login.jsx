@@ -12,6 +12,7 @@ import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser, cilCheckCircle } from '@coreui/icons'
 import { getRolesFromToken, setAuth, setPendingMfaEmail } from '../modules/auth/authStorage'
 import { getApiErrorMessage, login } from '../services/authService'
+import { company } from '../shared/company'
 
 const Login = () => {
   const navigate = useNavigate()
@@ -57,51 +58,12 @@ const Login = () => {
     <div className="nx-login-page">
       <div className="nx-login-card">
         <div className="nx-login-brand">
-          <span
-            style={{
-              width: 42,
-              height: 42,
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'linear-gradient(135deg, #2dd4bf, #0d9488)',
-              borderRadius: 12,
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              fontWeight: 800,
-              fontSize: 16,
-              color: '#042f2e',
-              letterSpacing: '-0.04em',
-              flexShrink: 0,
-            }}
-          >
-            PB
-          </span>
-          <div>
-            <div
-              style={{
-                fontFamily: "'Plus Jakarta Sans', sans-serif",
-                fontWeight: 700,
-                fontSize: 18,
-                color: '#e2e8f0',
-                letterSpacing: '-0.03em',
-                lineHeight: 1.2,
-              }}
-            >
-              ProBuild
-            </div>
-            <div
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontWeight: 400,
-                fontSize: 10,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                color: '#64748b',
-              }}
-            >
-              Admin Console
-            </div>
-          </div>
+          <img
+            src={company.logo.primary}
+            alt={company.logo.alt}
+            style={{ width: 40, height: 40, objectFit: 'contain', flexShrink: 0 }}
+          />
+          <span className="visually-hidden">{company.legalName}</span>
         </div>
 
         <h1>Welcome back</h1>
@@ -121,7 +83,7 @@ const Login = () => {
             <CFormInput
               type="email"
               name="email"
-              placeholder="admin@company.com"
+              placeholder="admin@emmtn.com"
               autoComplete="email"
               value={formState.email}
               onChange={handleChange}
@@ -160,7 +122,7 @@ const Login = () => {
             color: '#475569',
           }}
         >
-          ProBuild Supply © {new Date().getFullYear()} — Operations Console
+          {company.legalName} © {new Date().getFullYear()} — {company.operationsLabel}
         </div>
       </div>
     </div>

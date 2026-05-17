@@ -13,6 +13,7 @@ import {
 import { AppSidebarNav } from './AppSidebarNav'
 
 import { getRoles } from '../modules/auth/authStorage'
+import { company } from '../shared/company'
 
 // sidebar nav config
 import navigation from '../_nav'
@@ -52,13 +53,20 @@ const AppSidebar = () => {
       <CSidebarHeader className="nx-sidebar-header border-bottom">
         <CSidebarBrand to="/" className="nx-sidebar-brand">
           <span className="sidebar-brand-full d-flex align-items-center gap-2">
-            <span className="nx-brand-mark">PB</span>
-            <span className="d-flex flex-column">
-              <span className="nx-brand-text">ProBuild</span>
-              <span className="nx-brand-sub">ADMIN CONSOLE</span>
-            </span>
+            <img
+              src={company.logo.primary}
+              alt={company.logo.alt}
+              style={{ width: 52, height: 52, objectFit: 'contain' }}
+            />
+            <span className="visually-hidden">{company.legalName}</span>
           </span>
-          <span className="sidebar-brand-narrow nx-brand-mark-narrow">PB</span>
+          <span className="sidebar-brand-narrow nx-brand-mark-narrow">
+            <img
+              src={company.logo.primary}
+              alt={company.logo.alt}
+              style={{ width: 40, height: 40, objectFit: 'contain' }}
+            />
+          </span>
         </CSidebarBrand>
         <CCloseButton
           className="d-lg-none"

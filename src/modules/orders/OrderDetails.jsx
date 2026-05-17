@@ -36,6 +36,7 @@ import {
 } from '@coreui/icons'
 import api from '../../services/api'
 import PageHeader from '../../shared/components/PageHeader'
+import { formatCurrency } from '../../shared/utils/formatters'
 import { STATUS_COLORS, STATUS_LABELS, STATUS_TRANSITIONS } from './orderConstants'
 
 const DESTRUCTIVE = ['CANCELLED']
@@ -256,7 +257,7 @@ const OrderDetails = () => {
                   </CBadge>
                 </dd>
                 <dt className="col-sm-5">Total</dt>
-                <dd className="col-sm-7">${Number(order.totalAmount).toFixed(2)}</dd>
+                <dd className="col-sm-7">{formatCurrency(order.totalAmount)}</dd>
                 <dt className="col-sm-5">Customer</dt>
                 <dd className="col-sm-7">{order.customerEmail || '—'}</dd>
                 {order.deliveryCode && (
@@ -335,9 +336,9 @@ const OrderDetails = () => {
                 <CTableRow key={item.id}>
                   <CTableDataCell>{item.name}</CTableDataCell>
                   <CTableDataCell>{item.quantity}</CTableDataCell>
-                  <CTableDataCell>${Number(item.unitPrice).toFixed(2)}</CTableDataCell>
+                  <CTableDataCell>{formatCurrency(item.unitPrice)}</CTableDataCell>
                   <CTableDataCell>
-                    ${(Number(item.unitPrice) * item.quantity).toFixed(2)}
+                    {formatCurrency(Number(item.unitPrice) * item.quantity)}
                   </CTableDataCell>
                 </CTableRow>
               ))}

@@ -29,6 +29,7 @@ import {
 } from '@coreui/icons'
 import api from '../../services/api'
 import PageHeader from '../../shared/components/PageHeader'
+import { formatCurrency } from '../../shared/utils/formatters'
 import { STATUS_COLORS, STATUS_LABELS, STATUS_TRANSITIONS, ALL_STATUSES } from './orderConstants'
 import useUnsavedWarning from '../../shared/hooks/useUnsavedWarning'
 
@@ -299,7 +300,7 @@ const OrderStatusUpdate = () => {
                 {STATUS_LABELS[selected]}
               </CBadge>
               <span className="text-medium-emphasis ms-auto small">
-                ${Number(order.totalAmount).toFixed(2)} · {order.customerEmail || '—'}
+                {formatCurrency(order.totalAmount)} · {order.customerEmail || '—'}
               </span>
             </div>
 

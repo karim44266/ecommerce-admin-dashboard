@@ -25,6 +25,7 @@ import CIcon from '@coreui/icons-react'
 import { cilPlus, cilReload, cilPencil, cilXCircle } from '@coreui/icons'
 import api from '../../services/api'
 import PageHeader from '../../shared/components/PageHeader'
+import { formatCurrency } from '../../shared/utils/formatters'
 
 const DeliveryAssign = () => {
   // ── Assignable orders + staff ──────────────────────────
@@ -201,7 +202,7 @@ const DeliveryAssign = () => {
                         ? [order.shippingAddress.street, order.shippingAddress.city, order.shippingAddress.state, order.shippingAddress.zip].filter(Boolean).join(', ')
                         : '—'}
                     </CTableDataCell>
-                    <CTableDataCell>${Number(order.totalAmount).toFixed(2)}</CTableDataCell>
+                    <CTableDataCell>{formatCurrency(order.totalAmount)}</CTableDataCell>
                     <CTableDataCell>
                       <CBadge color={order.status === 'ACCEPTED' ? 'success' : 'primary'}>{order.status}</CBadge>
                     </CTableDataCell>
@@ -275,7 +276,7 @@ const DeliveryAssign = () => {
             <CFormSelect value={selectedOrderId} onChange={(e) => setSelectedOrderId(e.target.value)}>
               {orders.map((o) => (
                 <option key={o.id} value={o.id}>
-                  {o.id.slice(0, 8)}… – {o.customerEmail} – ${Number(o.totalAmount).toFixed(2)} ({o.status})
+                  {o.id.slice(0, 8)}… – {o.customerEmail} – {formatCurrency(o.totalAmount)} ({o.status})
                 </option>
               ))}
             </CFormSelect>

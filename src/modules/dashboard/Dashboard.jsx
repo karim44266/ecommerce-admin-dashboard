@@ -31,6 +31,7 @@ import {
 } from '@coreui/icons'
 import api from '../../services/api'
 import PageHeader from '../../shared/components/PageHeader'
+import { formatCurrency } from '../../shared/utils/formatters'
 import { STATUS_COLORS, STATUS_LABELS } from '../orders/orderConstants'
 
 const Dashboard = () => {
@@ -107,7 +108,7 @@ const Dashboard = () => {
     },
     {
       label: 'Net Revenue',
-      value: `$${Number(stats.totalRevenue || 0).toFixed(2)}`,
+      value: formatCurrency(stats.totalRevenue),
       icon: cilDollar,
       variant: '--success',
     },
@@ -132,8 +133,8 @@ const Dashboard = () => {
   ]
 
   const quickKpis = [
-    { label: 'Gross Sales', value: `$${Number(stats.grossSales || 0).toFixed(2)}` },
-    { label: 'Total Cost', value: `$${Number(stats.totalCost || 0).toFixed(2)}` },
+    { label: 'Gross Sales', value: formatCurrency(stats.grossSales) },
+    { label: 'Total Cost', value: formatCurrency(stats.totalCost) },
     { label: 'Fulfilment Rate', value: `${Number(stats.fulfilmentRate || 0).toFixed(0)}%` },
   ]
 
@@ -149,7 +150,7 @@ const Dashboard = () => {
       },
       {
         type: 'line',
-        label: 'Projected Revenue ($)',
+        label: 'Projected Revenue (TND)',
         data: trendData.revenuePerDay,
         borderColor: '#0ea5e9',
         backgroundColor: 'rgba(14, 165, 233, 0.15)',
@@ -165,21 +166,21 @@ const Dashboard = () => {
     datasets: [
       {
         type: 'bar',
-        label: 'Gross Sales ($)',
+        label: 'Gross Sales (TND)',
         data: trendData.grossSalesPerDay,
         backgroundColor: 'rgba(14, 165, 233, 0.35)',
         borderRadius: 6,
       },
       {
         type: 'bar',
-        label: 'Cost ($)',
+        label: 'Cost (TND)',
         data: trendData.totalCostPerDay,
         backgroundColor: 'rgba(245, 158, 11, 0.35)',
         borderRadius: 6,
       },
       {
         type: 'line',
-        label: 'Net Revenue ($)',
+        label: 'Net Revenue (TND)',
         data: trendData.revenuePerDay,
         borderColor: '#10b981',
         backgroundColor: 'rgba(16, 185, 129, 0.15)',
@@ -238,7 +239,7 @@ const Dashboard = () => {
         beginAtZero: true,
         position: 'right',
         grid: { drawOnChartArea: false },
-        title: { display: true, text: 'Revenue ($)' },
+        title: { display: true, text: 'Revenue (TND)' },
       },
     },
     plugins: {
@@ -391,7 +392,7 @@ const Dashboard = () => {
                       </CTableDataCell>
                       <CTableDataCell>{o.customerEmail || '—'}</CTableDataCell>
                       <CTableDataCell style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.85rem' }}>
-                        ${(o.totalAmount || 0).toFixed(2)}
+                        {formatCurrency(o.totalAmount)}
                       </CTableDataCell>
                       <CTableDataCell>
                         <CBadge color={STATUS_COLORS[o.status] || 'secondary'}>
