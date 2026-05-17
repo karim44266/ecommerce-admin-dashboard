@@ -17,6 +17,7 @@ import { cilArrowLeft, cilTruck, cilXCircle } from '@coreui/icons'
 import api from '../../services/api'
 import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
+import { formatCurrency } from '../../shared/utils/formatters'
 import { STATUS_COLORS, STATUS_LABELS } from './orderConstants'
 
 const OrderTracking = () => {
@@ -114,7 +115,7 @@ const OrderTracking = () => {
             >
               {STATUS_LABELS[order.status] || order.status}
             </CBadge>
-            <span>Total: ${Number(order.totalAmount).toFixed(2)}</span>
+            <span>Total: {formatCurrency(order.totalAmount)}</span>
             {order.carrier && (
               <span className="text-medium-emphasis">
                 Current: {order.carrier} — {order.trackingNumber}

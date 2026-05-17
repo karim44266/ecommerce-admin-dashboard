@@ -7,6 +7,7 @@ import api from '../../services/api'
 import FormCard from '../../shared/components/FormCard'
 import PageHeader from '../../shared/components/PageHeader'
 import { useToast } from '../../shared/components/ToastProvider'
+import { formatCurrency } from '../../shared/utils/formatters'
 
 const ProductsDelete = () => {
   const { id } = useParams()
@@ -78,7 +79,7 @@ const ProductsDelete = () => {
                 <strong>SKU:</strong> {product.sku}
               </li>
               <li>
-                <strong>Price:</strong> ${Number(product.price).toFixed(2)}
+                <strong>Price:</strong> {formatCurrency(product.price)}
               </li>
             </ul>
             <p className="text-danger mt-3 mb-0">This action cannot be undone.</p>

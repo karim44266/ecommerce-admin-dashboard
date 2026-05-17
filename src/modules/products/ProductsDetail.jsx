@@ -23,6 +23,7 @@ import { CChartBar } from '@coreui/react-chartjs'
 import api from '../../services/api'
 import PerformanceOverviewCard from './components/PerformanceOverviewCard'
 import PageHeader from '../../shared/components/PageHeader'
+import { formatCurrency } from '../../shared/utils/formatters'
 
 const statusColor = (status) => {
   switch (status) {
@@ -36,8 +37,6 @@ const statusColor = (status) => {
       return 'info'
   }
 }
-
-const money = (value) => `$${Number(value || 0).toFixed(2)}`
 
 const formatDate = (value) => {
   if (!value) return '-'
@@ -228,7 +227,7 @@ const ProductsDetail = () => {
                     <div className="col-md-6">
                       <div className="text-medium-emphasis small">Stock Value</div>
                       <div className="fw-semibold">
-                        {money(Number(product.price || 0) * Number(inventory.quantity || 0))}
+                        {formatCurrency(Number(product.price || 0) * Number(inventory.quantity || 0))}
                       </div>
                     </div>
                     <div className="col-md-6">

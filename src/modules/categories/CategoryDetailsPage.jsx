@@ -17,8 +17,7 @@ import { cilReload, cilArrowLeft } from '@coreui/icons'
 import api from '../../services/api'
 import PageHeader from '../../shared/components/PageHeader'
 import CategoryPerformanceChart from './components/CategoryPerformanceChart'
-
-const money = (value) => `$${Number(value || 0).toFixed(2)}`
+import { formatCurrency } from '../../shared/utils/formatters'
 
 const formatDateTime = (value) => {
   if (!value) return '-'
@@ -124,7 +123,7 @@ const CategoryDetailsPage = () => {
               <CCard className="nx-kpi-card h-100 shadow-sm border-0">
                 <CCardBody>
                   <div className="text-medium-emphasis small mb-1">Total Revenue</div>
-                  <div className="fs-4 fw-bold">{money(summary?.totalRevenue)}</div>
+                  <div className="fs-4 fw-bold">{formatCurrency(summary?.totalRevenue)}</div>
                 </CCardBody>
               </CCard>
             </CCol>
@@ -224,7 +223,7 @@ const CategoryDetailsPage = () => {
 
                     <div>
                       <div className="text-medium-emphasis small">Total Stock Value</div>
-                      <div className="fw-semibold fs-5">{money(summary?.totalStockValue)}</div>
+                      <div className="fw-semibold fs-5">{formatCurrency(summary?.totalStockValue)}</div>
                     </div>
                   </div>
                 </CCardBody>

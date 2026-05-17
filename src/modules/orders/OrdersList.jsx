@@ -38,6 +38,7 @@ import {
 import api from '../../services/api'
 import DataTable from '../../shared/components/DataTable'
 import PageHeader from '../../shared/components/PageHeader'
+import { formatCurrency } from '../../shared/utils/formatters'
 import {
   STATUS_COLORS,
   STATUS_LABELS,
@@ -210,7 +211,7 @@ const OrdersList = () => {
       key: 'totalAmount',
       label: 'Total',
       render: (row) => (
-        <span className="fw-semibold">${Number(row.totalAmount).toFixed(2)}</span>
+        <span className="fw-semibold">{formatCurrency(row.totalAmount)}</span>
       ),
     },
     {
@@ -521,7 +522,7 @@ const OrdersList = () => {
               <div className="mb-3 small text-medium-emphasis">
                 <strong>Customer:</strong> {modal.order.customerEmail || '—'}
                 {' · '}
-                <strong>Total:</strong> ${Number(modal.order.totalAmount).toFixed(2)}
+                <strong>Total:</strong> {formatCurrency(modal.order.totalAmount)}
               </div>
 
               {isDestructive && (

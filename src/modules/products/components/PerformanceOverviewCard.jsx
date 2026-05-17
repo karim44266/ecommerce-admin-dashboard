@@ -1,8 +1,7 @@
 import React, { useMemo } from 'react'
 import { CCard, CCardBody, CCardHeader } from '@coreui/react'
 import { CChartBar } from '@coreui/react-chartjs'
-
-const money = (value) => `$${Number(value || 0).toFixed(2)}`
+import { formatCurrency } from '../../../shared/utils/formatters'
 
 const PerformanceOverviewCard = ({ insights, marginValue }) => {
   const chartData = useMemo(() => {
@@ -24,7 +23,7 @@ const PerformanceOverviewCard = ({ insights, marginValue }) => {
         },
         {
           type: 'line',
-          label: 'Net Revenue ($)',
+          label: 'Net Revenue (TND)',
           data: revenuePerDay,
           borderColor: '#0ea5e9',
           backgroundColor: 'rgba(14, 165, 233, 0.15)',
@@ -67,7 +66,7 @@ const PerformanceOverviewCard = ({ insights, marginValue }) => {
           callbacks: {
             label: (context) => {
               const label = context.dataset.label || ''
-              if (label.includes('Revenue')) return ` ${label}: $${Number(context.parsed.y || 0).toFixed(2)}`
+              if (label.includes('Revenue')) return ` ${label}: ${formatCurrency(context.parsed.y)}`
               if (label.includes('Margin')) return ` ${label}: ${Number(context.parsed.y || 0).toFixed(1)}%`
               return ` ${label}: ${context.parsed.y}`
             },
@@ -92,7 +91,7 @@ const PerformanceOverviewCard = ({ insights, marginValue }) => {
         y1: {
           beginAtZero: true,
           position: 'right',
-          title: { display: true, text: 'Revenue ($)' },
+          title: { display: true, text: 'Revenue (TND)' },
           grid: { drawOnChartArea: false },
           afterFit: (scale) => {
             scale.width = 56
@@ -129,11 +128,11 @@ const PerformanceOverviewCard = ({ insights, marginValue }) => {
             </div>
             <div>
               <div className="text-medium-emphasis small">Total Revenue</div>
-              <div className="fw-semibold fs-6">{money(insights?.netRevenue ?? 0)}</div>
+              <div className="fw-semibold fs-6">{formatCurrency(insights?.netRevenue)}</div>
             </div>
             <div>
               <div className="text-medium-emphasis small">Margin</div>
-              <div className="fw-semibold fs-6">{money(marginValue)}</div>
+              <div className="fw-semibold fs-6">{formatCurrency(marginValue)}</div>
             </div>
           </div>
         </div>

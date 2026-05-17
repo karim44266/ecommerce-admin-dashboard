@@ -18,6 +18,7 @@ import { cilArrowLeft, cilSearch, cilXCircle, cilChart, cilArrowRight } from '@c
 import DataTable from '../../shared/components/DataTable'
 import PageHeader from '../../shared/components/PageHeader'
 import { getApiErrorMessage, getClientPurchases } from '../../services/usersService'
+import { formatCurrency } from '../../shared/utils/formatters'
 
 const ClientTracking = () => {
   const { id } = useParams()
@@ -152,7 +153,7 @@ const ClientTracking = () => {
           <CCard className="nx-kpi-card">
             <CCardBody>
               <div className="text-medium-emphasis small">Total Spent</div>
-              <div className="fs-4 fw-semibold">${Number(summary?.totalSpent || 0).toFixed(2)}</div>
+              <div className="fs-4 fw-semibold">{formatCurrency(summary?.totalSpent)}</div>
             </CCardBody>
           </CCard>
         </CCol>
@@ -160,7 +161,7 @@ const ClientTracking = () => {
           <CCard className="nx-kpi-card">
             <CCardBody>
               <div className="text-medium-emphasis small">Average Order</div>
-              <div className="fs-4 fw-semibold">${Number(summary?.averageOrderValue || 0).toFixed(2)}</div>
+              <div className="fs-4 fw-semibold">{formatCurrency(summary?.averageOrderValue)}</div>
             </CCardBody>
           </CCard>
         </CCol>
@@ -185,7 +186,7 @@ const ClientTracking = () => {
           { key: 'id', label: 'Order ID', render: (row) => <span className="font-monospace">{row.id.slice(0, 8)}…</span> },
           { key: 'status', label: 'Status' },
           { key: 'itemCount', label: 'Items' },
-          { key: 'totalAmount', label: 'Total', render: (row) => `$${Number(row.totalAmount).toFixed(2)}` },
+          { key: 'totalAmount', label: 'Total', render: (row) => formatCurrency(row.totalAmount) },
           {
             key: 'createdAt',
             label: 'Created',

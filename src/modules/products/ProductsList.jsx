@@ -31,6 +31,7 @@ import api from '../../services/api'
 import DataTable from '../../shared/components/DataTable'
 import PageHeader from '../../shared/components/PageHeader'
 import TruncatedPagination from '../../shared/components/TruncatedPagination'
+import { formatCurrency } from '../../shared/utils/formatters'
 import { getRoles } from '../auth/authStorage'
 
 const statusBadgeColor = (status) => {
@@ -167,7 +168,7 @@ const ProductsList = () => {
     {
       key: 'price',
       label: 'Price',
-      render: (row) => `$${Number(row.price).toFixed(2)}`,
+      render: (row) => formatCurrency(row.price),
     },
     { key: 'inventory', label: 'Stock' },
     {
