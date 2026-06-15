@@ -956,9 +956,19 @@ h1, h2, h3, h4, h5, h6,
 
 .nx-login-brand {
   display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
   margin-bottom: 2rem;
+  text-align: center;
+}
+
+.nx-login-logo {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 // ─── 404 Page ─────────────────────────────────────────────────────

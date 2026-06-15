@@ -23,6 +23,7 @@ import PageHeader from '../../shared/components/PageHeader'
 import DataTable from '../../shared/components/DataTable'
 import api from '../../services/api'
 import { getApiErrorMessage, getUsers } from '../../services/usersService'
+import { formatCurrency } from '../../shared/utils/formatters'
 
 const DAY_OPTIONS = [1, 7, 14, 30]
 const SPARKLINE_STROKE = {
@@ -33,7 +34,6 @@ const SPARKLINE_STROKE = {
   neutral: '#94a3b8',
 }
 
-const formatCurrency = (value) => `$${Number(value || 0).toFixed(2)}`
 const formatPercent = (value) => `${Number(value || 0).toFixed(2)}%`
 const formatCount = (value) => Number(value || 0).toLocaleString()
 const formatConfidence = (value) => `${Math.round(Number(value || 0) * 100)}%`
@@ -1038,7 +1038,7 @@ const DiscountSuggestions = () => {
     datasets: [
       {
         type: 'bar',
-        label: 'Attributed Revenue ($)',
+        label: 'Attributed Revenue (TND)',
         data: timelineRows.map((entry) => entry.revenueAttributed),
         backgroundColor: 'rgba(20, 184, 166, 0.36)',
         borderRadius: 6,
@@ -1046,7 +1046,7 @@ const DiscountSuggestions = () => {
       },
       {
         type: 'line',
-        label: 'Revenue per Click ($)',
+        label: 'Revenue per Click (TND)',
         data: timelineRows.map((entry) => entry.revenuePerClick),
         borderColor: '#f59e0b',
         backgroundColor: 'rgba(245, 158, 11, 0.14)',
@@ -1101,7 +1101,7 @@ const DiscountSuggestions = () => {
         },
         title: {
           display: true,
-          text: 'Revenue ($)',
+          text: 'Revenue (TND)',
           color: '#94a3b8',
         },
       },
@@ -1116,7 +1116,7 @@ const DiscountSuggestions = () => {
         },
         title: {
           display: true,
-          text: 'Revenue / Click ($)',
+          text: 'Revenue / Click (TND)',
           color: '#94a3b8',
         },
       },
@@ -1127,7 +1127,7 @@ const DiscountSuggestions = () => {
     labels: sortedTopOfferRows.map((entry) => entry.productName || `Product ${String(entry.productId).slice(0, 6)}`),
     datasets: [
       {
-        label: offerSortBy === 'revenue' ? 'Revenue ($)' : 'Conversions',
+        label: offerSortBy === 'revenue' ? 'Revenue (TND)' : 'Conversions',
         data: sortedTopOfferRows.map((entry) => (
           offerSortBy === 'revenue'
             ? Number(entry.revenueAttributed ?? 0)

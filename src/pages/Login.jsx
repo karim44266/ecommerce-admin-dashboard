@@ -61,7 +61,7 @@ const Login = () => {
           <img
             src={company.logo.primary}
             alt={company.logo.alt}
-            style={{ width: 40, height: 40, objectFit: 'contain', flexShrink: 0 }}
+            className="nx-login-logo"
           />
           <span className="visually-hidden">{company.legalName}</span>
         </div>
